@@ -18,6 +18,7 @@ import AppHome from './pages/AppHome.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
+import { RouteSeo } from './components/Seo.jsx';
 import Offers from './pages/Offers.jsx';
 import Results from './pages/Results.jsx';
 import SavedAssessment from './pages/SavedAssessment.jsx';
@@ -58,6 +59,7 @@ export default function App() {
       <ScrollManager />
       <SiteHeader />
       <main id="top">
+        <RouteSeo />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/results" element={<Results />} />

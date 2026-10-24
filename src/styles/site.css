@@ -605,3 +605,16 @@ p {
     align-items: flex-start;
   }
 }
+
+/* ---------- Small phones: keep the top bar inside the screen when logged in (Cart + Dashboard + Log out) ---------- */
+@media (max-width: 560px) {
+  .wrap { padding-left: 16px; padding-right: 16px; }
+  .nav-inner { gap: 8px; padding-top: 12px; padding-bottom: 12px; }
+  .brand { gap: 8px; }
+  .brand-logo { height: 30px; }
+  .brand-word { font-size: 16px; }
+  .nav-actions { gap: 4px; }
+  .nav-actions .btn-small { padding: 7px 9px; font-size: 12.5px; }
+  .cart-link { padding: 6px 4px; font-size: 13px; }
+  .cart-count { margin-left: 4px; }
+}

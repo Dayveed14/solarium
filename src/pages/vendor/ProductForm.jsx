@@ -159,7 +159,7 @@ export default function ProductForm({ product, onClose, onSaved, admin = false }
               <label className="field">
                 <span>System voltage{voltage === 'optional' && <em> (optional)</em>}</span>
                 <select value={f.systemVoltage} onChange={set('systemVoltage')}>
-                  {voltage === 'optional' && <option value="">Not specific / any</option>}
+                  {voltage === 'optional' && <option value="">Any voltage</option>}
                   <option value="12">12V</option>
                   <option value="24">24V</option>
                   <option value="48">48V</option>

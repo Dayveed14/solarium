@@ -4,6 +4,8 @@ import { api } from '../api.js';
 import { useShop } from '../auth/ShopContext.jsx';
 import DeliveryNote from '../components/DeliveryNote.jsx';
 import Qty from '../components/Qty.jsx';
+import Seo from '../components/Seo.jsx';
+import { SITE_NAME, absolute } from '../lib/seo.js';
 import { CATEGORY_LABEL, naira, sizeText } from '../lib/format.js';
 
 // One page for a product or a deal: picture, details, the vendor, how far away they are and what delivery costs.
@@ -38,8 +40,22 @@ export default function ItemPage({ kind }) {
   const sellable = kind === 'product' ? item.inStock : item.buyPrice != null;
   const sameState = data.delivery?.available;
 
+  const path = `/shop/${kind}/${id}`;
+  const apiBase = import.meta.env.VITE_API_URL ?? '';
+  const summary = [kind === 'product' ? CATEGORY_LABEL[item.category] : 'Solar combo', kind === 'product' ? [item.brand, sizeText(item)].filter(Boolean).join(' ') : '', item.description].filter(Boolean).join('. ');
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    description: summary.slice(0, 300),
+    ...(item.imageUrl ? { image: absolute(`${apiBase}${item.imageUrl}`) } : {}),
+    ...(item.brand ? { brand: { '@type': 'Brand', name: item.brand } } : {}),
+    ...(price != null ? { offers: { '@type': 'Offer', priceCurrency: 'NGN', price: Number(price), availability: sellable ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', url: absolute(path) } } : {}),
+  };
+
   return (
     <div className="wrap item-page">
+      <Seo title={`${name} | ${SITE_NAME}`} description={`${summary.slice(0, 150)}${price != null ? ` From ₦${Number(price).toLocaleString('en-NG')}.` : ''} Delivered in Lagos and Abuja.`} path={path} image={item.imageUrl ? `${apiBase}${item.imageUrl}` : undefined} type="product" jsonLd={jsonLd} />
       <p><Link to="/shop">← Back to the shop</Link></p>
       <div className="item-grid">
         <div className="item-pic">

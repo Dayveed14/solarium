@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 // That keeps everything same-origin, so the httpOnly session cookie just works.
 export default defineConfig({
   plugins: [react()],
+  // `npm run preview` (the built site) also forwards /api, so you can test the real build locally.
+  preview: { port: 4173, proxy: { '/api': { target: 'http://localhost:4000', changeOrigin: false } } },
   server: {
     port: 5173,
     proxy: { '/api': { target: 'http://localhost:4000', changeOrigin: false } },

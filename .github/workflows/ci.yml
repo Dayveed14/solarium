@@ -1,0 +1,41 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Production build (also writes robots.txt, sitemap.xml and the pre-rendered pages)
+        run: npm run build
+        env:
+          VITE_SITE_URL: https://solalium.example
+      - name: The build produced what search engines and Vercel need
+        run: |
+          test -f dist/index.html
+          test -f dist/app-shell.html
+          test -f dist/shop/index.html
+          test -f dist/robots.txt
+          test -f dist/sitemap.xml
+          test -f dist/og-image.png
+          grep -q 'rel="canonical" href="https://solalium.example/shop"' dist/shop/index.html
+          grep -q 'Disallow: /app' dist/robots.txt
+          grep -q 'Sitemap: https://solalium.example/sitemap.xml' dist/robots.txt
+
+  audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm audit --omit=dev --audit-level=high
