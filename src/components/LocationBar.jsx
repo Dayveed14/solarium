@@ -7,7 +7,7 @@ import Dialog from './Dialog.jsx';
 // which opens a form for an address and then shows only vendors in that address's state.
 export default function LocationBar() {
   const shop = useShop();
-  const geo = useGeo();
+  const { geo } = useGeo();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(shop.mode === 'other' && shop.dest ? { line: shop.dest.line ?? '', state: shop.dest.state, areaId: shop.dest.areaId } : emptyAddress);
   const [error, setError] = useState(null);
