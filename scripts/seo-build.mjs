@@ -17,6 +17,11 @@ const PAGES = {
     description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
     body: '<h1>Reliable solar power for your home &amp; business.</h1><p>Solalium shows what your generator and light bill really cost, what solar would save, and how to switch by buying, leasing or paying monthly with vetted providers in Lagos and Abuja.</p><p><a href="/shop">Shop solar products</a></p>',
   },
+  '/blog': {
+    title: 'Solar guides and news for homes and businesses in Nigeria | Solalium Blog',
+    description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
+    body: '<h1>Solalium Blog</h1><p>Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.</p>',
+  },
   '/shop': {
     title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solalium',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
@@ -37,16 +42,16 @@ function render(route, page) {
     `<link rel="canonical" href="${abs(route === '/' ? '/' : route)}" />`,
     '<meta name="robots" content="index, follow, max-image-preview:large" />',
     '<meta property="og:site_name" content="Solalium" />',
-    '<meta property="og:type" content="website" />',
+    `<meta property="og:type" content="${page.type ?? 'website'}" />`,
     `<meta property="og:title" content="${esc(page.title)}" />`,
     `<meta property="og:description" content="${esc(page.description)}" />`,
     `<meta property="og:url" content="${abs(route)}" />`,
-    `<meta property="og:image" content="${abs('/og-image.png')}" />`,
+    `<meta property="og:image" content="${page.image ?? abs('/og-image.png')}" />`,
     '<meta property="og:locale" content="en_NG" />',
     '<meta name="twitter:card" content="summary_large_image" />',
     `<meta name="twitter:title" content="${esc(page.title)}" />`,
     `<meta name="twitter:description" content="${esc(page.description)}" />`,
-    `<meta name="twitter:image" content="${abs('/og-image.png')}" />`,
+    `<meta name="twitter:image" content="${page.image ?? abs('/og-image.png')}" />`,
   ];
   // Drop the shell's own generic tags so nothing is duplicated, then add this page's.
   html = html.replace(/\s*<link rel="canonical"[^>]*>/g, '').replace(/\s*<meta (property="og:|name="twitter:|name="robots")[^>]*>/g, '');
@@ -61,6 +66,27 @@ for (const [route, page] of Object.entries(PAGES)) {
   const out = route === '/' ? path.join(dist, 'index.html') : path.join(dist, route.slice(1), 'index.html');
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, render(route, page));
+}
+
+const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }, { loc: '/blog', priority: '0.8' }];
+
+// Blog articles: each gets its own page with its heading, summary and text for search engines (needs SEO_API_URL).
+let articleCount = 0;
+if (apiUrl) {
+  try {
+    const list = (await (await fetch(`${apiUrl}/api/blog?limit=50`, { signal: AbortSignal.timeout(15000) })).json()).articles ?? [];
+    for (const a of list) {
+      const full = (await (await fetch(`${apiUrl}/api/blog/${encodeURIComponent(a.slug)}`, { signal: AbortSignal.timeout(15000) })).json()).article;
+      if (!full) continue;
+      const route = `/blog/${a.slug}`;
+      const paras = full.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((p) => (p.startsWith('## ') ? `<h2>${esc(p.slice(3))}</h2>` : `<p>${esc(p)}</p>`)).join('');
+      const out = path.join(dist, 'blog', a.slug, 'index.html');
+      fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.writeFileSync(out, render(route, { title: `${full.title} | Solalium`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));
+      urls.push({ loc: route, priority: '0.6' });
+      articleCount += 1;
+    }
+  } catch (e) { console.warn(`[seo] could not read blog articles: ${e.message}`); }
 }
 
 // robots.txt
@@ -78,13 +104,13 @@ const robots = [
   'Disallow: /results',
   'Disallow: /dispatch',
   'Disallow: /vendor/fee',
+  'Disallow: /installation',
   'Disallow: /api/',
   siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : '',
 ].filter(Boolean).join('\n') + '\n';
 fs.writeFileSync(path.join(dist, 'robots.txt'), robots);
 
 // sitemap.xml
-const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }];
 if (apiUrl) {
   for (const state of ['lagos', 'abuja']) {
     try {
@@ -98,4 +124,4 @@ const seen = new Set();
 const today = new Date().toISOString().slice(0, 10);
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.filter((u) => !seen.has(u.loc) && seen.add(u.loc)).map((u) => `  <url><loc>${abs(u.loc)}</loc><lastmod>${today}</lastmod><priority>${u.priority}</priority></url>`).join('\n')}\n</urlset>\n`;
 fs.writeFileSync(path.join(dist, 'sitemap.xml'), xml);
-console.log(`[seo] prerendered ${Object.keys(PAGES).length} pages, robots.txt, sitemap.xml with ${seen.size} URLs`);
+console.log(`[seo] prerendered ${Object.keys(PAGES).length} pages + ${articleCount} articles, robots.txt, sitemap.xml with ${seen.size} URLs`);

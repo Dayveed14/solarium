@@ -31,7 +31,7 @@ const EXAMPLES = {
   accessory: { name: 'Panel cleaning kit' },
 };
 
-const blank = { category: 'panel', name: '', brand: '', rating: '', systemVoltage: '12', batteryType: 'lithium', price: '', warrantyYears: '', description: '', inStock: true, listed: true, imageId: null };
+const blank = { category: 'panel', name: '', brand: '', rating: '', systemVoltage: '12', batteryType: 'lithium', price: '', warrantyYears: '', description: '', inStock: true, includesController: true, listed: true, imageId: null };
 
 const fromProduct = (p) => ({
   category: p.category,
@@ -44,6 +44,7 @@ const fromProduct = (p) => ({
   warrantyYears: p.warrantyYears == null ? '' : String(p.warrantyYears),
   description: p.description ?? '',
   inStock: p.inStock,
+  includesController: p.includesController !== false,
   listed: p.status === 'active',
   imageId: p.imageId ?? null,
 });
@@ -83,6 +84,7 @@ export default function ProductForm({ product, onClose, onSaved, admin = false }
       warrantyYears: parseNumber(f.warrantyYears) ?? null,
       description: f.description.trim() || null,
       inStock: f.inStock,
+      includesController: f.category === 'inverter' ? f.includesController : true,
       status: f.listed ? 'active' : 'hidden',
       imageId: f.imageId,
     };
@@ -172,6 +174,12 @@ export default function ProductForm({ product, onClose, onSaved, admin = false }
                       : 'The battery voltage it works with.'}
                   </small>
                 )}
+              </label>
+            )}
+            {f.category === 'inverter' && (
+              <label>
+                <input type="checkbox" checked={f.includesController} onChange={(e) => setF((x) => ({ ...x, includesController: e.target.checked }))} />
+                <span>Has a built-in solar charge controller (MPPT/PWM). Untick for a plain inverter, so buyers are told to add a controller.</span>
               </label>
             )}
             {f.category === 'battery' && (

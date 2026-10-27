@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
+import { Link } from 'react-router-dom';
 import { naira, sizeText } from '../lib/format.js';
 import RequestBox from './RequestBox.jsx';
 
@@ -30,9 +31,10 @@ function Part({ name, product, selected, disabled, note, onSelect }) {
 
 const rangeText = (r) => (r.min === r.max ? `${r.min}` : `${r.min} to ${r.max}`);
 
-export default function DiyBuilder({ assessmentId, diy, limits, user }) {
+export default function DiyBuilder({ assessmentId, diy, limits, user, extras = [], allInOne = null }) {
   const needsBattery = limits.battery.maxKwh > 0;
   const [sel, setSel] = useState({ panelId: null, panelQty: 1, inverterId: null, batteryId: null, batteryQty: 1 });
+  const [extraSel, setExtraSel] = useState({}); // category -> { id, qty }
   const [quote, setQuote] = useState(null);
   const [quoteError, setQuoteError] = useState(null);
 
@@ -60,8 +62,9 @@ export default function DiyBuilder({ assessmentId, diy, limits, user }) {
       { productId: panel.id, qty: sel.panelQty },
       { productId: inverter.id, qty: 1 },
       ...(battery ? [{ productId: battery.id, qty: sel.batteryQty }] : []),
+      ...Object.values(extraSel).filter((x) => x?.id).map((x) => ({ productId: x.id, qty: x.qty })),
     ] : []),
-    [ready, panel, inverter, battery, sel.panelQty, sel.batteryQty]
+    [ready, panel, inverter, battery, sel.panelQty, sel.batteryQty, extraSel]
   );
 
   // Ask the server to price and check the selection. It is the one that decides if it is valid.
@@ -82,6 +85,12 @@ export default function DiyBuilder({ assessmentId, diy, limits, user }) {
       clearTimeout(t);
     };
   }, [ready, items, assessmentId]);
+
+  // A charge controller is only offered when the chosen inverter has none built in.
+  const shownExtras = extras.filter((g) => g.category !== 'controller' || (inverter && inverter.includesController === false));
+  const pickExtra = (category, product) => setExtraSel((e) => ({ ...e, [category]: product ? { id: product.id, qty: e[category]?.qty ?? 1 } : null }));
+  const extraQty = (category, qty) => setExtraSel((e) => (e[category] ? { ...e, [category]: { ...e[category], qty } } : e));
+  const labelOf = (category) => extras.find((g) => g.category === category)?.label ?? category;
 
   const none = (label) => <p className="muted part-empty">No vendor has a {label} in the right size yet.</p>;
 
@@ -135,6 +144,34 @@ export default function DiyBuilder({ assessmentId, diy, limits, user }) {
             )}
           </fieldset>
         )}
+
+        {shownExtras.length > 0 && (
+          <fieldset className="diy-step">
+            <legend>{needsBattery ? '4' : '3'}. Complete your system</legend>
+            <p className="muted">Panels, an inverter and a battery are not enough on their own. These parts make it safe and working. Add what you do not already have.</p>
+            {shownExtras.map((g) => {
+              const chosen = extraSel[g.category];
+              return (
+                <div key={g.category} className="extra-group">
+                  <p className="extra-title"><strong>{g.label}</strong> <small>{g.why}</small></p>
+                  {g.products.length === 0 ? <p className="muted part-empty">No vendor has listed this yet.</p> : (
+                    <div className="part-grid">
+                      <label className={`part${!chosen ? ' on' : ''}`}>
+                        <input type="radio" name={`extra-${g.category}`} checked={!chosen} onChange={() => pickExtra(g.category, null)} />
+                        <span className="part-name">Not now</span>
+                        <span className="part-meta">I have it or will arrange it</span>
+                      </label>
+                      {g.products.map((p) => <Part key={p.id} name={`extra-${g.category}`} product={p} selected={chosen?.id === p.id} onSelect={() => pickExtra(g.category, p)} />)}
+                    </div>
+                  )}
+                  {chosen && (
+                    <div className="diy-qty"><span>How many</span><Stepper label={`${g.label} items`} value={chosen.qty} min={1} max={99} onChange={(v) => extraQty(g.category, v)} /></div>
+                  )}
+                </div>
+              );
+            })}
+          </fieldset>
+        )}
       </div>
 
       <aside className="diy-summary" aria-live="polite">
@@ -153,6 +190,13 @@ export default function DiyBuilder({ assessmentId, diy, limits, user }) {
             </ul>
             <p className="diy-total"><span>Parts total</span><strong>{naira(quote.subtotal)}</strong></p>
             <p className="deal-sub">{quote.totals.kwp} kWp · {quote.totals.kva} kVA · {quote.totals.kwh} kWh. Installation and delivery are agreed with the vendor and aren&apos;t included.</p>
+            {quote.extrasMissing?.length > 0 && (
+              <div className="diy-missing" role="note">
+                <strong>Still needed for a working system:</strong>
+                <ul>{quote.extrasMissing.map((c) => <li key={c}>{labelOf(c)}</li>)}</ul>
+                <small>Add them above, or confirm with the vendor or installer that you have them.</small>
+              </div>
+            )}
             {quote.errors.map((e) => <p key={e.code} className="form-error" role="alert">{e.message}</p>)}
             {quote.valid && (
               <>
@@ -172,5 +216,35 @@ export default function DiyBuilder({ assessmentId, diy, limits, user }) {
         )}
       </aside>
     </div>
+  );
+}
+
+function AioCard({ unit, kind }) {
+  return (
+    <li className="aio-card">
+      <p className="part-name"><Link to={`/shop/product/${unit.id}`}>{unit.name}</Link></p>
+      <p className="part-meta">{[unit.brand, sizeText(unit)].filter(Boolean).join(' · ')}</p>
+      <p className="part-vendor">{unit.vendor.name}{unit.vendor.verified ? ' · Verified' : ''}</p>
+      <p className="part-price">{naira(unit.price)}</p>
+      <p className={unit.fit === 'full' ? 'aio-fit aio-full' : 'aio-fit aio-partial'}>
+        {unit.fit === 'full' ? `Covers all of what you use (${kind === 'kit' ? 'solar kit' : 'portable'})` : `Covers about ${unit.coveragePct}% of what you use`}
+      </p>
+    </li>
+  );
+}
+
+// Ready-made units: solar kits and portable power stations. Simple, but limited by their own output.
+export function AllInOne({ allInOne }) {
+  if (!allInOne || (allInOne.kits.length === 0 && allInOne.portable.length === 0)) return null;
+  return (
+    <section aria-labelledby="aio-h" className="offer-section">
+      <h2 id="aio-h">All-in-one options</h2>
+      <p className="muted">
+        Kits and portable power stations come complete, with no separate parts to buy. Check the unit can supply your biggest appliance
+        at once (your peak need is about {allInOne.peakKva} kVA) and cannot grow later like a full system.
+      </p>
+      {allInOne.kits.length > 0 && <><h3>Solar kits</h3><ul className="aio-list">{allInOne.kits.map((u) => <AioCard key={u.id} unit={u} kind="kit" />)}</ul></>}
+      {allInOne.portable.length > 0 && <><h3>Portable power stations</h3><ul className="aio-list">{allInOne.portable.map((u) => <AioCard key={u.id} unit={u} kind="portable" />)}</ul></>}
+    </section>
   );
 }

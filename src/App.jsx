@@ -11,10 +11,15 @@ import AdminActivity from './pages/admin/AdminActivity.jsx';
 import AdminPricing from './pages/admin/AdminPricing.jsx';
 import AdminShell from './pages/admin/AdminShell.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
+import AdminBlog from './pages/admin/AdminBlog.jsx';
+import AdminInstallations from './pages/admin/AdminInstallations.jsx';
+import AdminInstallers from './pages/admin/AdminInstallers.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import AppHome from './pages/AppHome.jsx';
+import Blog from './pages/Blog.jsx';
+import BlogPost from './pages/BlogPost.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
@@ -29,6 +34,10 @@ import Dispatch from './pages/Dispatch.jsx';
 import ItemPage from './pages/ItemPage.jsx';
 import OrderDetail from './pages/OrderDetail.jsx';
 import OrdersHome from './pages/OrdersHome.jsx';
+import InstallationDetail from './pages/InstallationDetail.jsx';
+import Installations from './pages/Installations.jsx';
+import InstallerQuiz from './pages/installer/InstallerQuiz.jsx';
+import VendorVerification from './pages/vendor/VendorVerification.jsx';
 import Signup from './pages/Signup.jsx';
 import Verify from './pages/Verify.jsx';
 import VendorDeals from './pages/vendor/VendorDeals.jsx';
@@ -62,6 +71,8 @@ export default function App() {
         <RouteSeo />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/results" element={<Results />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify" element={<Verify />} />
@@ -75,6 +86,8 @@ export default function App() {
           <Route path="/checkout/return" element={<RequireAuth><CheckoutReturn /></RequireAuth>} />
           <Route path="/checkout/mock" element={<RequireAuth><CheckoutReturn mock /></RequireAuth>} />
           <Route path="/dispatch" element={<Dispatch />} />
+          <Route path="/installation/return" element={<RequireAuth><CheckoutReturn kind="installation" /></RequireAuth>} />
+          <Route path="/installation/mock" element={<RequireAuth><CheckoutReturn kind="installation" mock /></RequireAuth>} />
           <Route path="/vendor/fee/return" element={<RequireAuth><CheckoutReturn kind="fee" /></RequireAuth>} />
           <Route path="/vendor/fee/mock" element={<RequireAuth><CheckoutReturn kind="fee" mock /></RequireAuth>} />
           <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
@@ -85,6 +98,13 @@ export default function App() {
             <Route path="/app/add-account" element={<AddAccount />} />
             <Route path="/app/assessments/:id" element={<Only roles={['individual', 'business']}><SavedAssessment /></Only>} />
             <Route path="/app/assessments/:id/offers" element={<Only roles={['individual', 'business']}><Offers /></Only>} />
+            <Route path="/app/verification" element={<Only roles={['vendor']}><VendorShell open><VendorVerification /></VendorShell></Only>} />
+            <Route path="/app/installations" element={<Only roles={['individual', 'business']}><Installations /></Only>} />
+            <Route path="/app/installations/:ref" element={<Only roles={['individual', 'business']}><InstallationDetail /></Only>} />
+            <Route path="/app/quiz" element={<Only roles={['installer']}><InstallerQuiz /></Only>} />
+            <Route path="/app/admin-installations" element={<Only roles={['admin']}><AdminShell><AdminInstallations /></AdminShell></Only>} />
+            <Route path="/app/blog" element={<Only roles={['admin']}><AdminShell><AdminBlog /></AdminShell></Only>} />
+            <Route path="/app/installers" element={<Only roles={['admin']}><AdminShell><AdminInstallers /></AdminShell></Only>} />
             <Route path="/app/products" element={<Only roles={['vendor']}><VendorShell><VendorProducts /></VendorShell></Only>} />
             <Route path="/app/deals" element={<Only roles={['vendor']}><VendorShell><VendorDeals /></VendorShell></Only>} />
             <Route path="/app/requests" element={<Only roles={['vendor']}><VendorShell><VendorRequests /></VendorShell></Only>} />

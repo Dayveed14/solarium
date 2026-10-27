@@ -16,7 +16,7 @@ export function RouteSeo() {
     const page = PUBLIC_PAGES[pathname];
     if (page) applySeo({ ...page, path: pathname, jsonLd: pathname === '/' ? organizationLd() : null });
     else if (isPrivatePath(pathname)) applySeo({ title: `${SITE_NAME}: ${TAGLINE}`, path: pathname, noindex: true });
-    else if (/^\/shop\/(product|deal)\//.test(pathname)) applySeo({ title: `Shop | ${SITE_NAME}`, path: pathname }); // ItemPage replaces this once it has loaded
+    else if (/^\/(shop\/(product|deal)|blog)\//.test(pathname)) applySeo({ title: `Shop | ${SITE_NAME}`, path: pathname }); // ItemPage replaces this once it has loaded
     else applySeo({ title: `Page not found | ${SITE_NAME}`, path: pathname, noindex: true });
   }, [pathname]);
   return null;

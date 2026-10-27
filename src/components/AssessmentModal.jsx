@@ -5,7 +5,7 @@ import { loadPending, savePending } from '../lib/pending.js';
 import ApplianceRow from './ApplianceRow.jsx';
 import { useAssessment } from './AssessmentContext.jsx';
 
-const STEP_TITLES = ['Who is this for?', 'What do you use?', 'Your power supply'];
+const STEP_TITLES = ['Who is this for, and what is your budget?', 'What do you use?', 'Your power supply'];
 const catalogCache = new Map();
 
 function useCatalog(segment) {
@@ -80,6 +80,7 @@ function Wizard({ edit, initialSegment, onClose }) {
   const [category, setCategory] = useState(null);
   const [disco, setDisco] = useState(pending?.input?.disco ?? 'aedc');
   const [supply, setSupply] = useState(pending?.input ? (pending.input.supplyBand ?? 'none') : 'none');
+  const [budgetText, setBudgetText] = useState(pending?.input?.budget ? String(pending.input.budget) : '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -180,6 +181,8 @@ function Wizard({ edit, initialSegment, onClose }) {
     return counts;
   }, [catalog, selection]);
 
+  const budgetValue = Number(String(budgetText).replace(/[^0-9]/g, '')) || 0;
+
   const submit = async () => {
     setSubmitting(true);
     setError(null);
@@ -188,6 +191,7 @@ function Wizard({ edit, initialSegment, onClose }) {
       disco,
       supplyBand: supply === 'none' ? null : supply,
       items: itemsFromSelection(selection, catalog),
+      ...(budgetValue ? { budget: budgetValue } : {}),
     };
     try {
       const { result } = await api.estimate(input);
@@ -240,6 +244,18 @@ function Wizard({ edit, initialSegment, onClose }) {
                   <span>{opt.text}</span>
                 </label>
               ))}
+              <label className="field budget-field">
+                <span>How much can you spend on solar? (optional)</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="e.g. 1,500,000"
+                  value={budgetValue ? budgetValue.toLocaleString('en-NG') : ''}
+                  onChange={(e) => setBudgetText(e.target.value)}
+                  aria-describedby="budget-help"
+                />
+                <small id="budget-help">In naira. We&apos;ll tell you honestly if it&apos;s too small for what you use, and what you can do about it. Leave it blank to skip.</small>
+              </label>
               <p className="modal-note">
                 About 3 minutes. No sign-up needed: you&apos;ll see your results straight away. You don&apos;t need to know
                 any watts or volts. Just tick what you use.

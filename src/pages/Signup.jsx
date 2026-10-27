@@ -9,7 +9,12 @@ import { loadPending } from '../lib/pending.js';
 const ROLES = [
   { key: 'individual', title: 'Individual', text: 'For my home' },
   { key: 'business', title: 'Business', text: 'For my company or organisation' },
-  { key: 'vendor', title: 'Vendor', text: 'I install or supply solar and power equipment' },
+  { key: 'vendor', title: 'Vendor', text: 'I sell solar and power equipment' },
+  { key: 'installer', title: 'Installer', text: 'I install systems for customers' },
+];
+export const VENDOR_TYPES = [
+  { key: 'seller', title: 'Seller', text: 'I sell products from a shop or business. I will upload proof of my shop or business.' },
+  { key: 'company', title: 'Company', text: 'A registered company that sells, installs and can offer Energy-as-a-Service. I will upload my CAC and company documents.' },
 ];
 
 export default function Signup() {
@@ -20,6 +25,7 @@ export default function Signup() {
   const initialRole = ROLES.some((r) => r.key === params.get('role')) ? params.get('role') : 'individual';
 
   const [role, setRole] = useState(initialRole);
+  const [vendorType, setVendorType] = useState('seller');
   const [form, setForm] = useState({ fullName: '', companyName: '', email: '', phone: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -29,7 +35,7 @@ export default function Signup() {
   const [submitting, setSubmitting] = useState(false);
 
   const needsCompany = role === 'business' || role === 'vendor';
-  const hasPending = Boolean(loadPending()?.result) && role !== 'vendor';
+  const hasPending = Boolean(loadPending()?.result) && role !== 'vendor' && role !== 'installer';
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const submit = async (e) => {
@@ -47,6 +53,7 @@ export default function Signup() {
       phone: form.phone.trim(),
       address: { line: address.line.trim(), state: address.state, areaId: address.areaId },
       ...(needsCompany ? { companyName: form.companyName.trim() } : {}),
+      ...(role === 'vendor' ? { vendorType } : {}),
     };
 
     try {
@@ -91,6 +98,27 @@ export default function Signup() {
             ))}
           </fieldset>
 
+          {role === 'vendor' && (
+            <fieldset className="role-grid">
+              <legend className="field-legend">What kind of vendor?</legend>
+              {VENDOR_TYPES.map((t) => (
+                <label key={t.key} className={`choice choice-small${vendorType === t.key ? ' on' : ''}`}>
+                  <input type="radio" name="vendorType" checked={vendorType === t.key} onChange={() => setVendorType(t.key)} />
+                  <strong>{t.title}</strong>
+                  <span>{t.text}</span>
+                </label>
+              ))}
+              {fieldErrors.vendorType && <small className="err">{fieldErrors.vendorType}</small>}
+            </fieldset>
+          )}
+          {(role === 'vendor' || role === 'installer') && (
+            <p className="muted small-note">
+              {role === 'installer'
+                ? 'After confirming your email you will answer a short set of technical questions. Our team reviews them before you receive jobs.'
+                : 'After confirming your email you will upload your documents. Our team reviews them before you can post products.'}
+            </p>
+          )}
+
           <label className="field">
             <span>Your full name</span>
             <input type="text" autoComplete="name" value={form.fullName} onChange={set('fullName')} aria-invalid={Boolean(fieldErrors.fullName)} required />
@@ -99,7 +127,7 @@ export default function Signup() {
 
           {needsCompany && (
             <label className="field">
-              <span>{role === 'vendor' ? 'Company name' : 'Business or organisation name'}</span>
+              <span>{role === 'vendor' ? (vendorType === 'company' ? 'Company name' : 'Shop or business name') : 'Business or organisation name'}</span>
               <input type="text" autoComplete="organization" value={form.companyName} onChange={set('companyName')} aria-invalid={Boolean(fieldErrors.companyName)} required />
               {fieldErrors.companyName && <small className="err">{fieldErrors.companyName}</small>}
             </label>
@@ -121,7 +149,7 @@ export default function Signup() {
             value={address}
             onChange={setAddress}
             errors={fieldErrors}
-            legend={role === 'vendor' ? 'Business location (where orders are picked up)' : 'Delivery address'}
+            legend={role === 'vendor' ? 'Business location (where orders are picked up)' : role === 'installer' ? 'Where you are based (you get jobs in your state)' : 'Delivery address'}
           />
           <p className="muted small-note">Solalium is live in Lagos and Abuja for now.</p>
 

@@ -105,6 +105,13 @@ def run(p, label, ctx_args):
     page.on('pageerror', lambda e: errors.append(f'pageerror: {e}'))
     vend = f'jr-vend-{label}-{STAMP}@example.test'
     fill_signup('vendor|sell|provider', 'Journey Vendor', vend, company='Journey Solar Ltd')
+    # A new vendor cannot list anything until the admin approves them: the products page sends them to verification.
+    page.goto(BASE + '/app/products'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    shot('vendor-gate'); overflow('vendor-gate')
+    assert page.get_by_role('button', name='Add product').count() == 0, 'an unverified vendor must not be able to add products'
+    assert page.locator('text=/verif/i').count() > 0, 'an unverified vendor should be told to get verified'
+    step('an unverified vendor is stopped at the verification page')
+    os.system(f"""mysql solalium -e "UPDATE vendor_profiles vp JOIN users u ON u.id = vp.user_id SET vp.verification_status = 'verified', vp.verified_at = UTC_TIMESTAMP() WHERE u.email = '{vend}'" """)
     page.goto(BASE + '/app/products'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
     shot('vendor-products'); overflow('vendor-products')
     page.get_by_role('button', name='Add product').first.click(); page.wait_for_timeout(400)

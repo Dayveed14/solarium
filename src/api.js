@@ -58,7 +58,11 @@ export const api = {
   // admin
   adminSummary: () => request('/admin/summary'),
   adminVendors: (status) => request(`/admin/vendors${qs({ status })}`),
-  adminVendorVerification: (id, status) => patch(`/admin/vendors/${id}/verification`, { status }),
+  adminVendorVerification: (id, status, note) => patch(`/admin/vendors/${id}/verification`, { status, ...(note ? { note } : {}) }),
+  adminVendorReview: (id) => request(`/admin/vendors/${id}/review`),
+  adminInstallers: (status) => request(`/admin/installers${qs({ status })}`),
+  adminInstaller: (id) => request(`/admin/installers/${id}`),
+  adminInstallerDecision: (id, status, note) => patch(`/admin/installers/${id}/verification`, { status, ...(note ? { note } : {}) }),
   adminUsers: (params) => request(`/admin/users${qs(params)}`),
   adminUserStatus: (id, status) => patch(`/admin/users/${id}/status`, { status }),
   adminSettings: () => request('/admin/settings'),
@@ -78,6 +82,15 @@ export const api = {
 
   // vendor dashboard
   vendorSummary: () => request('/vendor/summary'),
+  vendorVerification: () => request('/vendor/verification'),
+  vendorUploadDocument: (file, kind, label) => request(`/vendor/documents${qs({ kind, label })}`, { method: 'POST', raw: file }),
+  vendorDeleteDocument: (id) => del(`/vendor/documents/${id}`),
+  vendorSubmitVerification: () => post('/vendor/verification/submit'),
+
+  // installer
+  installerSummary: () => request('/installer/summary'),
+  installerQuiz: () => request('/installer/quiz'),
+  installerSubmitQuiz: (answers, yearsExperience) => post('/installer/quiz', { answers, ...(yearsExperience != null ? { yearsExperience } : {}) }),
   vendorProducts: () => request('/vendor/products'),
   vendorCreateProduct: (body) => post('/vendor/products', body),
   vendorUpdateProduct: (id, body) => put(`/vendor/products/${id}`, body),
@@ -111,6 +124,38 @@ export const api = {
   shopDeals: (params = {}) => request(`/shop/deals${qs(params)}`),
   shopProduct: (id, dest) => request(`/shop/products/${id}${qs(dest ?? {})}`),
   shopDeal: (id, dest) => request(`/shop/deals/${id}${qs(dest ?? {})}`),
+
+  // installation requests (customer)
+  installBands: () => request('/installations/bands'),
+  installList: () => request('/installations'),
+  installCreate: (body) => post('/installations', body),
+  installGet: (ref) => request(`/installations/${ref}`),
+  installPay: (ref) => post(`/installations/${ref}/pay`),
+  installVerify: (reference) => post('/installations/verify', { reference }),
+  installMockPay: (reference) => post('/installations/mock-pay', { reference }),
+  installCancel: (ref) => post(`/installations/${ref}/cancel`),
+  installConfirm: (ref) => post(`/installations/${ref}/confirm`),
+  // installer jobs
+  jobsOpen: () => request('/installer/jobs'),
+  jobsMine: () => request('/installer/jobs/mine'),
+  jobAccept: (ref) => post(`/installer/jobs/${ref}/accept`, { confirmAvailable: true }),
+  jobDecline: (ref) => post(`/installer/jobs/${ref}/decline`),
+  jobDone: (ref) => post(`/installer/jobs/${ref}/done`),
+  // admin installations
+  adminInstalls: (status) => request(`/admin/installations${qs({ status })}`),
+  adminInstall: (ref) => request(`/admin/installations/${ref}`),
+  adminInstallCancel: (ref, reason) => post(`/admin/installations/${ref}/cancel`, { reason }),
+  adminInstallPayout: (ref) => post(`/admin/installations/${ref}/payout-paid`),
+  adminInstallRefunded: (ref) => post(`/admin/installations/${ref}/refunded`),
+
+  // blog
+  blogList: (limit) => request(`/blog${qs({ limit })}`),
+  blogGet: (slug) => request(`/blog/${encodeURIComponent(slug)}`),
+  adminBlogList: () => request('/admin/blog'),
+  adminBlogGet: (id) => request(`/admin/blog/${id}`),
+  adminBlogCreate: (body) => post('/admin/blog', body),
+  adminBlogUpdate: (id, body) => put(`/admin/blog/${id}`, body),
+  adminBlogDelete: (id) => del(`/admin/blog/${id}`),
 
   // checkout and orders
   quote: (items, destination) => post('/checkout/quote', { items, destination }),

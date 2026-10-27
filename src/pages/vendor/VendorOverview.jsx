@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import VerifyGate from './VerifyGate.jsx';
 
 export default function VendorOverview() {
   const [s, setS] = useState(null);
@@ -25,17 +26,7 @@ export default function VendorOverview() {
 
   return (
     <>
-      {s.verification === 'pending' && (
-        <aside className="r-banner">
-          <div>
-            <strong>Your account is waiting for verification.</strong>
-            <span>You can set everything up now. Solalium will confirm your business details before customers are sent to you.</span>
-          </div>
-        </aside>
-      )}
-      {s.verification === 'rejected' && (
-        <p className="form-error" role="alert">Your vendor account was not approved, so your listings are hidden from customers. Contact Solalium support.</p>
-      )}
+      {s.verification !== 'verified' && <VerifyGate status={s.verification} note={s.note} />}
 
       <div className="stat-row">
         <div className="stat-card"><span>Products listed</span><strong>{s.products}</strong></div>

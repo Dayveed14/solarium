@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../api.js';
 import { useAssessment } from '../components/AssessmentContext.jsx';
+import { ArticleCard } from './Blog.jsx';
 
 const EXAMPLE_BARS = [
   { label: 'Diesel generator', value: '₦420,000', pct: 100, tone: 'diesel' },
@@ -11,6 +13,8 @@ const EXAMPLE_BARS = [
 export default function Home() {
   const { open } = useAssessment();
   const [shown, setShown] = useState(false);
+  const [posts, setPosts] = useState([]);
+  useEffect(() => { api.blogList(3).then((r) => setPosts(r.articles)).catch(() => {}); }, []);
 
   // The example bars grow in once, on load.
   useEffect(() => {
@@ -165,6 +169,15 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {posts.length > 0 && (
+        <section className="home-blog" id="blog">
+          <div className="wrap">
+            <div className="home-blog-head"><h2>From the Solalium blog</h2><Link to="/blog">All articles →</Link></div>
+            <div className="article-grid">{posts.map((a) => <ArticleCard key={a.slug} a={a} />)}</div>
+          </div>
+        </section>
+      )}
 
       <section className="providers" id="providers">
         <div className="wrap providers-inner">

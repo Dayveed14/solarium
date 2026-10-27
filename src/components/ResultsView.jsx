@@ -166,6 +166,17 @@ export default function ResultsView({ result, mode = 'guest', onChoose }) {
           <div><span className="k">Estimated cost</span><strong>{nairaCompact(solar.systemCost)}</strong><small>installed, typical prices</small></div>
         </div>
 
+        {result.budget > 0 && (
+          solar.systemCost > result.budget ? (
+            <p className="r-callout budget-bad" role="alert">
+              Your budget of {naira(result.budget)} is below the typical {nairaCompact(solar.systemCost)} for a system this size.
+              {' '}Open &ldquo;See offers&rdquo; to see the cheapest option that exists today and what you can do.
+            </p>
+          ) : (
+            <p className="r-callout budget-ok">Your budget of {naira(result.budget)} looks enough for a system this size.</p>
+          )
+        )}
+
         {flags.solarMayNotPayBack ? (
           <p className="r-callout warn">
             At your current power costs, a full solar system would take a long time to pay for itself. A smaller system

@@ -10,6 +10,10 @@ export const PUBLIC_PAGES = {
     title: 'Solalium: Reliable solar power for your home & business in Nigeria',
     description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
   },
+  '/blog': {
+    title: 'Solar guides and news for homes and businesses in Nigeria | Solalium Blog',
+    description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
+  },
   '/shop': {
     title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solalium',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
@@ -17,7 +21,7 @@ export const PUBLIC_PAGES = {
 };
 
 // Path prefixes that must never be indexed (private, transactional or one-time pages).
-export const PRIVATE_PREFIXES = ['/app', '/cart', '/checkout', '/login', '/signup', '/verify', '/forgot-password', '/reset-password', '/results', '/dispatch', '/vendor/fee'];
+export const PRIVATE_PREFIXES = ['/app', '/cart', '/checkout', '/login', '/signup', '/verify', '/forgot-password', '/reset-password', '/results', '/dispatch', '/vendor/fee', '/installation'];
 
 export const isPrivatePath = (path) => PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 export const absolute = (path) => (/^https?:/.test(path) ? path : `${SITE_URL}${path.startsWith('/') ? '' : '/'}${path}`);

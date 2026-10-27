@@ -3,10 +3,12 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError, api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import AddressFields from '../components/AddressFields.jsx';
+import { VENDOR_TYPES } from './Signup.jsx';
 
 const COPY = {
   vendor: { title: 'Sell on Solalium', text: 'Open a vendor account on the same email and password. Your shopping account stays as it is; switch between them from the menu.', company: 'Company name', loc: 'Business location (where orders are picked up)' },
   business: { title: 'Open a business account', text: 'Use the same email and password for your company. Switch between accounts from the menu.', company: 'Business or organisation name', loc: 'Business delivery address' },
+  installer: { title: 'Work as an installer', text: 'Open an installer account on the same email and password. You will answer a short set of technical questions and our team approves you before you get jobs.', company: null, loc: 'Where you are based (you get jobs in your state)' },
   individual: { title: 'Open an individual account', text: 'Use the same email and password for your home.', company: null, loc: 'Delivery address' },
 };
 
@@ -17,6 +19,7 @@ export default function AddAccount() {
   const navigate = useNavigate();
   const copy = COPY[role];
   const [companyName, setCompanyName] = useState('');
+  const [vendorType, setVendorType] = useState('seller');
   const [address, setAddress] = useState(user.address ? { line: user.address.line, state: user.address.state, areaId: user.address.areaId } : { line: '', state: '', areaId: '' });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -30,7 +33,7 @@ export default function AddAccount() {
     setErrors({});
     setFormError(null);
     try {
-      await api.addAccount({ role, ...(copy.company ? { companyName: companyName.trim() } : {}), address: { ...address, line: address.line.trim() } });
+      await api.addAccount({ role, ...(copy.company ? { companyName: companyName.trim() } : {}), ...(role === 'vendor' ? { vendorType } : {}), address: { ...address, line: address.line.trim() } });
       await refresh();
       navigate('/app', { replace: true });
     } catch (err) {
@@ -45,6 +48,18 @@ export default function AddAccount() {
       <header className="dash-head"><div><p className="eyebrow">New account</p><h1>{copy.title}</h1></div></header>
       <form onSubmit={submit} noValidate className="profile-form">
         <p className="muted">{copy.text}</p>
+        {role === 'vendor' && (
+          <fieldset className="role-grid">
+            <legend className="field-legend">What kind of vendor?</legend>
+            {VENDOR_TYPES.map((t) => (
+              <label key={t.key} className={`choice choice-small${vendorType === t.key ? ' on' : ''}`}>
+                <input type="radio" name="vendorType" checked={vendorType === t.key} onChange={() => setVendorType(t.key)} />
+                <strong>{t.title}</strong>
+                <span>{t.text}</span>
+              </label>
+            ))}
+          </fieldset>
+        )}
         {copy.company && (
           <label className="field">
             <span>{copy.company}</span>

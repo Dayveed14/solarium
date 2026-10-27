@@ -4,6 +4,7 @@ import { ApiError, api } from '../../api.js';
 import Dialog from '../../components/Dialog.jsx';
 import ImageField from '../../components/ImageField.jsx';
 import { CATEGORY_LABEL, naira, sizeText } from '../../lib/format.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { fieldErrorsOf, groupDigits, parseNumber } from '../../lib/forms.js';
 
 const money = (v) => (v == null ? '' : groupDigits(v));
@@ -41,6 +42,7 @@ function initial(deal) {
 }
 
 export default function DealForm({ deal, onClose, onSaved }) {
+  const { user } = useAuth();
   const editing = Boolean(deal);
   const [products, setProducts] = useState(null);
   const [f, setF] = useState(() => initial(deal));
@@ -89,7 +91,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
   const [rules, setRules] = useState(null);
   const [preview, setPreview] = useState(null);
   useEffect(() => {
-    api.vendorEaasRules().then(setRules).catch(() => {});
+    if (user.vendorType === 'company') api.vendorEaasRules().then(setRules).catch(() => {});
   }, []);
 
   // Live price check: the server works the monthly fee out from the terms, so the vendor sees what customers will see.
@@ -271,8 +273,12 @@ export default function DealForm({ deal, onClose, onSaved }) {
             </div>
 
             <div className="plan-box">
-              <label className="plan-toggle"><input type="checkbox" checked={f.eaasOn} onChange={set('eaasOn')} /> Energy as a service</label>
-              {f.eaasOn && (
+              {user.vendorType !== 'company' ? (
+                <p className="muted">Energy as a service is for registered companies. Register as a <strong>Company</strong> and upload your CAC to offer it.</p>
+              ) : (
+                <label className="plan-toggle"><input type="checkbox" checked={f.eaasOn} onChange={set('eaasOn')} /> Energy as a service</label>
+              )}
+              {f.eaasOn && user.vendorType === 'company' && (
                 <div className="eaas-form">
                   <p className="muted">
                     You don&apos;t type a monthly fee. It is worked out from your cost and the return you want, plus running costs, a risk allowance and Solalium&apos;s {rules ? Math.round(rules.platformFeePct * 100) : 6}% fee.

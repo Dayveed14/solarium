@@ -3,13 +3,14 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 const NAV = {
-  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
-  business: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
-  vendor: [['/app', 'Overview', true], ['/app/products', 'Products'], ['/app/deals', 'Combos & deals'], ['/app/orders', 'Orders'], ['/app/requests', 'Requests'], ['/app/profile', 'Profile & location']],
-  admin: [['/app', 'Vendors', true], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity']],
+  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
+  business: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
+  vendor: [['/app', 'Overview', true], ['/app/verification', 'Verification'], ['/app/products', 'Products'], ['/app/deals', 'Combos & deals'], ['/app/orders', 'Orders'], ['/app/requests', 'Requests'], ['/app/profile', 'Profile & location']],
+  installer: [['/app', 'Overview', true], ['/app/profile', 'Profile & location']],
+  admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/admin-installations', 'Installations'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity']],
 };
-const ROLE_LABEL = { individual: 'Individual', business: 'Business', vendor: 'Vendor', admin: 'Admin' };
-const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on Solalium (vendor)' };
+const ROLE_LABEL = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', admin: 'Admin' };
+const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on Solalium (vendor)', installer: 'Work as an installer' };
 
 // The frame around every signed-in page: a sidebar with the pages for this type of account, a switcher between
 // the accounts that share the person's email, and a way to open another type.
@@ -22,7 +23,7 @@ export default function AppLayout() {
 
   const others = accounts.filter((a) => !a.current);
   const owned = new Set(accounts.map((a) => a.role));
-  const canOpen = user.role === 'admin' ? [] : ['individual', 'business', 'vendor'].filter((r) => !owned.has(r));
+  const canOpen = user.role === 'admin' ? [] : ['individual', 'business', 'vendor', 'installer'].filter((r) => !owned.has(r));
 
   const switchRole = async (role) => {
     setBusy(true);

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ApiError, api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
-import DiyBuilder from '../components/DiyBuilder.jsx';
+import DiyBuilder, { AllInOne } from '../components/DiyBuilder.jsx';
 import RequestBox from '../components/RequestBox.jsx';
 import { EAAS_ROLES } from '../config/launch.js';
 import { PLAN_LABEL, kwh, monthsToText, naira, nairaCompact, sizeText } from '../lib/format.js';
@@ -115,6 +115,70 @@ function DealCard({ deal, assessmentId, user, onSent }) {
   );
 }
 
+
+const SOURCE_TEXT = { deal: 'A vendor package', diy: 'A system built from the cheapest parts', kit: 'A solar kit', portable: 'A portable power station' };
+
+function BudgetPanel({ budget, id }) {
+  if (!budget || budget.status === 'no_budget') return null;
+  const c = budget.cheapest;
+  if (budget.status === 'ok') {
+    return (
+      <section className="budget-panel budget-ok" role="status" aria-label="Your budget">
+        <h2>Within your budget</h2>
+        <p>
+          Your budget of {naira(budget.budget)} covers the cheapest option we have today ({naira(c.price)}).
+          {budget.withinBudget > 1 ? ` ${budget.withinBudget} options fit.` : ''}
+        </p>
+      </section>
+    );
+  }
+  const none = budget.status === 'nothing_available';
+  return (
+    <section className="budget-panel budget-bad" role="alert" aria-label="Your budget">
+      <h2>{none ? 'No solar product is available for your need yet' : 'Your budget is too small for what you use'}</h2>
+      {none ? (
+        <p>No vendor has listed a complete system or a unit big enough for what you use, so we cannot price one against your {naira(budget.budget)} budget. Check back soon, or see the alternatives below.</p>
+      ) : (
+        <>
+          <p>
+            The cheapest way to meet your need today is <strong>{naira(c.price)}</strong>: {SOURCE_TEXT[c.source] ?? 'an option'}
+            {c.label && c.source !== 'diy' ? ` (${c.label}${c.vendor ? `, ${c.vendor}` : ''})` : ''}. That is{' '}
+            <strong>{naira(budget.shortfall)}</strong> more than your {naira(budget.budget)}.
+            {c.includesEstimate ? ' Part of that is an allowance for parts no vendor has listed yet.' : ''}
+          </p>
+        </>
+      )}
+      {budget.alternatives.length > 0 && (
+        <>
+          <h3>What you can do within your budget</h3>
+          <ul className="budget-alts">
+            {budget.alternatives.map((a, i) => (
+              <li key={i}>
+                {a.type === 'partial' ? (
+                  <>
+                    <Link to={`/shop/product/${a.id}`}>{a.label}</Link> ({naira(a.price)}) covers about {a.coveragePct}% of what you use. Good for the essentials, not everything at once.
+                  </>
+                ) : (
+                  <>
+                    <strong>{PLAN_LABEL[a.plan]}</strong>: {a.label}, {a.monthly ? `${naira(a.monthly)} a month` : 'paid monthly'}{a.upfront ? `, ${naira(a.upfront)} upfront` : ', nothing upfront'}.
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {budget.reduceLoad && (
+        <p className="deal-sub">
+          Or use less: cutting about {budget.reduceLoad.cutPct}% of what you power would bring the system into your budget.
+          {budget.reduceLoad.biggest.length > 0 && ` The biggest users are ${budget.reduceLoad.biggest.map((b) => `${b.name} (${b.sharePct}%)`).join(', ')}.`}{' '}
+          <Link to={`/app/assessments/${id}`}>Edit your appliances</Link>
+        </p>
+      )}
+    </section>
+  );
+}
+
 export default function Offers() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -197,6 +261,8 @@ export default function Offers() {
             {estimate && <p className="muted need-est">Typical market price from your assessment: {estimate}. Real offers below.</p>}
           </section>
 
+          <BudgetPanel budget={data.budget} id={id} />
+
           <section aria-labelledby="rec-h" className="offer-section">
             <h2 id="rec-h">Recommended by vendors</h2>
             <p className="muted">Packages vendors have put together that cover what you need. Cheapest first.</p>
@@ -227,9 +293,11 @@ export default function Offers() {
                 panels {data.limits.panel.minKwp} to {data.limits.panel.maxKwp} kWp in total, an inverter of {data.limits.inverter.minKva} to{' '}
                 {data.limits.inverter.maxKva} kVA{data.limits.battery.maxKwh > 0 ? `, and ${data.limits.battery.minKwh} to ${data.limits.battery.maxKwh} kWh of battery` : ''}.
               </p>
-              <DiyBuilder assessmentId={id} diy={data.diy} limits={data.limits} user={user} />
+              <DiyBuilder assessmentId={id} diy={data.diy} limits={data.limits} user={user} extras={data.extras} allInOne={data.allInOne} />
             </section>
           )}
+
+          {plan === 'buy' && <AllInOne allInOne={data.allInOne} />}
         </>
       )}
     </div>
