@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext.jsx';
 
 export default function SiteFooter() {
+  const { user, ready } = useAuth();
   return (
     <footer className="footer">
       <div className="wrap footer-grid">
@@ -13,12 +15,13 @@ export default function SiteFooter() {
         </div>
         <div className="footer-links">
           <Link to="/#how">How it works</Link>
+          <Link to="/partners">Partners</Link>
           <Link to="/blog">Blog</Link>
           <Link to="/#platform">Platform</Link>
           <Link to="/#providers">For providers</Link>
-          <Link to="/login">Log in</Link>
+          {ready && !user && <Link to="/login">Log in</Link>}
         </div>
-        <p className="footer-meta">© 2026 Solalium. Made in Abuja.</p>
+        <p className="footer-meta">© 2026 Solalium. Made in Nigeria.</p>
       </div>
     </footer>
   );

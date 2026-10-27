@@ -41,7 +41,7 @@ def run(p, label, ctx_args):
         if role_text and role_text != 'individual':
             page.locator('label.choice', has_text=re.compile(role_text, re.I)).first.locator('input').check(force=True)
         page.get_by_label('Your full name').fill(name)
-        if company: page.get_by_label(re.compile('Company name|Business or organisation')).fill(company)
+        if company: page.get_by_label(re.compile('Company name|Shop or business|Business or organisation')).fill(company)
         page.locator('input[type=email]').fill(email)
         page.get_by_label('Phone number').fill('08031234567')
         page.get_by_label('Street address').fill('12 Test Street, Yaba')

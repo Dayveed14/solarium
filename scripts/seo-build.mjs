@@ -17,6 +17,11 @@ const PAGES = {
     description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
     body: '<h1>Reliable solar power for your home &amp; business.</h1><p>Solalium shows what your generator and light bill really cost, what solar would save, and how to switch by buying, leasing or paying monthly with vetted providers in Lagos and Abuja.</p><p><a href="/shop">Shop solar products</a></p>',
   },
+  '/partners': {
+    title: 'Solar installers, vendors and companies in Nigeria | Solalium Partners',
+    description: 'Verified solar sellers, installation companies and installers on Solalium, sortable by state and area in Lagos and Abuja.',
+    body: '<h1>Solalium Partners</h1><p>Verified solar sellers, installation companies and installers on Solalium, sortable by state and area in Lagos and Abuja.</p>',
+  },
   '/blog': {
     title: 'Solar guides and news for homes and businesses in Nigeria | Solalium Blog',
     description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
@@ -68,7 +73,7 @@ for (const [route, page] of Object.entries(PAGES)) {
   fs.writeFileSync(out, render(route, page));
 }
 
-const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }, { loc: '/blog', priority: '0.8' }];
+const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }, { loc: '/partners', priority: '0.7' }, { loc: '/blog', priority: '0.8' }];
 
 // Blog articles: each gets its own page with its heading, summary and text for search engines (needs SEO_API_URL).
 let articleCount = 0;

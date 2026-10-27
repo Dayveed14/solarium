@@ -3,11 +3,11 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 const NAV = {
-  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
-  business: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address']],
-  vendor: [['/app', 'Overview', true], ['/app/verification', 'Verification'], ['/app/products', 'Products'], ['/app/deals', 'Combos & deals'], ['/app/orders', 'Orders'], ['/app/requests', 'Requests'], ['/app/profile', 'Profile & location']],
-  installer: [['/app', 'Overview', true], ['/app/profile', 'Profile & location']],
-  admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/admin-installations', 'Installations'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity']],
+  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
+  business: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/shop', 'Shop'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
+  vendor: [['/app', 'Overview', true], ['/app/verification', 'Verification'], ['/app/subscription', 'Subscription'], ['/app/products', 'Products'], ['/app/deals', 'Combos & deals'], ['/app/orders', 'Orders'], ['/app/requests', 'Requests'], ['/app/profile', 'Profile & location'], ['/app/password', 'Password']],
+  installer: [['/app', 'Overview', true], ['/app/profile', 'Profile & location'], ['/app/password', 'Password']],
+  admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/admin-installations', 'Installations'], ['/app/admin-subscriptions', 'Subscriptions'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity'], ['/app/password', 'Password']],
 };
 const ROLE_LABEL = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', admin: 'Admin' };
 const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on Solalium (vendor)', installer: 'Work as an installer' };

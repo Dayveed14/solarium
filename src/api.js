@@ -64,6 +64,7 @@ export const api = {
   adminInstaller: (id) => request(`/admin/installers/${id}`),
   adminInstallerDecision: (id, status, note) => patch(`/admin/installers/${id}/verification`, { status, ...(note ? { note } : {}) }),
   adminUsers: (params) => request(`/admin/users${qs(params)}`),
+  adminUser: (id) => request(`/admin/users/${id}`),
   adminUserStatus: (id, status) => patch(`/admin/users/${id}/status`, { status }),
   adminSettings: () => request('/admin/settings'),
   adminSaveSettings: (changes) => put('/admin/settings', { changes }),
@@ -114,6 +115,14 @@ export const api = {
 
   uploadImage: (blob) => request('/vendor/images', { method: 'POST', raw: blob }),
   // vendor registration fee (only used once registration is switched to paid)
+  partners: () => request('/partners'),
+  vendorSubscription: () => request('/vendor/subscription'),
+  vendorSubscriptionStart: (months) => post('/vendor/subscription/start', { months }),
+  vendorSubscriptionVerify: (reference) => post('/vendor/subscription/verify', { reference }),
+  vendorSubscriptionMockPay: (reference) => post('/vendor/subscription/mock-pay', { reference }),
+  adminSubscriptions: () => request('/admin/subscriptions'),
+  adminSubscriptionGrant: (id, days) => post(`/admin/subscriptions/${id}/grant`, { days }),
+  adminSubscriptionGrantAll: (days, vendorType) => post('/admin/subscriptions/grant-all', { days, ...(vendorType ? { vendorType } : {}) }),
   vendorFeeStart: () => post('/vendor/fee/start'),
   vendorFeeVerify: (reference) => post('/vendor/fee/verify', { reference }),
   vendorFeeMockPay: (reference) => post('/vendor/fee/mock-pay', { reference }),
@@ -186,4 +195,5 @@ export const api = {
   switchAccount: (role) => post('/auth/switch', { role }),
   addAccount: (body) => post('/auth/accounts', body),
   updateProfile: (body) => put('/auth/profile', body),
+  changePassword: (body) => post('/auth/change-password', body),
 };

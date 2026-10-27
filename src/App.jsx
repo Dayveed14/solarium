@@ -4,6 +4,10 @@ import AssessmentModal from './components/AssessmentModal.jsx';
 import AppLayout from './components/AppLayout.jsx';
 import AddAccount from './pages/AddAccount.jsx';
 import Profile from './pages/Profile.jsx';
+import Security from './pages/Security.jsx';
+import Partners from './pages/Partners.jsx';
+import VendorSubscription from './pages/vendor/VendorSubscription.jsx';
+import AdminSubscriptions from './pages/admin/AdminSubscriptions.jsx';
 import RequireAuth, { Only } from './components/RequireAuth.jsx';
 import SiteFooter from './components/SiteFooter.jsx';
 import SiteHeader from './components/SiteHeader.jsx';
@@ -71,6 +75,7 @@ export default function App() {
         <RouteSeo />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/partners" element={<Partners />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/results" element={<Results />} />
@@ -88,11 +93,14 @@ export default function App() {
           <Route path="/dispatch" element={<Dispatch />} />
           <Route path="/installation/return" element={<RequireAuth><CheckoutReturn kind="installation" /></RequireAuth>} />
           <Route path="/installation/mock" element={<RequireAuth><CheckoutReturn kind="installation" mock /></RequireAuth>} />
+          <Route path="/vendor/subscription/return" element={<RequireAuth><CheckoutReturn kind="subscription" /></RequireAuth>} />
+          <Route path="/vendor/subscription/mock" element={<RequireAuth><CheckoutReturn kind="subscription" mock /></RequireAuth>} />
           <Route path="/vendor/fee/return" element={<RequireAuth><CheckoutReturn kind="fee" /></RequireAuth>} />
           <Route path="/vendor/fee/mock" element={<RequireAuth><CheckoutReturn kind="fee" mock /></RequireAuth>} />
           <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
             <Route path="/app" element={<AppHome />} />
             <Route path="/app/profile" element={<Profile />} />
+            <Route path="/app/password" element={<Security />} />
             <Route path="/app/orders" element={<OrdersHome />} />
             <Route path="/app/orders/:ref" element={<Only roles={['individual', 'business']}><OrderDetail /></Only>} />
             <Route path="/app/add-account" element={<AddAccount />} />
@@ -101,6 +109,8 @@ export default function App() {
             <Route path="/app/verification" element={<Only roles={['vendor']}><VendorShell open><VendorVerification /></VendorShell></Only>} />
             <Route path="/app/installations" element={<Only roles={['individual', 'business']}><Installations /></Only>} />
             <Route path="/app/installations/:ref" element={<Only roles={['individual', 'business']}><InstallationDetail /></Only>} />
+            <Route path="/app/subscription" element={<Only roles={['vendor']}><VendorShell open><VendorSubscription /></VendorShell></Only>} />
+            <Route path="/app/admin-subscriptions" element={<Only roles={['admin']}><AdminShell><AdminSubscriptions /></AdminShell></Only>} />
             <Route path="/app/quiz" element={<Only roles={['installer']}><InstallerQuiz /></Only>} />
             <Route path="/app/admin-installations" element={<Only roles={['admin']}><AdminShell><AdminInstallations /></AdminShell></Only>} />
             <Route path="/app/blog" element={<Only roles={['admin']}><AdminShell><AdminBlog /></AdminShell></Only>} />

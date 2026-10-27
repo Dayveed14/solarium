@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { VENDOR_REGISTRATION_FEE_REQUIRED } from '../../config/launch.js';
+import { Link } from 'react-router-dom';
 import VendorFeeGate from './VendorFeeGate.jsx';
 import VerifyGate from './VerifyGate.jsx';
 
@@ -31,6 +32,13 @@ export default function VendorShell({ children, open = false }) {
         </div>
         {summary && <span className={`badge badge-${summary.verification}`}>{VERIFY_LABEL[summary.verification]}</span>}
       </header>
+
+      {summary?.subscription?.required && summary.verification === 'verified' && ['grace', 'lapsed', 'never'].includes(summary.subscription.state) && (
+        <p className={`r-callout ${summary.subscription.state === 'lapsed' ? 'budget-bad' : 'warn'}`} role="alert">
+          {summary.subscription.state === 'lapsed' ? 'Your subscription has ended, so your products and deals are hidden from customers. ' : summary.subscription.state === 'grace' ? 'Your subscription has run out and your listings will be hidden soon. ' : 'You have not subscribed yet, so your products and deals are not visible to customers. '}
+          <Link to="/app/subscription">Open subscription</Link>
+        </p>
+      )}
 
       {VENDOR_REGISTRATION_FEE_REQUIRED && summary?.registrationFee?.mustPay && !open ? (
         <VendorFeeGate fee={summary.registrationFee} />

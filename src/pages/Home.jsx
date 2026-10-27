@@ -180,15 +180,61 @@ export default function Home() {
       )}
 
       <section className="providers" id="providers">
-        <div className="wrap providers-inner">
-          <div>
-            <h2>Built for installers and financiers too</h2>
+        <div className="wrap">
+          <div className="providers-head">
+            <p className="eyebrow">For providers</p>
+            <h2>Built for installers, sellers and financiers too</h2>
             <p>
               Solalium qualifies demand before it reaches you: real load data, real budgets, real intent. No cold
-              outreach, no bidding against a discount code.
+              outreach, no bidding against a discount code. Customers arrive having already worked out what they use and what they can spend.
             </p>
           </div>
-          <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Join as a vendor</Link>
+
+          <div className="provider-cards">
+            <article className="provider-card">
+              <h3>Sellers</h3>
+              <p className="provider-for">Shops, distributors and dealers of panels, inverters, batteries and parts</p>
+              <ul>
+                <li>List products and ready-made packages with your own prices</li>
+                <li>Appear when a customer&apos;s need and budget match what you sell</li>
+                <li>Orders, pickups and payouts managed in one dashboard</li>
+                <li>Verified badge once we have seen your shop or business papers</li>
+              </ul>
+              <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Sell on Solalium</Link>
+            </article>
+            <article className="provider-card">
+              <h3>Companies</h3>
+              <p className="provider-for">Registered solar companies that sell, install and finance</p>
+              <ul>
+                <li>Everything a seller gets, plus Energy-as-a-Service plans for businesses</li>
+                <li>Lease, rent and pay-monthly deals shown next to cash prices</li>
+                <li>Your CAC registration and company documents build customer trust</li>
+                <li>Leads that already know their load, budget and location</li>
+              </ul>
+              <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Register your company</Link>
+            </article>
+            <article className="provider-card">
+              <h3>Installers</h3>
+              <p className="provider-for">Independent technicians and crews who fit systems</p>
+              <ul>
+                <li>Pass a short technical quiz and get approved</li>
+                <li>Jobs in your state land in your dashboard; the first to accept wins it</li>
+                <li>Customers pay Solalium up front, so you work knowing the job is funded</li>
+                <li>Your payout is a fixed share of the installation fee</li>
+              </ul>
+              <Link to="/signup?role=installer" className="btn btn-ghost btn-on-dark">Become an installer</Link>
+            </article>
+          </div>
+
+          <ol className="provider-steps" aria-label="How joining works">
+            <li><strong>Sign up</strong><span>Create your account and confirm your email.</span></li>
+            <li><strong>Get verified</strong><span>Upload your documents (or take the quiz). We review and approve.</span></li>
+            <li><strong>Go live</strong><span>Post products, deals or accept jobs, and start getting customers.</span></li>
+          </ol>
+
+          <p className="provider-foot">
+            Already working with solar? <Link to="/partners">See who is on Solalium</Link>
+          </p>
         </div>
       </section>
 
