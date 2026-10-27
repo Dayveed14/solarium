@@ -77,7 +77,6 @@ export default function Partners() {
                   <td data-label="Name"><strong>{p.name}</strong> <span className="badge badge-verified">Verified</span></td>
                   <td data-label="Type">{KIND[p.kind]}</td>
                   <td data-label="State">{p.stateName ?? '—'}</td>
-                  <td data-label="Area">{p.areaName ?? '—'}</td>
                   <td data-label="What they do">
                     {p.services.join(' · ')}
                     {p.kind !== 'installer' && p.products > 0 ? <small className="muted"> · {p.products} product{p.products === 1 ? '' : 's'} listed</small> : null}
