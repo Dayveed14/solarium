@@ -24,7 +24,7 @@ export default function VendorFeeGate({ fee }) {
     <section className="fee-gate">
       <p className="eyebrow">One last step</p>
       <h2>Pay your one-time registration fee</h2>
-      <p>To start selling on Solalium, pay a one-time registration fee of <strong>{naira(fee.amount)}</strong>. You pay it once, it covers your onboarding and verification, and it&apos;s never charged again.</p>
+      <p>To start selling on Solariun, pay a one-time registration fee of <strong>{naira(fee.amount)}</strong>. You pay it once, it covers your onboarding and verification, and it&apos;s never charged again.</p>
       <ul className="delivery-note">
         <li>Your products and combos go live to customers once we verify your account</li>
         <li>Secure payment through Paystack</li>

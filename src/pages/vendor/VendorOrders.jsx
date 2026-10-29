@@ -53,7 +53,7 @@ export default function VendorOrders() {
             </header>
             <ul className="order-items">{o.items.map((i, n) => <li key={n}>{i.qty} × {i.name}<span>{naira(i.lineTotal)}</span></li>)}</ul>
             <p className="muted">For {o.customer.name}, delivering to {o.deliverTo.areaName}, {o.deliverTo.stateName}. Paid {at(o.paidAt)}. Promised by {at(o.promisedBy)}.</p>
-            <p>Items sold {naira(o.subtotal)} · Solalium platform fee −{naira(o.commission)}</p>
+            <p>Items sold {naira(o.subtotal)} · Solariun platform fee −{naira(o.commission)}</p>
             <p><strong>You earn: {naira(o.earnings)}</strong></p>
             <div className="row-actions">
               {(NEXT[o.status] ?? []).map(([action, label, cls]) => (

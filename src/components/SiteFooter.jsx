@@ -9,7 +9,7 @@ export default function SiteFooter() {
         <div className="footer-brand">
           <Link to="/" className="brand">
             <img src="/logo-mark.svg" height="30" alt="" className="brand-logo" />
-            <span className="brand-word">Solalium</span>
+            <span className="brand-word">Solariun</span>
           </Link>
           <p>Clean energy. Lasting value.</p>
         </div>
@@ -21,7 +21,7 @@ export default function SiteFooter() {
           <Link to="/#providers">For providers</Link>
           {ready && !user && <Link to="/login">Log in</Link>}
         </div>
-        <p className="footer-meta">© 2026 Solalium. Made in Nigeria.</p>
+        <p className="footer-meta">© 2026 Solariun. Made in Nigeria.</p>
       </div>
     </footer>
   );

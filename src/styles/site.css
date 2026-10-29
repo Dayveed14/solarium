@@ -1,5 +1,5 @@
 :root {
-  /* Solalium brand: Deep Green, Leaf Green, Solar Gold, Sand, Charcoal, Deep Teal, Warm White, Soft Gold.
+  /* Solariun brand: Deep Green, Leaf Green, Solar Gold, Sand, Charcoal, Deep Teal, Warm White, Soft Gold.
      The app runs on the brand's dark surface (Deep Teal / Deep Green) with a gold call to action. */
   --ink: #062f2a;        /* Deep Teal: page background */
   --panel: #0b3d2e;      /* Deep Green: cards and panels */
@@ -630,6 +630,7 @@ p {
 .side-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .side-links { display: flex; flex-direction: column; padding: 8px 0; }
 .side-links a { color: var(--paper); text-decoration: none; font-size: 17px; padding: 14px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.side-group { margin: 18px 4px 2px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .side-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 18px; }
 .side-actions .btn { width: 100%; justify-content: center; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .side-menu { animation: none; } }

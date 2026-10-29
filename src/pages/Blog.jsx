@@ -27,7 +27,7 @@ export default function Blog() {
   return (
     <div className="wrap blog-wrap">
       <Seo {...PUBLIC_PAGES['/blog']} path="/blog" />
-      <h1>Solalium Blog</h1>
+      <h1>Solariun Blog</h1>
       <p className="muted">Plain-English guides on solar power, costs and saving on fuel and electricity in Nigeria.</p>
       {error && <p className="form-error" role="alert">{error}</p>}
       {!articles && !error && <p className="muted" role="status">Loading…</p>}

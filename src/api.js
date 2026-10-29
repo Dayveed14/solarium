@@ -20,7 +20,7 @@ async function request(path, { method = 'GET', body, raw, headers } = {}) {
       body: raw ?? (body ? JSON.stringify(body) : undefined),
     });
   } catch {
-    throw new ApiError(0, 'NETWORK', 'Could not reach Solalium. Check your connection and try again.');
+    throw new ApiError(0, 'NETWORK', 'Could not reach Solariun. Check your connection and try again.');
   }
 
   if (res.status === 204) return null;

@@ -1,25 +1,25 @@
 // One place for what search engines and link previews see. Public pages are listed in PUBLIC_PAGES;
 // every other route (accounts, cart, checkout, 404) is marked noindex by RouteSeo.
-export const SITE_NAME = 'Solalium';
+export const SITE_NAME = 'Solariun';
 export const TAGLINE = 'Clean energy. Lasting value.';
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/$/, '');
 export const OG_IMAGE = '/og-image.png';
 
 export const PUBLIC_PAGES = {
   '/': {
-    title: 'Solalium: Reliable solar power for your home & business in Nigeria',
+    title: 'Solariun: Reliable solar power for your home & business in Nigeria',
     description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
   },
   '/partners': {
-    title: 'Solar installers, vendors and companies in Nigeria | Solalium Partners',
-    description: 'Verified solar sellers, installation companies and installers on Solalium, sortable by state and area in Lagos and Abuja.',
+    title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
+    description: 'Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.',
   },
   '/blog': {
-    title: 'Solar guides and news for homes and businesses in Nigeria | Solalium Blog',
+    title: 'Solar guides and news for homes and businesses in Nigeria | Solariun Blog',
     description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
   },
   '/shop': {
-    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solalium',
+    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solariun',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
   },
 };

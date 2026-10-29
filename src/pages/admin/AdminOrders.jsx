@@ -3,7 +3,7 @@ import { api } from '../../api.js';
 import { naira } from '../../lib/format.js';
 
 const at = (iso) => (iso ? new Date(iso).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' }) : '—');
-const STAT = [['orders', 'Paid orders'], ['gmv', 'Sales', true], ['platform_revenue', 'Solalium revenue', true], ['awaiting_vendor', 'Awaiting vendor'], ['in_prep', 'In preparation'], ['out_for_delivery', 'Out for delivery'], ['awaiting_receipt', 'Awaiting receipt'], ['completed', 'Completed'], ['late_now', 'Running late'], ['refunds_needed', 'Refunds to do']];
+const STAT = [['orders', 'Paid orders'], ['gmv', 'Sales', true], ['platform_revenue', 'Solariun revenue', true], ['awaiting_vendor', 'Awaiting vendor'], ['in_prep', 'In preparation'], ['out_for_delivery', 'Out for delivery'], ['awaiting_receipt', 'Awaiting receipt'], ['completed', 'Completed'], ['late_now', 'Running late'], ['refunds_needed', 'Refunds to do']];
 const ACTIONS = { placed: ['accept'], accepted: ['prepare', 'ready', 'pickup'], preparing: ['ready', 'pickup'], ready_for_pickup: ['pickup'], out_for_delivery: ['deliver'], delivered: ['receive'] };
 
 export default function AdminOrders() {
@@ -55,7 +55,7 @@ export default function AdminOrders() {
             </header>
             <p><strong>{o.vendor.name}</strong> ({o.vendor.phone}) → {o.customer.name} ({o.customer.phone}), {o.deliverTo.areaName}, {o.deliverTo.stateName}</p>
             <p className="muted">{o.items.map((i) => `${i.qty} × ${i.name}`).join(', ')} · items {naira(o.subtotal)} · service charge {naira(o.serviceCharge)} · delivery {naira(o.deliveryFee)} ({o.distanceKm} km)</p>
-            <p className="muted">Vendor earns {naira(o.vendorEarnings)} (platform fee {naira(o.commission)}) · Solalium revenue on this order {naira(o.platformRevenue)}</p>
+            <p className="muted">Vendor earns {naira(o.vendorEarnings)} (platform fee {naira(o.commission)}) · Solariun revenue on this order {naira(o.platformRevenue)}</p>
             <p className="muted">Paid {at(o.paidAt)} · promised {at(o.promisedBy)} · accepted {at(o.acceptedAt)} · picked up {at(o.pickedUpAt)} · delivered {at(o.deliveredAt)} · received {at(o.completedAt)}</p>
             <div className="row-actions">
               {(ACTIONS[o.status] ?? []).map((a) => <button key={a} type="button" className="btn btn-small btn-quiet" onClick={() => act(o.id, a)}>{a}</button>)}

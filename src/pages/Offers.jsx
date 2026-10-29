@@ -46,7 +46,7 @@ function EaasDetails({ offer }) {
         <li>Equipment cost recovered over the contract: {naira(e.breakdown.capital)}/month</li>
         <li>Maintenance, insurance, monitoring and replacement reserve: {naira(e.breakdown.operating.total)}/month</li>
         <li>Allowance for late payment and equipment loss: {naira(e.breakdown.risk)}/month</li>
-        <li>Solalium platform fee: {naira(e.breakdown.platformFee)}/month</li>
+        <li>Solariun platform fee: {naira(e.breakdown.platformFee)}/month</li>
       </ul>
       <p className="deal-sub">
         Refundable deposit: {naira(e.deposit)}. {e.buyoutAtEnd > 0 ? `Own it at the end for ${naira(e.buyoutAtEnd)}.` : 'Ownership terms at the end are agreed with the vendor.'}

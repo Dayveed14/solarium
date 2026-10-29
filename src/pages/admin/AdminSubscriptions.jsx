@@ -27,7 +27,7 @@ export default function AdminSubscriptions() {
         <h2 className="dash-h2">Vendor subscriptions</h2>
         <p className="muted">
           Seller price: <strong>{data ? (data.prices.seller ? `${naira(data.prices.seller)}/month` : 'off') : '…'}</strong> · Company price: <strong>{data ? (data.prices.company ? `${naira(data.prices.company)}/month` : 'off') : '…'}</strong> · Grace: {data?.prices.graceDays ?? '…'} days.
-          Change these in Pricing &amp; rules &gt; Solalium fees. A price of 0 turns the subscription off for that type.
+          Change these in Pricing &amp; rules &gt; Solariun fees. A price of 0 turns the subscription off for that type.
         </p>
       </div></div>
 

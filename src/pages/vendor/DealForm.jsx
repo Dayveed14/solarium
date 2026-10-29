@@ -281,7 +281,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
               {f.eaasOn && user.vendorType === 'company' && (
                 <div className="eaas-form">
                   <p className="muted">
-                    You don&apos;t type a monthly fee. It is worked out from your cost and the return you want, plus running costs, a risk allowance and Solalium&apos;s {rules ? Math.round(rules.platformFeePct * 100) : 6}% fee.
+                    You don&apos;t type a monthly fee. It is worked out from your cost and the return you want, plus running costs, a risk allowance and Solariun&apos;s {rules ? Math.round(rules.platformFeePct * 100) : 6}% fee.
                   </p>
                   <div className="field-row">
                     <label className="field"><span>Contract length</span>
@@ -315,7 +315,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
                         <div key={label}>
                           <strong>{label}: {naira(q.monthly)}/month</strong>
                           <small>
-                            Capital {naira(q.breakdown.capital)} · running costs {naira(q.breakdown.operating.total)} · risk {naira(q.breakdown.risk)} · Solalium fee {naira(q.breakdown.platformFee)}
+                            Capital {naira(q.breakdown.capital)} · running costs {naira(q.breakdown.operating.total)} · risk {naira(q.breakdown.risk)} · Solariun fee {naira(q.breakdown.platformFee)}
                           </small>
                         </div>
                       ))}

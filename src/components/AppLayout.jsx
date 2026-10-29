@@ -10,7 +10,7 @@ const NAV = {
   admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/admin-installations', 'Installations'], ['/app/admin-subscriptions', 'Subscriptions'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity'], ['/app/password', 'Password']],
 };
 const ROLE_LABEL = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', admin: 'Admin' };
-const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on Solalium (vendor)', installer: 'Work as an installer' };
+const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on Solariun (vendor)', installer: 'Work as an installer' };
 
 // The frame around every signed-in page: a sidebar with the pages for this type of account, a switcher between
 // the accounts that share the person's email, and a way to open another type.

@@ -13,6 +13,19 @@ const LINKS = [
   ['/#providers', 'For providers'],
 ];
 
+// The phone menu: the shopper's links first, then the ways to join as a provider.
+const SIDE_LINKS = [
+  ['/#how', 'How it works'],
+  ['/shop', 'Shop'],
+  ['/blog', 'Blog'],
+  ['/partners', 'Partners'],
+];
+const PROVIDER_LINKS = [
+  ['/signup?role=installer', 'Become an installer'],
+  ['/signup?role=vendor', 'Sell & Become a Vendor'],
+  ['/signup?role=vendor&type=company', 'Corporate Initiatives'],
+];
+
 export default function SiteHeader() {
   const { user, ready, logout } = useAuth();
   const { open } = useAssessment();
@@ -54,9 +67,9 @@ export default function SiteHeader() {
     <>
     <header className="nav scrolled">
       <div className="wrap nav-inner">
-        <Link to="/" className="brand" aria-label="Solalium home">
+        <Link to="/" className="brand" aria-label="Solariun home">
           <img src="/logo-mark.svg" height="36" alt="" className="brand-logo" />
-          <span className="brand-word">Solalium</span>
+          <span className="brand-word">Solariun</span>
         </Link>
 
         <nav className="nav-links" aria-label="Main">
@@ -100,8 +113,10 @@ export default function SiteHeader() {
               <button type="button" ref={closeRef} className="icon-btn" onClick={() => setMenu(false)} aria-label="Close menu">×</button>
             </div>
             <nav className="side-links" aria-label="Site">
-              {LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
+              {SIDE_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
               <Link to="/cart">Cart{count > 0 ? ` (${count})` : ''}</Link>
+              <p className="side-group">For providers</p>
+              {PROVIDER_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
             </nav>
             <div className="side-actions">
               {loggedIn ? (

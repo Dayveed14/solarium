@@ -254,7 +254,7 @@ export default function ResultsView({ result, mode = 'guest', onChoose }) {
           {options.eaas && (
           <li>
             Energy as a service: {assumptions.eaas.termMonths} months, installation spread over the payments. The price covers the equipment at a
-            {' '}{Math.round(assumptions.eaas.annualReturn * 100)}% yearly return to the provider, running costs, a risk allowance and a {Math.round(assumptions.eaas.platformFeePct * 100)}% Solalium fee. Real vendors set their own terms.
+            {' '}{Math.round(assumptions.eaas.annualReturn * 100)}% yearly return to the provider, running costs, a risk allowance and a {Math.round(assumptions.eaas.platformFeePct * 100)}% Solariun fee. Real vendors set their own terms.
           </li>
           )}
           <li>Last updated {assumptions.asOf}.</li>

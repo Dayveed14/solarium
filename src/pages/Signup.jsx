@@ -25,7 +25,7 @@ export default function Signup() {
   const initialRole = ROLES.some((r) => r.key === params.get('role')) ? params.get('role') : 'individual';
 
   const [role, setRole] = useState(initialRole);
-  const [vendorType, setVendorType] = useState('seller');
+  const [vendorType, setVendorType] = useState(params.get('type') === 'company' ? 'company' : 'seller');
   const [form, setForm] = useState({ fullName: '', companyName: '', email: '', phone: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState(null);
@@ -151,7 +151,7 @@ export default function Signup() {
             errors={fieldErrors}
             legend={role === 'vendor' ? 'Business location (where orders are picked up)' : role === 'installer' ? 'Where you are based (you get jobs in your state)' : 'Delivery address'}
           />
-          <p className="muted small-note">Solalium is live in Lagos and Abuja for now.</p>
+          <p className="muted small-note">Solariun is live in Lagos and Abuja for now.</p>
 
           <label className="field">
             <span>Password</span>
@@ -168,7 +168,7 @@ export default function Signup() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {fieldErrors.password ? <small className="err">{fieldErrors.password}</small> : <small>At least 8 characters, with a letter and a number. Already have a Solalium account with this email? Use its password to add this account type.</small>}
+            {fieldErrors.password ? <small className="err">{fieldErrors.password}</small> : <small>At least 8 characters, with a letter and a number. Already have a Solariun account with this email? Use its password to add this account type.</small>}
           </label>
 
           {emailTaken && (

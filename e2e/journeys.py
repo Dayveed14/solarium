@@ -56,7 +56,7 @@ def run(p, label, ctx_args):
 
     # ---- visitor
     page.goto(BASE + '/'); page.wait_for_load_state('networkidle')
-    assert 'Solalium' in page.title(), page.title()
+    assert 'Solariun' in page.title(), page.title()
     overflow('home'); shot('home')
     page.get_by_role('button', name=re.compile('free energy assessment', re.I)).first.click()
     page.wait_for_timeout(500); shot('assessment-open'); overflow('assessment')
@@ -84,7 +84,7 @@ def run(p, label, ctx_args):
     page.locator('a[href^="/shop/product/"]').first.click()
     page.wait_for_url(re.compile('/shop/product/'))
     page.wait_for_timeout(600); shot('product'); overflow('product')
-    assert 'Solalium' in page.title() and page.locator('script[data-seo-jsonld]').count() == 1
+    assert 'Solariun' in page.title() and page.locator('script[data-seo-jsonld]').count() == 1
     page.get_by_role('button', name='Add to cart').click()
     page.goto(BASE + '/cart'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
     shot('cart'); overflow('cart')

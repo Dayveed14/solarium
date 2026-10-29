@@ -6,7 +6,7 @@ import AddressFields from '../components/AddressFields.jsx';
 import { VENDOR_TYPES } from './Signup.jsx';
 
 const COPY = {
-  vendor: { title: 'Sell on Solalium', text: 'Open a vendor account on the same email and password. Your shopping account stays as it is; switch between them from the menu.', company: 'Company name', loc: 'Business location (where orders are picked up)' },
+  vendor: { title: 'Sell on Solariun', text: 'Open a vendor account on the same email and password. Your shopping account stays as it is; switch between them from the menu.', company: 'Company name', loc: 'Business location (where orders are picked up)' },
   business: { title: 'Open a business account', text: 'Use the same email and password for your company. Switch between accounts from the menu.', company: 'Business or organisation name', loc: 'Business delivery address' },
   installer: { title: 'Work as an installer', text: 'Open an installer account on the same email and password. You will answer a short set of technical questions and our team approves you before you get jobs.', company: null, loc: 'Where you are based (you get jobs in your state)' },
   individual: { title: 'Open an individual account', text: 'Use the same email and password for your home.', company: null, loc: 'Delivery address' },

@@ -35,7 +35,7 @@ export default function Partners() {
       <Seo {...PUBLIC_PAGES['/partners']} path="/partners" />
       <h1>Our partners</h1>
       <p className="muted">
-        Sellers, solar companies and installers who have been checked by Solalium. Sort by state or area to find someone near you.
+        Sellers, solar companies and installers who have been checked by Solariun. Sort by state or area to find someone near you.
         {data ? ` ${data.counts.seller} sellers, ${data.counts.company} companies, ${data.counts.installer} installers.` : ''}
       </p>
 
@@ -77,10 +77,11 @@ export default function Partners() {
                   <td data-label="Name"><strong>{p.name}</strong> <span className="badge badge-verified">Verified</span></td>
                   <td data-label="Type">{KIND[p.kind]}</td>
                   <td data-label="State">{p.stateName ?? '—'}</td>
+                  <td data-label="Area">{p.areaName ?? '—'}</td>
                   <td data-label="What they do">
                     {p.services.join(' · ')}
                     {p.kind !== 'installer' && p.products > 0 ? <small className="muted"> · {p.products} product{p.products === 1 ? '' : 's'} listed</small> : null}
-                    {p.kind === 'installer' && p.jobsCompleted > 0 ? <small className="muted"> · {p.jobsCompleted} job{p.jobsCompleted === 1 ? '' : 's'} done on Solalium</small> : null}
+                    {p.kind === 'installer' && p.jobsCompleted > 0 ? <small className="muted"> · {p.jobsCompleted} job{p.jobsCompleted === 1 ? '' : 's'} done on Solariun</small> : null}
                   </td>
                 </tr>
               ))}

@@ -58,7 +58,7 @@ export default function CheckoutReturn({ mock = false, kind = 'order' }) {
       )}
       {state.phase === 'paid' && fee && (
         <>
-          <h1>Welcome to Solalium</h1>
+          <h1>Welcome to Solariun</h1>
           <p>Your registration fee is paid. You can now add products and deals.</p>
           <Link to="/app" className="btn btn-primary">Go to my dashboard</Link>
         </>

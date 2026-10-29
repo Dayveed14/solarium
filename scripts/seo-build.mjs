@@ -13,22 +13,22 @@ if (!siteUrl) console.warn('[seo] VITE_SITE_URL is not set: canonical links, sit
 
 const PAGES = {
   '/': {
-    title: 'Solalium: Reliable solar power for your home & business in Nigeria',
+    title: 'Solariun: Reliable solar power for your home & business in Nigeria',
     description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
-    body: '<h1>Reliable solar power for your home &amp; business.</h1><p>Solalium shows what your generator and light bill really cost, what solar would save, and how to switch by buying, leasing or paying monthly with vetted providers in Lagos and Abuja.</p><p><a href="/shop">Shop solar products</a></p>',
+    body: '<h1>Reliable solar power for your home &amp; business.</h1><p>Solariun shows what your generator and light bill really cost, what solar would save, and how to switch by buying, leasing or paying monthly with vetted providers in Lagos and Abuja.</p><p><a href="/shop">Shop solar products</a></p>',
   },
   '/partners': {
-    title: 'Solar installers, vendors and companies in Nigeria | Solalium Partners',
-    description: 'Verified solar sellers, installation companies and installers on Solalium, sortable by state and area in Lagos and Abuja.',
-    body: '<h1>Solalium Partners</h1><p>Verified solar sellers, installation companies and installers on Solalium, sortable by state and area in Lagos and Abuja.</p>',
+    title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
+    description: 'Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.',
+    body: '<h1>Solariun Partners</h1><p>Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.</p>',
   },
   '/blog': {
-    title: 'Solar guides and news for homes and businesses in Nigeria | Solalium Blog',
+    title: 'Solar guides and news for homes and businesses in Nigeria | Solariun Blog',
     description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
-    body: '<h1>Solalium Blog</h1><p>Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.</p>',
+    body: '<h1>Solariun Blog</h1><p>Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.</p>',
   },
   '/shop': {
-    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solalium',
+    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solariun',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
     body: '<h1>Solar products in Lagos and Abuja</h1><p>Solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors, with delivery prices shown up front.</p>',
   },
@@ -46,7 +46,7 @@ function render(route, page) {
   const tags = [
     `<link rel="canonical" href="${abs(route === '/' ? '/' : route)}" />`,
     '<meta name="robots" content="index, follow, max-image-preview:large" />',
-    '<meta property="og:site_name" content="Solalium" />',
+    '<meta property="og:site_name" content="Solariun" />',
     `<meta property="og:type" content="${page.type ?? 'website'}" />`,
     `<meta property="og:title" content="${esc(page.title)}" />`,
     `<meta property="og:description" content="${esc(page.description)}" />`,
@@ -87,7 +87,7 @@ if (apiUrl) {
       const paras = full.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((p) => (p.startsWith('## ') ? `<h2>${esc(p.slice(3))}</h2>` : `<p>${esc(p)}</p>`)).join('');
       const out = path.join(dist, 'blog', a.slug, 'index.html');
       fs.mkdirSync(path.dirname(out), { recursive: true });
-      fs.writeFileSync(out, render(route, { title: `${full.title} | Solalium`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));
+      fs.writeFileSync(out, render(route, { title: `${full.title} | Solariun`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));
       urls.push({ loc: route, priority: '0.6' });
       articleCount += 1;
     }

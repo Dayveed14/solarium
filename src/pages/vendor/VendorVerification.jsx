@@ -93,7 +93,7 @@ export default function VendorVerification() {
             <select value={kind ?? ''} onChange={(e) => setKind(e.target.value)}>
               {(isCompany ? ['cac', 'tax', 'id', 'shop', 'other'] : ['shop', 'id', 'cac', 'tax', 'other']).map((k) => <option key={k} value={k}>{KINDS[k]}</option>)}
             </select>
-            <small>PDF, JPEG, PNG or WebP, up to 4 MB. Only you and the Solalium team can see it.</small>
+            <small>PDF, JPEG, PNG or WebP, up to 4 MB. Only you and the Solariun team can see it.</small>
           </label>
           <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" hidden onChange={upload} />
           <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => fileRef.current?.click()}>{busy ? 'Working…' : 'Choose file'}</button>

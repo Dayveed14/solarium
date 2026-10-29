@@ -18,7 +18,7 @@ jobs:
       - name: Production build (also writes robots.txt, sitemap.xml and the pre-rendered pages)
         run: npm run build
         env:
-          VITE_SITE_URL: https://solalium.example
+          VITE_SITE_URL: https://solariun.example
       - name: The build produced what search engines and Vercel need
         run: |
           test -f dist/index.html
@@ -27,9 +27,9 @@ jobs:
           test -f dist/robots.txt
           test -f dist/sitemap.xml
           test -f dist/og-image.png
-          grep -q 'rel="canonical" href="https://solalium.example/shop"' dist/shop/index.html
+          grep -q 'rel="canonical" href="https://solariun.example/shop"' dist/shop/index.html
           grep -q 'Disallow: /app' dist/robots.txt
-          grep -q 'Sitemap: https://solalium.example/sitemap.xml' dist/robots.txt
+          grep -q 'Sitemap: https://solariun.example/sitemap.xml' dist/robots.txt
 
   audit:
     runs-on: ubuntu-latest
