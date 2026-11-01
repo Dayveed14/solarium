@@ -131,6 +131,7 @@ export const api = {
   // public shop (always for one state)
   shopProducts: (params = {}) => request(`/shop/products${qs(params)}`),
   shopDeals: (params = {}) => request(`/shop/deals${qs(params)}`),
+  shopBudgetPicks: (params = {}) => request(`/shop/budget-picks${qs(params)}`),
   shopProduct: (id, dest) => request(`/shop/products/${id}${qs(dest ?? {})}`),
   shopDeal: (id, dest) => request(`/shop/deals/${id}${qs(dest ?? {})}`),
 

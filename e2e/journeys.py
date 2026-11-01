@@ -60,8 +60,22 @@ def run(p, label, ctx_args):
     overflow('home'); shot('home')
     page.get_by_role('button', name=re.compile('free energy assessment', re.I)).first.click()
     page.wait_for_timeout(500); shot('assessment-open'); overflow('assessment')
+    # With a budget, the person chooses between suggestions for it and picking their own devices.
+    page.locator('input[name=segment]').first.check(force=True)
+    page.get_by_label(re.compile('How much can you spend')).fill('500000')
+    page.get_by_role('button', name='Continue').click(); page.wait_for_timeout(400)
+    assert page.get_by_text('Suggest for my budget').count() > 0 and page.get_by_text(re.compile('pick my devices', re.I)).count() > 0
+    shot('assessment-choose'); overflow('assessment-choose')
+    page.get_by_text('Suggest for my budget').click(); page.wait_for_timeout(500)
+    if page.get_by_role('button', name='Lagos').count() > 0:
+        page.get_by_role('button', name='Lagos').first.click()
+    page.wait_for_timeout(1200)
+    assert page.locator('.picks').count() > 0
+    shot('assessment-picks'); overflow('assessment-picks')
+    page.get_by_role('button', name='Pick my devices instead').click(); page.wait_for_timeout(600)
+    assert page.get_by_text('What do you use?').count() > 0, 'picking devices goes on to the appliance step'
     page.keyboard.press('Escape')
-    step('home loads, assessment dialog opens')
+    step('home loads, assessment dialog opens; a budget leads to suggestions or to picking devices')
 
     # ---- customer signs up, shops, pays (simulated)
     cust = f'jr-cust-{label}-{STAMP}@example.test'
@@ -133,6 +147,40 @@ def run(p, label, ctx_args):
     assert page.locator('text=Journey MPPT 60A').count() > 0
     shot('vendor-products-after'); overflow('vendor-products-after')
     step('vendor added a cable (no size asked) and a charge controller (amps asked); both listed')
+
+    # ---- long description, then a deal built from a listed product plus a typed-in item, with an automatic total
+    page.get_by_role('button', name='Add product').first.click(); page.wait_for_timeout(400)
+    page.get_by_label('Type').select_option('cable')
+    page.get_by_label('Product name').fill('Journey described cable')
+    page.get_by_label(re.compile('Your price')).fill('20000')
+    desc = page.get_by_label(re.compile('^Description'))
+    desc.fill('Line one of a long description.\n' + ('More detail. ' * 120))
+    assert 'characters' in page.locator('text=/\\/ 5,000 characters/').first.inner_text()
+    shot('vendor-form-description'); overflow('vendor-form-description')
+    page.get_by_role('button', name='Add product').last.click(); page.wait_for_timeout(1200)
+    assert page.locator('text=Journey described cable').count() > 0
+    page.goto(BASE + '/app/deals'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    page.get_by_role('button', name=re.compile('Build (a|your first) deal')).first.click(); page.wait_for_timeout(500)
+    page.get_by_label('Deal name').fill('Journey wiring bundle')
+    page.get_by_role('button', name='+ From my products').click()
+    page.get_by_label('Product').first.select_option(index=1)
+    page.get_by_label('How many').first.fill('2')
+    page.get_by_role('button', name='+ New item').click()
+    page.get_by_label('Item name').fill('Installation kit')
+    page.get_by_label('Price of one in naira').fill('15000')
+    page.wait_for_timeout(300)
+    total_text = page.locator('.deal-total strong').inner_text()
+    assert re.search(r'[0-9]', total_text), total_text
+    digits = int(re.sub(r'[^0-9]', '', total_text.split('.')[0]))
+    assert digits >= 15000 + 2 * 20000 or digits >= 15000 + 2 * 45000 or digits > 15000, total_text
+    page.get_by_role('button', name='Use as buy price').click()
+    page.get_by_label(re.compile('Total price')).fill(str(digits))
+    shot('vendor-deal-form'); overflow('vendor-deal-form')
+    page.get_by_role('button', name=re.compile('Save')).last.click(); page.wait_for_timeout(1500)
+    assert page.locator('text=Journey wiring bundle').count() > 0, 'the bundle deal was not saved'
+    assert page.locator('text=Installation kit').count() > 0
+    shot('vendor-deals-after'); overflow('vendor-deals-after')
+    step('a deal of listed + typed-in items shows an automatic total and saves as a bundle')
 
     # ---- admin
     admin = f'jr-admin-{label}-{STAMP}@example.test'

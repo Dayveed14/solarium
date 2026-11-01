@@ -8,18 +8,19 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { fieldErrorsOf, groupDigits, parseNumber } from '../../lib/forms.js';
 
 const money = (v) => (v == null ? '' : groupDigits(v));
-const itemOf = (deal, category) => deal?.items.find((i) => i.category === category);
+let rowSeq = 0;
+const newKey = () => `r${++rowSeq}`;
+// One line of a deal: either one of the vendor's own products, or a new item they type in.
+const rowsOf = (deal) => [
+  ...(deal?.items ?? []).map((i) => ({ key: newKey(), kind: 'product', productId: String(i.productId), qty: String(i.qty), name: '', price: '' })),
+  ...(deal?.extras ?? []).map((x) => ({ key: newKey(), kind: 'new', productId: '', qty: String(x.qty), name: x.name, price: money(x.unitPrice) })),
+];
 
 function initial(deal) {
   return {
     title: deal?.title ?? '',
     description: deal?.description ?? '',
-    panelId: String(itemOf(deal, 'panel')?.productId ?? ''),
-    panelQty: String(itemOf(deal, 'panel')?.qty ?? '2'),
-    inverterId: String(itemOf(deal, 'inverter')?.productId ?? ''),
-    inverterQty: String(itemOf(deal, 'inverter')?.qty ?? '1'),
-    batteryId: String(itemOf(deal, 'battery')?.productId ?? ''),
-    batteryQty: String(itemOf(deal, 'battery')?.qty ?? '1'),
+    rows: rowsOf(deal),
     installationIncluded: deal?.installationIncluded ?? true,
     warrantyYears: deal?.warrantyYears == null ? '' : String(deal.warrantyYears),
     buyOn: deal ? deal.buyPrice != null : true,
@@ -54,27 +55,36 @@ export default function DealForm({ deal, onClose, onSaved }) {
     api.vendorProducts().then((r) => setProducts(r.products)).catch((e) => setFormError(e.message));
   }, []);
 
-  const by = useMemo(() => {
-    const out = { panel: [], inverter: [], battery: [] };
-    for (const p of products ?? []) if (out[p.category]) out[p.category].push(p); // deals only use panels, inverters, batteries
-    return out;
-  }, [products]);
+  const byId = useMemo(() => new Map((products ?? []).map((p) => [String(p.id), p])), [products]);
 
   const set = (key) => (e) => setF((x) => ({ ...x, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setMoney = (key) => (e) => setF((x) => ({ ...x, [key]: groupDigits(e.target.value) }));
   const err = (k) => errors[k] && <small className="err">{errors[k]}</small>;
 
-  const picked = (category) => by[category].find((p) => String(p.id) === f[`${category}Id`]);
-  const panel = picked('panel');
-  const inverter = picked('inverter');
-  const battery = picked('battery');
-  const qty = (k) => Math.max(0, Number.parseInt(f[`${k}Qty`], 10) || 0);
+  const addRow = (kind) => setF((x) => ({ ...x, rows: [...x.rows, { key: newKey(), kind, productId: '', qty: '1', name: '', price: '' }] }));
+  const patchRow = (key, patch) => setF((x) => ({ ...x, rows: x.rows.map((r) => (r.key === key ? { ...r, ...patch } : r)) }));
+  const dropRow = (key) => setF((x) => ({ ...x, rows: x.rows.filter((r) => r.key !== key) }));
 
-  // A live read-out of the system they are building. The server works the same numbers out again.
+  // Each line's price: a listed product uses its current price; a new item uses the price typed in.
+  const lineOf = (r) => {
+    const q = Math.max(0, Number.parseInt(r.qty, 10) || 0);
+    if (r.kind === 'product') { const p = byId.get(r.productId); return { product: p, qty: q, unit: p?.price ?? 0, total: (p?.price ?? 0) * q }; }
+    const unit = parseNumber(r.price) ?? 0;
+    return { product: null, qty: q, unit, total: unit * q };
+  };
+  const lines = f.rows.map((r) => ({ r, ...lineOf(r) }));
+  const itemsTotal = lines.reduce((sum, l) => sum + l.total, 0);
+
+  // A full system (panel + inverter + battery) gets its size worked out; anything else is a bundle with no size.
+  const core = (category) => lines.filter((l) => l.product?.category === category);
+  const panel = core('panel')[0]?.product;
+  const inverter = core('inverter')[0]?.product;
+  const battery = core('battery')[0]?.product;
+  const isSystem = Boolean(panel && inverter && battery);
   const specs = {
-    kwp: panel ? (panel.rating * qty('panel')) / 1000 : 0,
-    kva: inverter ? inverter.rating * qty('inverter') : 0,
-    kwh: battery ? battery.rating * qty('battery') : 0,
+    kwp: core('panel').reduce((a, l) => a + (l.product.rating * l.qty) / 1000, 0),
+    kva: core('inverter').reduce((a, l) => a + l.product.rating * l.qty, 0),
+    kwh: core('battery').reduce((a, l) => a + l.product.rating * l.qty, 0),
   };
   const step = inverter && battery && battery.systemVoltage && inverter.systemVoltage % battery.systemVoltage === 0 ? inverter.systemVoltage / battery.systemVoltage : null;
   const voltageProblem = inverter && battery && !step;
@@ -95,13 +105,13 @@ export default function DealForm({ deal, onClose, onSaved }) {
   }, []);
 
   // Live price check: the server works the monthly fee out from the terms, so the vendor sees what customers will see.
-  const previewKey = JSON.stringify([f.eaasOn, f.eaasTenor, f.eaasReturn, f.eaasCost, f.eaasInstall, f.eaasInstallMode, f.panelId, f.panelQty, f.inverterId, f.inverterQty, f.batteryId, f.batteryQty]);
+  const previewKey = JSON.stringify([f.eaasOn, f.eaasTenor, f.eaasReturn, f.eaasCost, f.eaasInstall, f.eaasInstallMode, JSON.stringify(f.rows)]);
   useEffect(() => {
-    if (!f.eaasOn || !panel || !inverter || !battery) { setPreview(null); return undefined; }
+    if (!f.eaasOn || !isSystem) { setPreview(null); return undefined; }
     const t = setTimeout(() => {
       api
         .vendorEaasPreview({
-          items: [panel, inverter, battery].map((p) => ({ productId: p.id, qty: qty(p.category) })),
+          items: lines.filter((l) => l.product && ['panel', 'inverter', 'battery'].includes(l.product.category)).map((l) => ({ productId: l.product.id, qty: l.qty })),
           eaas: eaasBody(),
         })
         .then((r) => setPreview({ ok: true, ...r }))
@@ -131,11 +141,8 @@ export default function DealForm({ deal, onClose, onSaved }) {
     const body = {
       title: f.title.trim(),
       description: f.description.trim() || null,
-      items: [
-        panel && { productId: panel.id, qty: qty('panel') },
-        inverter && { productId: inverter.id, qty: qty('inverter') },
-        battery && { productId: battery.id, qty: qty('battery') },
-      ].filter(Boolean),
+      items: lines.filter((l) => l.product).map((l) => ({ productId: l.product.id, qty: l.qty })),
+      extras: lines.filter((l) => !l.product && l.r.kind === 'new').map((l) => ({ name: l.r.name.trim(), qty: l.qty, unitPrice: l.unit })),
       installationIncluded: f.installationIncluded,
       warrantyYears: num('warrantyYears') ?? null,
       buyPrice: f.buyOn ? num('buyPrice') ?? null : null,
@@ -161,25 +168,6 @@ export default function DealForm({ deal, onClose, onSaved }) {
     }
   };
 
-  const missing = products && ['panel', 'inverter', 'battery'].filter((c) => by[c].length === 0);
-
-  const picker = (category, qtyHint) => (
-    <div className="deal-part">
-      <label className="field">
-        <span>{CATEGORY_LABEL[category]}</span>
-        <select value={f[`${category}Id`]} onChange={set(`${category}Id`)}>
-          <option value="">Choose…</option>
-          {by[category].map((p) => <option key={p.id} value={p.id}>{p.name} · {sizeText(p)}</option>)}
-        </select>
-      </label>
-      <label className="field field-qty">
-        <span>How many</span>
-        <input type="text" inputMode="numeric" value={f[`${category}Qty`]} onChange={set(`${category}Qty`)} aria-label={`Number of ${CATEGORY_LABEL[category].toLowerCase()}s`} />
-      </label>
-      {qtyHint && <small className="deal-hint">{qtyHint}</small>}
-    </div>
-  );
-
   return (
     <Dialog
       title={editing ? 'Edit deal' : 'Build a combo or deal'}
@@ -189,7 +177,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
       footer={
         <>
           <button type="button" className="btn btn-quiet" onClick={onClose}>Cancel</button>
-          <button type="submit" form="deal-form" className="btn btn-primary" disabled={saving || !products || missing?.length > 0}>
+          <button type="submit" form="deal-form" className="btn btn-primary" disabled={saving || !products}>
             {saving ? 'Saving…' : f.publish ? 'Save and publish' : 'Save draft'}
           </button>
         </>
@@ -197,14 +185,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
     >
       {!products && !formError && <p className="muted" role="status">Loading your products…</p>}
 
-      {missing?.length > 0 && (
-        <p className="form-error" role="alert">
-          A deal needs at least one {missing.map((m) => CATEGORY_LABEL[m].toLowerCase()).join(', one ')} in your catalogue first.{' '}
-          <Link to="/app/products" onClick={onClose}>Add products</Link>
-        </p>
-      )}
-
-      {products && missing?.length === 0 && (
+      {products && (
         <form id="deal-form" onSubmit={submit} noValidate>
           <label className="field">
             <span>Deal name</span>
@@ -214,14 +195,60 @@ export default function DealForm({ deal, onClose, onSaved }) {
 
           <fieldset className="deal-parts">
             <legend className="field-legend">What&apos;s in it</legend>
-            {picker('panel')}
-            {picker('inverter')}
-            {picker('battery', step > 1 ? `Your inverter is ${inverter.systemVoltage}V and this battery is ${battery.systemVoltage}V, so batteries must be in groups of ${step}.` : null)}
+            <p className="muted">Add anything you sell: items from your products, or new items you type in. The total is worked out for you.</p>
+            <div className="deal-rows">
+              {lines.map(({ r, product, qty, unit, total }) => (
+                <div key={r.key} className={`deal-row${r.kind === 'new' ? ' deal-row-new' : ''}`}>
+                  <span className="kind">{r.kind === 'product' ? 'From my products' : 'New item'}</span>
+                  {r.kind === 'product' ? (
+                    <label className="field">
+                      <span className="sr-only">Product</span>
+                      <select value={r.productId} onChange={(e) => patchRow(r.key, { productId: e.target.value })} aria-label="Product">
+                        <option value="">Choose a product…</option>
+                        {(products ?? []).map((p) => <option key={p.id} value={p.id}>{p.name} · {CATEGORY_LABEL[p.category] ?? p.category} · {naira(p.price)}</option>)}
+                      </select>
+                    </label>
+                  ) : (
+                    <label className="field">
+                      <span className="sr-only">Item name</span>
+                      <input type="text" value={r.name} maxLength={120} placeholder="Item name, e.g. Installation kit" onChange={(e) => patchRow(r.key, { name: e.target.value })} aria-label="Item name" />
+                    </label>
+                  )}
+                  <label className="field">
+                    <span className="sr-only">How many</span>
+                    <input type="text" inputMode="numeric" value={r.qty} onChange={(e) => patchRow(r.key, { qty: e.target.value })} aria-label="How many" />
+                  </label>
+                  {r.kind === 'new' ? (
+                    <label className="field">
+                      <span className="sr-only">Price of one (₦)</span>
+                      <input type="text" inputMode="numeric" value={r.price} placeholder="Price of one (₦)" onChange={(e) => patchRow(r.key, { price: groupDigits(e.target.value) })} aria-label="Price of one in naira" />
+                    </label>
+                  ) : <span className="muted">{product ? `${naira(unit)} each` : ''}</span>}
+                  <button type="button" className="btn btn-quiet btn-small" onClick={() => dropRow(r.key)} aria-label="Remove this item">Remove</button>
+                  <span className="row-total">{total ? naira(total) : ''}{qty > 1 && total ? <small className="muted"> ({qty} × {naira(unit)})</small> : null}</span>
+                </div>
+              ))}
+            </div>
+            <div className="deal-add">
+              <button type="button" className="btn btn-ghost btn-small" onClick={() => addRow('product')} disabled={!products?.length}>+ From my products</button>
+              <button type="button" className="btn btn-ghost btn-small" onClick={() => addRow('new')}>+ New item</button>
+            </div>
+            {!products?.length && <p className="muted">You have no listed products yet. Type new items, or <Link to="/app/products" onClick={onClose}>add products</Link> first.</p>}
             {err('items')}
             {voltageProblem && <small className="err">The battery ({battery.systemVoltage}V) can&apos;t run this inverter ({inverter.systemVoltage}V).</small>}
-            <p className="deal-specs" aria-live="polite">
-              <strong>This system:</strong> {specs.kwp.toFixed(2)} kWp solar · {specs.kva.toFixed(1)} kVA inverter · {specs.kwh.toFixed(1)} kWh battery
-            </p>
+            {step > 1 && <small className="deal-hint">Your inverter is {inverter.systemVoltage}V and the battery is {battery.systemVoltage}V, so batteries must be in groups of {step}.</small>}
+            <div className="deal-total" aria-live="polite">
+              <span>Items total</span>
+              <strong>{naira(itemsTotal)}</strong>
+              {itemsTotal > 0 && f.buyOn && <button type="button" className="btn btn-quiet btn-small" onClick={() => setF((x) => ({ ...x, buyPrice: groupDigits(String(itemsTotal)) }))}>Use as buy price</button>}
+            </div>
+            {isSystem ? (
+              <p className="deal-specs" aria-live="polite">
+                <strong>This system:</strong> {specs.kwp.toFixed(2)} kWp solar · {specs.kva.toFixed(1)} kVA inverter · {specs.kwh.toFixed(1)} kWh battery
+              </p>
+            ) : (
+              <p className="muted">Without a panel, inverter and battery this is a bundle: customers find it in the shop and in budget suggestions, not in system matches.</p>
+            )}
           </fieldset>
 
           <fieldset className="deal-plans">
@@ -273,12 +300,12 @@ export default function DealForm({ deal, onClose, onSaved }) {
             </div>
 
             <div className="plan-box">
-              {user.vendorType !== 'company' ? (
-                <p className="muted">Energy as a service is for registered companies. Register as a <strong>Company</strong> and upload your CAC to offer it.</p>
+              {user.vendorType !== 'company' || !isSystem ? (
+                <p className="muted">{user.vendorType !== 'company' ? <>Energy as a service is for registered companies. Register as a <strong>Company</strong> and upload your CAC to offer it.</> : 'Energy as a service needs a full system: add a panel, an inverter and a battery from your products.'}</p>
               ) : (
                 <label className="plan-toggle"><input type="checkbox" checked={f.eaasOn} onChange={set('eaasOn')} /> Energy as a service</label>
               )}
-              {f.eaasOn && user.vendorType === 'company' && (
+              {f.eaasOn && user.vendorType === 'company' && isSystem && (
                 <div className="eaas-form">
                   <p className="muted">
                     You don&apos;t type a monthly fee. It is worked out from your cost and the return you want, plus running costs, a risk allowance and Solariun&apos;s {rules ? Math.round(rules.platformFeePct * 100) : 6}% fee.
@@ -354,9 +381,8 @@ export default function DealForm({ deal, onClose, onSaved }) {
 
           {formError && <p className="form-error" role="alert">{formError}</p>}
           {(deal?.items ?? []).some((i) => i.productStatus === 'archived') && (
-            <p className="form-error" role="alert">This deal uses a product you removed. Choose a replacement above.</p>
+            <p className="form-error" role="alert">This deal uses a product you removed. Remove it above or choose a replacement.</p>
           )}
-          <p className="muted">Prices: panel {panel ? naira(panel.price * qty('panel')) : '–'} · inverter {inverter ? naira(inverter.price * qty('inverter')) : '–'} · battery {battery ? naira(battery.price * qty('battery')) : '–'} at your product prices, for reference.</p>
         </form>
       )}
       {formError && !products && <p className="form-error" role="alert">{formError}</p>}

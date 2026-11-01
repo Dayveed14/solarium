@@ -210,8 +210,9 @@ export default function ProductForm({ product, onClose, onSaved, admin = false }
         </div>
 
         <label className="field">
-          <span>Notes <em>(optional)</em></span>
-          <textarea rows={3} value={f.description} onChange={set('description')} maxLength={500} placeholder={sized ? undefined : 'Sizes, ratings and what it is compatible with'} />
+          <span>Description <em>(optional)</em></span>
+          <textarea className="long-text" rows={8} value={f.description} onChange={set('description')} maxLength={5000} placeholder="Anything the form above does not cover: features, what is in the box, sizes and ratings, what it works with, how it is installed, delivery and warranty details…" />
+          <small className="muted">{f.description.length.toLocaleString('en-NG')} / 5,000 characters</small>
           {err('description')}
         </label>
 

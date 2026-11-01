@@ -31,9 +31,9 @@ export default function Home() {
             <p className="eyebrow">Solar energy, made simple</p>
             <h1>Reliable solar power for your home &amp; business.</h1>
             <p className="lede">
-              Tick the appliances you use. In three minutes Solariun shows what your generator and your light bill really
-              cost, what solar would save, and how to switch by renting, leasing or paying monthly, with vetted providers
-              rather than sales pitches.
+              Tick the appliances you use. In three minutes see what your generator and light bill really cost, what solar
+              would save<span className="hide-sm">, and how to switch by renting, leasing or paying monthly, with vetted providers
+              rather than sales pitches</span>.
             </p>
             <div className="hero-actions">
               <button type="button" className="btn btn-primary" onClick={() => open()}>
@@ -41,7 +41,7 @@ export default function Home() {
               </button>
               <Link to="/#how" className="btn btn-ghost">See how it works</Link>
             </div>
-            <p className="hero-note">Free · No sign-up to see your results · No watts or volts to look up</p>
+            <p className="hero-note hide-sm">Free · No sign-up to see your results · No watts or volts to look up</p>
           </div>
 
           <div className="hero-panel" aria-label="Example monthly power cost comparison">
@@ -80,8 +80,8 @@ export default function Home() {
             <h2>Running on borrowed power</h2>
             <p>
               Generators fill the gap the grid leaves, but fuel is priced against the dollar and your business is priced in
-              naira. Most people make six-figure energy decisions on gut feeling, because nobody hands them the numbers
-              first.
+              naira.<span className="hide-sm"> Most people make six-figure energy decisions on gut feeling, because nobody hands them the numbers
+              first.</span>
             </p>
           </div>
           <div className="reality-stat">
@@ -90,7 +90,7 @@ export default function Home() {
               what a typical small business can spend on diesel in a single month <em>(estimate, mid-size retail outlet)</em>
             </span>
           </div>
-          <div className="reality-notes">
+          <div className="reality-notes hide-sm">
             <div className="note">
               <span className="note-mark" />
               <p>Light hours are rarely predictable enough to plan a day around.</p>
@@ -137,7 +137,7 @@ export default function Home() {
 
       <section className="platform" id="platform">
         <div className="wrap platform-grid">
-          <div className="load-panel">
+          <div className="load-panel hide-sm">
             <div className="panel-head">
               <span className="panel-title">Load profile intelligence</span>
               <span className="panel-tag">Illustrative</span>
@@ -159,7 +159,7 @@ export default function Home() {
           </div>
 
           <div className="capabilities">
-            <h2>Built to answer real questions, not just show dashboards</h2>
+            <h2>Built to answer real questions</h2>
             <ul className="cap-list">
               <li><h4>Provider matching</h4><p>Vetted installers and financiers ranked against your load, not their ad spend.</p></li>
               <li><h4>Rent, lease or pay monthly</h4><p>See every way to switch side by side before you talk to anyone.</p></li>
@@ -186,14 +186,14 @@ export default function Home() {
             <h2>Built for installers, sellers and financiers too</h2>
             <p>
               Solariun qualifies demand before it reaches you: real load data, real budgets, real intent. No cold
-              outreach, no bidding against a discount code. Customers arrive having already worked out what they use and what they can spend.
+              outreach<span className="hide-sm">, no bidding against a discount code. Customers arrive having already worked out what they use and what they can spend</span>.
             </p>
           </div>
 
           <div className="provider-cards">
             <article className="provider-card">
               <h3>Sellers</h3>
-              <p className="provider-for">Shops, distributors and dealers of panels, inverters, batteries and parts</p>
+              <p className="provider-for hide-sm">Shops, distributors and dealers of panels, inverters, batteries and parts</p>
               <ul>
                 <li>List products and ready-made packages with your own prices</li>
                 <li>Appear when a customer&apos;s need and budget match what you sell</li>
@@ -204,7 +204,7 @@ export default function Home() {
             </article>
             <article className="provider-card">
               <h3>Companies</h3>
-              <p className="provider-for">Registered solar companies that sell, install and finance</p>
+              <p className="provider-for hide-sm">Registered solar companies that sell, install and finance</p>
               <ul>
                 <li>Everything a seller gets, plus Energy-as-a-Service plans for businesses</li>
                 <li>Lease, rent and pay-monthly deals shown next to cash prices</li>
@@ -215,7 +215,7 @@ export default function Home() {
             </article>
             <article className="provider-card">
               <h3>Installers</h3>
-              <p className="provider-for">Independent technicians and crews who fit systems</p>
+              <p className="provider-for hide-sm">Independent technicians and crews who fit systems</p>
               <ul>
                 <li>Pass a short technical quiz and get approved</li>
                 <li>Jobs in your state land in your dashboard; the first to accept wins it</li>
@@ -226,7 +226,7 @@ export default function Home() {
             </article>
           </div>
 
-          <ol className="provider-steps" aria-label="How joining works">
+          <ol className="provider-steps hide-sm" aria-label="How joining works">
             <li><strong>Sign up</strong><span>Create your account and confirm your email.</span></li>
             <li><strong>Get verified</strong><span>Upload your documents (or take the quiz). We review and approve.</span></li>
             <li><strong>Go live</strong><span>Post products, deals or accept jobs, and start getting customers.</span></li>

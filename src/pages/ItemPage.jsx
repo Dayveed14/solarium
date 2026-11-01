@@ -42,7 +42,7 @@ export default function ItemPage({ kind }) {
 
   const path = `/shop/${kind}/${id}`;
   const apiBase = import.meta.env.VITE_API_URL ?? '';
-  const summary = [kind === 'product' ? CATEGORY_LABEL[item.category] : 'Solar combo', kind === 'product' ? [item.brand, sizeText(item)].filter(Boolean).join(' ') : '', item.description].filter(Boolean).join('. ');
+  const summary = [kind === 'product' ? CATEGORY_LABEL[item.category] : item.isSystem === false ? 'Bundle' : 'Solar combo', kind === 'product' ? [item.brand, sizeText(item)].filter(Boolean).join(' ') : '', item.description].filter(Boolean).join('. ');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -68,11 +68,14 @@ export default function ItemPage({ kind }) {
           {kind === 'product' && <p className="shop-meta">{[item.brand, sizeText(item)].filter(Boolean).join(' · ')}</p>}
           {kind === 'deal' && (
             <>
-              <p className="shop-meta">{item.specs.panelKwp} kWp · {item.specs.inverterKva} kVA · {item.specs.batteryKwh} kWh{item.installationIncluded ? ' · installation included' : ''}</p>
-              <ul className="deal-items">{item.items.map((i) => <li key={i.productId}>{i.qty} × {i.name}</li>)}</ul>
+              <p className="shop-meta">{[item.isSystem ? `${item.specs.panelKwp} kWp · ${item.specs.inverterKva} kVA · ${item.specs.batteryKwh} kWh` : null, item.installationIncluded ? 'installation included' : null].filter(Boolean).join(' · ')}</p>
+              <ul className="deal-items">
+                {item.items.map((i) => <li key={i.productId}>{i.qty} × {i.name}</li>)}
+                {(item.extras ?? []).map((x, n) => <li key={`x${n}`}>{x.qty} × {x.name}</li>)}
+              </ul>
             </>
           )}
-          {item.description && <p>{item.description}</p>}
+          {item.description && <p className="item-desc">{item.description}</p>}
           {item.warrantyYears ? <p className="muted">{item.warrantyYears}-year warranty</p> : null}
 
           <section className="vendor-card" aria-label="About the vendor">

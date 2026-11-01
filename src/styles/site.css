@@ -656,3 +656,31 @@ p {
 .provider-foot { margin-top: 26px; }
 .provider-foot a { color: var(--solar-light); }
 @media (max-width: 860px) { .provider-cards, .provider-steps { grid-template-columns: 1fr; } }
+
+/* ---------- Phones: shorter, smaller, less to scroll ---------- */
+@media (max-width: 560px) {
+  .hide-sm { display: none !important; }
+  body { font-size: 15px; line-height: 1.5; }
+  .hero, .reality, .how, .platform, .home-blog, .providers { padding-top: 32px; padding-bottom: 32px; }
+  .final-cta { padding-top: 32px; padding-bottom: 32px; }
+  .hero h1 { font-size: 30px; line-height: 1.12; }
+  .lede { font-size: 15px; line-height: 1.5; }
+  .reality h2, .how h2, .providers h2, .capabilities h2, .home-blog h2 { font-size: 22px; line-height: 1.2; }
+  .final-cta h2 { font-size: 24px; }
+  .hero-grid, .reality-grid, .platform-grid { gap: 20px; }
+  .hero-actions { gap: 8px; }
+  .hero-actions .btn { padding: 12px 16px; font-size: 15px; }
+  .hero-panel { padding: 14px; }
+  .stat-figure { font-size: 40px; }
+  .steps { gap: 18px; }
+  .step p, .cap-list p { font-size: 14px; line-height: 1.45; }
+  .cap-list li:nth-child(n + 3) { display: none; }
+  .article-grid > :nth-child(n + 2) { display: none; }
+  /* The three provider cards sit side by side and swipe, instead of stacking into one very long column. */
+  .provider-cards { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 18px -16px 0; padding: 0 16px 8px; }
+  .provider-card { flex: 0 0 84%; scroll-snap-align: center; padding: 18px; }
+  .provider-card ul { font-size: 14px; margin-bottom: 10px; }
+  .provider-card li:nth-child(n + 3) { display: none; }
+  .provider-foot { margin-top: 14px; font-size: 14px; }
+  .footer { padding: 28px 0; }
+}

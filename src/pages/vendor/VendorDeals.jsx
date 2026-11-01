@@ -66,12 +66,14 @@ export default function VendorDeals() {
                 <h3>{d.title}</h3>
                 <span className={`badge badge-${broken ? 'warn' : d.status}`}>{broken ? 'Needs attention' : STATUS_LABEL[d.status]}</span>
               </div>
-              <p className="deal-specs-line">{d.specs.panelKwp} kWp solar · {d.specs.inverterKva} kVA inverter · {d.specs.batteryKwh} kWh battery</p>
+              {d.specs.panelKwp > 0 && <p className="deal-specs-line">{d.specs.panelKwp} kWp solar · {d.specs.inverterKva} kVA inverter · {d.specs.batteryKwh} kWh battery</p>}
               <ul className="deal-items">
                 {d.items.map((i) => (
                   <li key={i.productId}>{i.qty} × {i.name} <small>({sizeText(i)})</small>{i.productStatus === 'archived' && <span className="badge badge-warn">Removed</span>}</li>
                 ))}
+                {(d.extras ?? []).map((x, n) => <li key={`x${n}`}>{x.qty} × {x.name} <small>({naira(x.unitPrice)} each)</small></li>)}
               </ul>
+              {d.itemsTotal > 0 && <p className="muted">Items add up to {naira(d.itemsTotal)}</p>}
               <ul className="plan-chips">
                 {d.plans.map((p) => <li key={p}><span>{PLAN_LABEL[p]}</span>{planLine(d, p)}</li>)}
               </ul>

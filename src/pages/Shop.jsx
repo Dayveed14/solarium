@@ -141,9 +141,9 @@ export default function Shop() {
             <li key={d.id} className="shop-card">
               <Link to={`/shop/deal/${d.id}?${here}`} className="card-link">
                 <Picture url={d.imageUrl} alt={d.title} />
-                <p className="shop-cat">Combo</p>
+                <p className="shop-cat">{d.isSystem ? 'Combo' : 'Bundle'}</p>
                 <h3>{d.title}</h3>
-                <p className="shop-meta">{d.specs.panelKwp} kWp · {d.specs.inverterKva} kVA · {d.specs.batteryKwh} kWh</p>
+                <p className="shop-meta">{d.isSystem ? `${d.specs.panelKwp} kWp · ${d.specs.inverterKva} kVA · ${d.specs.batteryKwh} kWh` : 'Bundle'}</p>
                 <p className="shop-vendor">{d.vendor.name}{d.vendor.verified && <span className="badge badge-verified">Verified</span>}{d.vendor.areaName && <small> · {d.vendor.areaName}</small>}</p>
                 <p className="shop-price">{dealFrom(d)}</p>
               </Link>

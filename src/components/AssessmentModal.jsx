@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
+import { useShop } from '../auth/ShopContext.jsx';
+import { naira } from '../lib/format.js';
 import { loadPending, savePending } from '../lib/pending.js';
 import ApplianceRow from './ApplianceRow.jsx';
 import { useAssessment } from './AssessmentContext.jsx';
@@ -83,6 +85,11 @@ function Wizard({ edit, initialSegment, onClose }) {
   const [budgetText, setBudgetText] = useState(pending?.input?.budget ? String(pending.input.budget) : '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  // With a budget, the person chooses: see what we suggest for it, or pick their own appliances. null = the normal steps.
+  const [view, setView] = useState(null); // null | 'choose' | 'picks'
+  const { dest } = useShop();
+  const [pickState, setPickState] = useState(dest?.state === 'abuja' || dest?.state === 'lagos' ? dest.state : null);
+  const [picks, setPicks] = useState({ loading: false, data: null, error: null });
 
   const { data: catalog, error: catalogError } = useCatalog(segment);
 
@@ -204,6 +211,20 @@ function Wizard({ edit, initialSegment, onClose }) {
     }
   };
 
+  // Fetch the suggestions for this budget and place.
+  useEffect(() => {
+    if (view !== 'picks' || !pickState || !budgetValue) return undefined;
+    let cancelled = false;
+    setPicks({ loading: true, data: null, error: null });
+    api.shopBudgetPicks({ state: pickState, budget: budgetValue })
+      .then((data) => !cancelled && setPicks({ loading: false, data, error: null }))
+      .catch((e) => !cancelled && setPicks({ loading: false, data: null, error: e.message }));
+    return () => { cancelled = true; };
+  }, [view, pickState, budgetValue]);
+
+  const toAppliances = () => { setView(null); setStep(1); };
+  const goNext = () => (step === 0 && budgetValue ? setView('choose') : setStep(step + 1));
+
   const canNext = step === 0 ? Boolean(segment) : step === 1 ? chosenAppliances > 0 : true;
   const visibleAppliances = catalog && category ? catalog.appliances.filter((a) => a.category === category) : [];
 
@@ -219,19 +240,36 @@ function Wizard({ edit, initialSegment, onClose }) {
       >
         <header className="modal-head">
           <div>
-            <p className="eyebrow">Free energy assessment · Step {step + 1} of 3</p>
-            <h2 id="assess-title">{STEP_TITLES[step]}</h2>
+            <p className="eyebrow">Free energy assessment{view ? '' : ` · Step ${step + 1} of 3`}</p>
+            <h2 id="assess-title">{view === 'choose' ? 'How should we help with your budget?' : view === 'picks' ? `What ₦${budgetValue.toLocaleString('en-NG')} can get` : STEP_TITLES[step]}</h2>
           </div>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close assessment">
             ×
           </button>
         </header>
         <div className="progress" aria-hidden="true">
-          <span style={{ width: `${((step + 1) / 3) * 100}%` }} />
+          <span style={{ width: `${view ? 50 : ((step + 1) / 3) * 100}%` }} />
         </div>
 
         <div className="modal-body">
-          {step === 0 && (
+          {view === 'choose' && (
+            <div className="choice-grid">
+              <button type="button" className="choice choice-btn" onClick={() => setView('picks')}>
+                <strong>Suggest for my budget</strong>
+                <span>See deals and items you can buy with {naira(budgetValue)}. Quickest.</span>
+              </button>
+              <button type="button" className="choice choice-btn" onClick={toAppliances}>
+                <strong>I&apos;ll pick my devices</strong>
+                <span>Tick bulbs, fans, TV and more for an exact system size.</span>
+              </button>
+            </div>
+          )}
+
+          {view === 'picks' && (
+            <BudgetPicks state={pickState} onState={setPickState} picks={picks} budget={budgetValue} onClose={onClose} onAppliances={toAppliances} />
+          )}
+
+          {!view && step === 0 && (
             <fieldset className="choice-grid">
               <legend className="sr-only">Home or business</legend>
               {[
@@ -263,7 +301,7 @@ function Wizard({ edit, initialSegment, onClose }) {
             </fieldset>
           )}
 
-          {step === 1 && (
+          {!view && step === 1 && (
             <>
               {catalogError && <p className="form-error" role="alert">{catalogError}</p>}
               {!catalog && !catalogError && <p className="muted" role="status">Loading the list…</p>}
@@ -321,7 +359,7 @@ function Wizard({ edit, initialSegment, onClose }) {
             </>
           )}
 
-          {step === 2 && catalog && (
+          {!view && step === 2 && catalog && (
             <div className="supply">
               <label className="field">
                 <span>Your electricity company (DisCo)</span>
@@ -354,19 +392,23 @@ function Wizard({ edit, initialSegment, onClose }) {
 
         <footer className="modal-foot">
           <div className="foot-left">
-            {step > 0 && (
+            {view === 'picks' && <button type="button" className="btn btn-ghost btn-small" onClick={() => setView('choose')}>Back</button>}
+            {view === 'choose' && <button type="button" className="btn btn-ghost btn-small" onClick={() => setView(null)}>Back</button>}
+            {!view && step > 0 && (
               <button type="button" className="btn btn-ghost btn-small" onClick={() => setStep(step - 1)} disabled={submitting}>
                 Back
               </button>
             )}
-            {step === 1 && chosenAppliances > 0 && (
+            {!view && step === 1 && chosenAppliances > 0 && (
               <span className="muted">
                 {chosenUnits} item{chosenUnits === 1 ? '' : 's'} · {chosenAppliances} type{chosenAppliances === 1 ? '' : 's'}
               </span>
             )}
           </div>
-          {step < 2 ? (
-            <button type="button" className="btn btn-primary" disabled={!canNext} onClick={() => setStep(step + 1)}>
+          {view === 'choose' ? null : view === 'picks' ? (
+            <button type="button" className="btn btn-primary" onClick={toAppliances}>Pick my devices instead</button>
+          ) : step < 2 ? (
+            <button type="button" className="btn btn-primary" disabled={!canNext} onClick={goNext}>
               Continue
             </button>
           ) : (
@@ -376,6 +418,71 @@ function Wizard({ edit, initialSegment, onClose }) {
           )}
         </footer>
       </div>
+    </div>
+  );
+}
+
+// What we suggest for the budget: deals first, then a few items, or an honest red note when it is too small.
+function BudgetPicks({ state, onState, picks, budget, onClose, onAppliances }) {
+  if (!state) {
+    return (
+      <div className="picks">
+        <p className="modal-note">Where will it be delivered? We only deliver inside one state.</p>
+        <div className="choice-grid choice-grid-tight">
+          {[['lagos', 'Lagos'], ['abuja', 'Abuja']].map(([k, label]) => (
+            <button key={k} type="button" className="choice choice-btn choice-small" onClick={() => onState(k)}><strong>{label}</strong></button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  const { loading, data, error } = picks;
+  if (loading || (!data && !error)) return <p className="muted" role="status">Finding what fits…</p>;
+  if (error) return <p className="form-error" role="alert">{error}</p>;
+  const link = (to, children) => <Link to={to} onClick={onClose}>{children}</Link>;
+  return (
+    <div className="picks">
+      <p className="muted">In {data.stateName}. <button type="button" className="link-btn" onClick={() => onState(state === 'lagos' ? 'abuja' : 'lagos')}>Change</button></p>
+
+      {data.systemTooSmall && (
+        <p className="budget-warn" role="alert">
+          {data.nothingFits && data.closest
+            ? `${naira(budget)} is not enough yet. The closest is ${data.closest.name} at ${naira(data.closest.price)}, ${naira(data.closest.shortfall)} more.`
+            : data.closestSystem
+              ? `${naira(budget)} is not enough for a full solar system. The closest is “${data.closestSystem.title}” at ${naira(data.closestSystem.price)}: ${naira(data.closestSystem.shortfall)} more.`
+              : `${naira(budget)} is not enough for a full solar system yet.`}
+        </p>
+      )}
+      {data.nothingFits && !data.closest && <p className="muted">Nothing is listed in {data.stateName} yet.</p>}
+
+      {data.deals.length > 0 && (
+        <>
+          <h3 className="picks-h">Deals in your budget</h3>
+          <ul className="pick-list">
+            {data.deals.map((d) => (
+              <li key={d.id}>
+                {link(`/shop/deal/${d.id}`, <><strong>{d.title}</strong><span>{d.vendor.name}</span></>)}
+                <b>{naira(d.buyPrice)}</b>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {data.items.length > 0 && (
+        <>
+          <h3 className="picks-h">{data.items.length > 1 ? `${data.items.length} items that fit together` : 'An item that fits'} <small>({naira(data.itemsTotal)})</small></h3>
+          <ul className="pick-list">
+            {data.items.map((p) => (
+              <li key={p.id}>
+                {link(`/shop/product/${p.id}`, <><strong>{p.name}</strong><span>{p.vendor.name}</span></>)}
+                <b>{naira(p.price)}</b>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <p className="modal-note">Want an exact size for what you use? Pick your devices instead.</p>
     </div>
   );
 }
