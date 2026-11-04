@@ -7,8 +7,8 @@ export const OG_IMAGE = '/og-image.png';
 
 export const PUBLIC_PAGES = {
   '/': {
-    title: 'Solariun: Reliable solar power for your home & business in Nigeria',
-    description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
+    title: 'Solariun: Energy marketplace for products, professionals and guidance in Nigeria',
+    description: 'Work out what you need, buy energy products from verified sellers, and find installers and energy specialists in Lagos and Abuja. Solar, inverters, generators, lighting and more.',
   },
   '/partners': {
     title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',

@@ -58,7 +58,7 @@ def run(p, label, ctx_args):
     page.goto(BASE + '/'); page.wait_for_load_state('networkidle')
     assert 'Solariun' in page.title(), page.title()
     overflow('home'); shot('home')
-    page.get_by_role('button', name=re.compile('free energy assessment', re.I)).first.click()
+    page.get_by_role('button', name=re.compile('explore your energy needs', re.I)).first.click()
     page.wait_for_timeout(500); shot('assessment-open'); overflow('assessment')
     # With a budget, the person chooses between suggestions for it and picking their own devices.
     page.locator('input[name=segment]').first.check(force=True)

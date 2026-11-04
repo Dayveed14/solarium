@@ -10,6 +10,29 @@ const EXAMPLE_BARS = [
   { label: 'Solariun plan', value: '₦95,000', pct: 23, tone: 'solar' },
 ];
 
+const PILLARS = [
+  {
+    title: 'Understand your energy needs',
+    text: 'Get a clearer understanding of your energy requirements, usage and the solutions worth exploring. Start with what you need to power, how you use electricity and what works for your situation.',
+    cta: 'Explore Your Energy Needs', action: 'assess',
+  },
+  {
+    title: 'Discover and shop energy products',
+    text: 'Explore energy products and equipment in one marketplace. Browse relevant options, review product information and connect with sellers to purchase the products you need.',
+    cta: 'Explore the Marketplace', to: '/shop',
+  },
+  {
+    title: 'Find energy professionals',
+    text: 'Connect with energy professionals, including solar installers, technicians, engineers, suppliers and other specialists. Find relevant expertise for your energy projects and requirements.',
+    cta: 'Find a Professional', to: '/partners',
+  },
+  {
+    title: 'Make more informed energy decisions',
+    text: 'Access useful energy information and guidance to better understand available technologies, compare considerations and make decisions with greater confidence.',
+    cta: 'Explore Energy Insights', to: '/blog',
+  },
+];
+
 export default function Home() {
   const { open } = useAssessment();
   const [shown, setShown] = useState(false);
@@ -26,25 +49,72 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <div className="wrap hero-grid">
+        <div className="wrap hero-grid hero-single">
           <div className="hero-copy">
-            <p className="eyebrow">Solar energy, made simple</p>
-            <h1>Reliable solar power for your home &amp; business.</h1>
+            <p className="eyebrow">Energy marketplace &amp; guidance</p>
+            <h1>Everything you need to power your home or business.</h1>
             <p className="lede">
-              Tick the appliances you use. In three minutes see what your generator and light bill really cost, what solar
-              would save<span className="hide-sm">, and how to switch by renting, leasing or paying monthly, with vetted providers
-              rather than sales pitches</span>.
+              Work out what you need, buy energy products from verified sellers, and find the installers and specialists to
+              fit them. All in one place, across Lagos and Abuja.
             </p>
             <div className="hero-actions">
               <button type="button" className="btn btn-primary" onClick={() => open()}>
-                Run your free energy assessment
+                Explore your energy needs
               </button>
-              <Link to="/#how" className="btn btn-ghost">See how it works</Link>
+              <Link to="/shop" className="btn btn-ghost">Explore the marketplace</Link>
             </div>
-            <p className="hero-note hide-sm">Free · No sign-up to see your results · No watts or volts to look up</p>
+            <p className="hero-note hide-sm">Free · No sign-up to see your results · No technical know-how needed</p>
           </div>
+        </div>
+      </section>
 
-          <div className="hero-panel" aria-label="Example monthly power cost comparison">
+      <section className="how" id="how">
+        <div className="wrap">
+          <h2>What you can do on Solariun</h2>
+          <div className="pillars">
+            {PILLARS.map((x, n) => (
+              <article className="pillar" key={x.title}>
+                <span className="step-num">{n + 1}</span>
+                <h3>{x.title}</h3>
+                <p>{x.text.split('. ')[0]}.<span className="hide-sm"> {x.text.split('. ').slice(1).join('. ')}</span></p>
+                {x.action === 'assess'
+                  ? <button type="button" className="btn btn-ghost btn-small" onClick={() => open()}>{x.cta}</button>
+                  : <Link to={x.to} className="btn btn-ghost btn-small">{x.cta}</Link>}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="reality">
+        <div className="wrap reality-grid">
+          <div className="reality-intro">
+            <h2>Energy decisions deserve real numbers</h2>
+            <p>
+              The grid leaves gaps, generators fill them, and fuel is priced against the dollar while your business is priced in
+              naira.<span className="hide-sm"> Most people make six-figure energy decisions on gut feeling, because nobody hands them the numbers
+              first.</span>
+            </p>
+          </div>
+          <div className="reality-stat">
+            <span className="stat-figure">₦350k+</span>
+            <span className="stat-label">
+              what a typical small business can spend on diesel in a single month <em>(estimate, mid-size retail outlet)</em>
+            </span>
+          </div>
+          <div className="reality-notes hide-sm">
+            <div className="note">
+              <span className="note-mark" />
+              <p>Light hours are rarely predictable enough to plan a day around.</p>
+            </div>
+            <div className="note">
+              <span className="note-mark" />
+              <p>Fuel, servicing and repairs quietly eat money that never shows up on one bill.</p>
+            </div>
+          </div>
+        </div>
+        <div className="wrap hide-sm">
+          <div className="hero-panel example-panel" aria-label="Example monthly power cost comparison">
             <div className="panel-head">
               <span className="panel-title">Monthly power cost</span>
               <span className="panel-tag">Example · 20kVA retail outlet, Abuja</span>
@@ -69,67 +139,6 @@ export default function Home() {
                 <span className="foot-label">Yours will be based on</span>
                 <span className="foot-value">What you tick</span>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="reality">
-        <div className="wrap reality-grid">
-          <div className="reality-intro">
-            <h2>Running on borrowed power</h2>
-            <p>
-              Generators fill the gap the grid leaves, but fuel is priced against the dollar and your business is priced in
-              naira.<span className="hide-sm"> Most people make six-figure energy decisions on gut feeling, because nobody hands them the numbers
-              first.</span>
-            </p>
-          </div>
-          <div className="reality-stat">
-            <span className="stat-figure">₦350k+</span>
-            <span className="stat-label">
-              what a typical small business can spend on diesel in a single month <em>(estimate, mid-size retail outlet)</em>
-            </span>
-          </div>
-          <div className="reality-notes hide-sm">
-            <div className="note">
-              <span className="note-mark" />
-              <p>Light hours are rarely predictable enough to plan a day around.</p>
-            </div>
-            <div className="note">
-              <span className="note-mark" />
-              <p>Fuel, servicing and repairs quietly eat money that never shows up on one bill.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="how" id="how">
-        <div className="wrap">
-          <h2>How it works</h2>
-          <div className="steps">
-            <div className="step">
-              <span className="step-num">1</span>
-              <h3>Tick what you use</h3>
-              <p>
-                TV, fans, AC, fridge, office equipment, ATMs. Choose the size or type and how long it runs. We handle the
-                watts and volts.
-              </p>
-            </div>
-            <div className="step">
-              <span className="step-num">2</span>
-              <h3>See what it costs</h3>
-              <p>
-                Your daily kWh, what a generator costs per month, what each electricity band would cost you, and what solar
-                would save.
-              </p>
-            </div>
-            <div className="step">
-              <span className="step-num">3</span>
-              <h3>Choose how to switch</h3>
-              <p>
-                Buy, lease, rent, or pay monthly for energy as a service. Create a free account to save your results and
-                get matched with vetted providers.
-              </p>
             </div>
           </div>
         </div>
@@ -183,7 +192,7 @@ export default function Home() {
         <div className="wrap">
           <div className="providers-head">
             <p className="eyebrow">For providers</p>
-            <h2>Built for installers, sellers and financiers too</h2>
+            <h2>Built for sellers, installers and specialists too</h2>
             <p>
               Solariun qualifies demand before it reaches you: real load data, real budgets, real intent. No cold
               outreach<span className="hide-sm">, no bidding against a discount code. Customers arrive having already worked out what they use and what they can spend</span>.
@@ -240,9 +249,9 @@ export default function Home() {
 
       <section className="final-cta">
         <div className="wrap">
-          <h2>Stop guessing what your power costs you.</h2>
+          <h2>Start with what you need to power.</h2>
           <button type="button" className="btn btn-primary btn-large" onClick={() => open()}>
-            Run your free assessment
+            Explore your energy needs
           </button>
         </div>
       </section>

@@ -13,9 +13,9 @@ if (!siteUrl) console.warn('[seo] VITE_SITE_URL is not set: canonical links, sit
 
 const PAGES = {
   '/': {
-    title: 'Solariun: Reliable solar power for your home & business in Nigeria',
-    description: 'Find out what your generator and light bill really cost, see what solar would save, and switch by buying, leasing or paying monthly with vetted solar providers in Lagos and Abuja.',
-    body: '<h1>Reliable solar power for your home &amp; business.</h1><p>Solariun shows what your generator and light bill really cost, what solar would save, and how to switch by buying, leasing or paying monthly with vetted providers in Lagos and Abuja.</p><p><a href="/shop">Shop solar products</a></p>',
+    title: 'Solariun: Energy marketplace for products, professionals and guidance in Nigeria',
+    description: 'Work out what you need, buy energy products from verified sellers, and find installers and energy specialists in Lagos and Abuja. Solar, inverters, generators, lighting and more.',
+    body: '<h1>Everything you need to power your home or business.</h1><p>Understand your energy needs, discover and shop energy products, find energy professionals, and make more informed energy decisions with Solariun in Lagos and Abuja.</p><p><a href="/shop">Explore the marketplace</a> · <a href="/partners">Find a professional</a> · <a href="/blog">Energy insights</a></p>',
   },
   '/partners': {
     title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
