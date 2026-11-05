@@ -113,7 +113,7 @@ select, input { font: inherit; }
 .tabs {
   display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px; margin-bottom: 4px;
   position: sticky; top: -20px; z-index: 2; background: var(--panel); scrollbar-width: thin;
-  color: var(--paper);
+  color: var(--paper); color: black;
 }
 .tab {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px;
