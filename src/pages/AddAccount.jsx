@@ -11,7 +11,6 @@ const COPY = {
   installer: { title: 'Work as an installer', text: 'Open an installer account on the same email and password. You will answer a short set of technical questions and our team approves you before you get jobs.', company: null, loc: 'Where you are based (you get jobs in your state)' },
   individual: { title: 'Open an individual account', text: 'Use the same email and password for your home.', company: null, loc: 'Delivery address' },
 };
-
 export default function AddAccount() {
   const [params] = useSearchParams();
   const role = params.get('role');
