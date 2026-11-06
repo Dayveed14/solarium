@@ -84,7 +84,8 @@ if (apiUrl) {
       const full = (await (await fetch(`${apiUrl}/api/blog/${encodeURIComponent(a.slug)}`, { signal: AbortSignal.timeout(15000) })).json()).article;
       if (!full) continue;
       const route = `/blog/${a.slug}`;
-      const paras = full.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((p) => (p.startsWith('## ') ? `<h2>${esc(p.slice(3))}</h2>` : `<p>${esc(p)}</p>`)).join('');
+      const plain = (t) => t.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      const paras = full.body.replace(/[ \t\u00a0]+$/gm, '').split(/\n{2,}/).map((p) => p.trim()).filter((p) => p && !/^\[\[image:/.test(p)).map((p) => (/^###?\s/.test(p) ? `<h2>${esc(plain(p.replace(/^#+\s*/, '')))}</h2>` : `<p>${esc(plain(p))}</p>`)).join('');
       const out = path.join(dist, 'blog', a.slug, 'index.html');
       fs.mkdirSync(path.dirname(out), { recursive: true });
       fs.writeFileSync(out, render(route, { title: `${full.title} | Solariun`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));

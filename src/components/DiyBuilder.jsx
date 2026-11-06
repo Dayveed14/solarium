@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { Link } from 'react-router-dom';
 import { naira, sizeText } from '../lib/format.js';
 import RequestBox from './RequestBox.jsx';
+import { useShopPaths } from '../lib/shopBase.js';
 
 function Stepper({ value, min, max, step = 1, onChange, label }) {
   const dec = () => onChange(Math.max(min, value - step));
@@ -220,9 +221,10 @@ export default function DiyBuilder({ assessmentId, diy, limits, user, extras = [
 }
 
 function AioCard({ unit, kind }) {
+  const paths = useShopPaths();
   return (
     <li className="aio-card">
-      <p className="part-name"><Link to={`/shop/product/${unit.id}`}>{unit.name}</Link></p>
+      <p className="part-name"><Link to={paths.product(unit.id)}>{unit.name}</Link></p>
       <p className="part-meta">{[unit.brand, sizeText(unit)].filter(Boolean).join(' · ')}</p>
       <p className="part-vendor">{unit.vendor.name}{unit.vendor.verified ? ' · Verified' : ''}</p>
       <p className="part-price">{naira(unit.price)}</p>

@@ -6,7 +6,7 @@ import Seo from '../components/Seo.jsx';
 import { SITE_NAME, SITE_URL, absolute } from '../lib/seo.js';
 import { formatDate } from '../lib/format.js';
 import NotFound from './NotFound.jsx';
-import { imgSrc } from './Blog.jsx';
+import { categoryLabel, imgSrc, sectionLabel } from './Blog.jsx';
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -31,11 +31,13 @@ export default function BlogPost() {
     <article className="wrap blog-wrap article-page">
       <Seo title={`${a.title} | ${SITE_NAME}`} description={a.summary} path={`/blog/${a.slug}`} image={image} type="article" jsonLd={jsonLd} />
       <p><Link to="/blog">← All articles</Link></p>
+      <div className="article-tags"><Link to={`/blog?section=${a.section}`} className="tag tag-section">{sectionLabel(a.section)}</Link>{a.category !== a.section && <Link to={`/blog?category=${a.category}`} className="tag">{categoryLabel(a.category)}</Link>}</div>
       <h1>{a.title}</h1>
+      {a.section === 'events' && a.eventDate && <p className="event-line">{formatDate(a.eventDate)}{a.eventPlace ? ` · ${a.eventPlace}` : ''}</p>}
       <p className="muted">{formatDate(a.publishedAt)}</p>
       {a.imageUrl && <img className="article-hero" src={imgSrc(a.imageUrl)} alt="" />}
       <ArticleBody text={a.body} />
-      <p className="article-cta"><Link to="/shop" className="btn btn-primary">Browse solar products</Link></p>
+      <p className="article-cta"><Link to="/shop" className="btn btn-primary">Explore the marketplace</Link></p>
     </article>
   );
 }

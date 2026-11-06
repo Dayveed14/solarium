@@ -159,7 +159,7 @@ export const api = {
   adminInstallRefunded: (ref) => post(`/admin/installations/${ref}/refunded`),
 
   // blog
-  blogList: (limit) => request(`/blog${qs({ limit })}`),
+  blogList: (limit, filters = {}) => request(`/blog${qs({ limit, ...filters })}`),
   blogGet: (slug) => request(`/blog/${encodeURIComponent(slug)}`),
   adminBlogList: () => request('/admin/blog'),
   adminBlogGet: (id) => request(`/admin/blog/${id}`),

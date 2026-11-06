@@ -112,6 +112,28 @@ def run(p, label, ctx_args):
     assert page.locator('text=/SL-|Order|order/').count() > 0
     step('customer added to cart, paid with the simulated page, order is listed')
 
+    # ---- the dashboard menu keeps shoppers inside the dashboard
+    if page.get_by_role('link', name='Shop', exact=True).count():
+        link = page.locator('.app-nav a[href="/app/shop"], nav a[href="/app/shop"]')
+        if link.count() == 0:
+            page.locator('button[aria-label*="enu"]').first.click(); page.wait_for_timeout(300)
+        page.goto(BASE + '/app/shop'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+        assert '/app/shop' in page.url, 'Shop must stay inside the dashboard'
+        shot('app-shop'); overflow('app-shop')
+        card = page.locator('a[href^="/app/shop/product/"]')
+        assert card.count() > 0, 'in-dashboard shop cards must link inside the dashboard'
+        assert page.locator('a[href^="/shop/product/"]').count() == 0
+        card.first.click(); page.wait_for_url(re.compile('/app/shop/product/'))
+        assert page.locator('.app-nav, aside, nav').count() > 0
+        step('Shop and product pages open inside the dashboard')
+
+    # ---- blog sections
+    page.goto(BASE + '/blog'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    shot('blog'); overflow('blog')
+    page.locator('.blog-tabs').get_by_role('button', name='Events').click(); page.wait_for_timeout(600)
+    assert 'section=events' in page.url
+    step('blog has News / Stories / Events tabs that filter the list')
+
     # ---- vendor lists a cable (a no-size product) and a charge controller
     page2 = ctx.new_page()
     ctx.clear_cookies()

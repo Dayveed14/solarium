@@ -7,10 +7,12 @@ import Qty from '../components/Qty.jsx';
 import Seo from '../components/Seo.jsx';
 import { SITE_NAME, absolute } from '../lib/seo.js';
 import { CATEGORY_LABEL, naira, sizeText } from '../lib/format.js';
+import { useShopPaths } from '../lib/shopBase.js';
 
 // One page for a product or a deal: picture, details, the vendor, how far away they are and what delivery costs.
 export default function ItemPage({ kind }) {
   const { id } = useParams();
+  const paths = useShopPaths();
   const [params] = useSearchParams();
   const shop = useShop();
   const dest = shop.dest ?? (params.get('state') && params.get('areaId') ? { state: params.get('state'), areaId: params.get('areaId') } : null);
@@ -31,7 +33,7 @@ export default function ItemPage({ kind }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, kind, dest?.state, dest?.areaId]);
 
-  if (error) return <div className="wrap"><p className="form-error" role="alert">{error}</p><Link to="/shop">Back to the shop</Link></div>;
+  if (error) return <div className="wrap"><p className="form-error" role="alert">{error}</p><Link to={paths.shop}>Back to the shop</Link></div>;
   if (!data) return <div className="wrap"><p className="muted" role="status">Loading…</p></div>;
 
   const item = kind === 'product' ? data.product : data.deal;
@@ -56,7 +58,7 @@ export default function ItemPage({ kind }) {
   return (
     <div className="wrap item-page">
       <Seo title={`${name} | ${SITE_NAME}`} description={`${summary.slice(0, 150)}${price != null ? ` From ₦${Number(price).toLocaleString('en-NG')}.` : ''} Delivered in Lagos and Abuja.`} path={path} image={item.imageUrl ? `${apiBase}${item.imageUrl}` : undefined} type="product" jsonLd={jsonLd} />
-      <p><Link to="/shop">← Back to the shop</Link></p>
+      <p><Link to={paths.shop}>← Back to the shop</Link></p>
       <div className="item-grid">
         <div className="item-pic">
           {item.imageUrl ? <img src={`${import.meta.env.VITE_API_URL ?? ''}${item.imageUrl}`} alt={name} /> : <span aria-hidden="true">☀</span>}
@@ -94,7 +96,7 @@ export default function ItemPage({ kind }) {
                 <thead><tr><th>Plan</th><th>Deposit</th><th>Monthly</th></tr></thead>
                 <tbody>{item.lease.map((o) => <tr key={o.months}><td>{o.months} months</td><td>{naira(o.deposit)}</td><td>{naira(o.monthly)}</td></tr>)}</tbody>
               </table>
-              <p className="muted">Lease plans start from your free assessment so the vendor can confirm the fit. <Link to="/shop">Run one</Link> to ask for this plan.</p>
+              <p className="muted">Lease plans start from your free assessment so the vendor can confirm the fit. <Link to={paths.shop}>Run one</Link> to ask for this plan.</p>
             </section>
           )}
 
@@ -105,7 +107,7 @@ export default function ItemPage({ kind }) {
                 onClick={() => { shop.add({ kind, id: item.id, name, price, imageUrl: item.imageUrl, vendorName: item.vendor.name, state: item.vendor.state }, kind === 'product' ? qty : 1); setAdded(true); }}>
                 Add to cart
               </button>
-              {added && <Link to="/cart" className="btn btn-ghost">View cart</Link>}
+              {added && <Link to={paths.cart} className="btn btn-ghost">View cart</Link>}
             </div>
           ) : <p className="badge badge-warn">{kind === 'product' ? 'Out of stock' : 'Not sold outright'}</p>}
           {data.delivery && !sameState && <p className="muted">Switch your shopping location to {item.vendor.stateName} to buy from this vendor.</p>}

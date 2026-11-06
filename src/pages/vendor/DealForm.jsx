@@ -135,8 +135,14 @@ export default function DealForm({ deal, onClose, onSaved }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaseKey]);
 
+  // The buy price is a deal price: it cannot be above what the same items cost on their own.
+  const buyPriceNow = f.buyOn ? parseNumber(f.buyPrice) : null;
+  const overTotal = buyPriceNow != null && itemsTotal > 0 && buyPriceNow > itemsTotal;
+  const buyMsg = overTotal ? `Cannot be more than the items total, ${naira(itemsTotal)}.` : null;
+
   const submit = async (e) => {
     e.preventDefault();
+    if (overTotal) { setErrors({ buyPrice: buyMsg }); return; }
     const num = (k) => parseNumber(f[k]);
     const body = {
       title: f.title.trim(),
@@ -177,7 +183,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
       footer={
         <>
           <button type="button" className="btn btn-quiet" onClick={onClose}>Cancel</button>
-          <button type="submit" form="deal-form" className="btn btn-primary" disabled={saving || !products}>
+          <button type="submit" form="deal-form" className="btn btn-primary" disabled={saving || !products || overTotal}>
             {saving ? 'Saving…' : f.publish ? 'Save and publish' : 'Save draft'}
           </button>
         </>
@@ -259,7 +265,7 @@ export default function DealForm({ deal, onClose, onSaved }) {
               <label className="plan-toggle"><input type="checkbox" checked={f.buyOn} onChange={set('buyOn')} /> Buy outright</label>
               {f.buyOn && (
                 <label className="field"><span>Total price (₦)</span>
-                  <input type="text" inputMode="numeric" value={f.buyPrice} onChange={setMoney('buyPrice')} placeholder="1,250,000" aria-invalid={Boolean(errors.buyPrice)} />{err('buyPrice')}</label>
+                  <input type="text" inputMode="numeric" value={f.buyPrice} onChange={setMoney('buyPrice')} placeholder="1,250,000" aria-invalid={Boolean(errors.buyPrice || buyMsg)} />{buyMsg ? <small className="err" role="alert">{buyMsg}</small> : err('buyPrice')}</label>
               )}
             </div>
 

@@ -6,6 +6,7 @@ import { useShop } from '../auth/ShopContext.jsx';
 import LocationBar from '../components/LocationBar.jsx';
 import Qty from '../components/Qty.jsx';
 import { naira } from '../lib/format.js';
+import { useShopPaths } from '../lib/shopBase.js';
 
 const when = (iso) => new Date(iso).toLocaleString('en-NG', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' });
 const newKey = () => (crypto.randomUUID ? crypto.randomUUID().replaceAll('-', '') : `${Date.now()}${Math.random().toString(16).slice(2)}`).slice(0, 40);
@@ -14,6 +15,7 @@ export default function Cart() {
   const { user } = useAuth();
   const shop = useShop();
   const navigate = useNavigate();
+  const paths = useShopPaths();
   const [quote, setQuote] = useState(null);
   const [issues, setIssues] = useState([]);
   const [error, setError] = useState(null);
@@ -64,7 +66,7 @@ export default function Cart() {
     return (
       <div className="wrap cart-page">
         <h1>Your cart</h1>
-        <div className="empty-card"><h3>Your cart is empty</h3><p>Add solar parts or a combo from the shop.</p><Link to="/shop" className="btn btn-primary">Go to the shop</Link></div>
+        <div className="empty-card"><h3>Your cart is empty</h3><p>Add parts, combos or packages from the marketplace.</p><Link to={paths.shop} className="btn btn-primary">Go to the shop</Link></div>
       </div>
     );
   }

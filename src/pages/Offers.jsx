@@ -6,6 +6,7 @@ import DiyBuilder, { AllInOne } from '../components/DiyBuilder.jsx';
 import RequestBox from '../components/RequestBox.jsx';
 import { EAAS_ROLES } from '../config/launch.js';
 import { PLAN_LABEL, kwh, monthsToText, naira, nairaCompact, sizeText } from '../lib/format.js';
+import { useShopPaths } from '../lib/shopBase.js';
 
 const PLANS = ['buy', 'lease', 'rent', 'eaas'];
 
@@ -119,6 +120,7 @@ function DealCard({ deal, assessmentId, user, onSent }) {
 const SOURCE_TEXT = { deal: 'A vendor package', diy: 'A system built from the cheapest parts', kit: 'A solar kit', portable: 'A portable power station' };
 
 function BudgetPanel({ budget, id }) {
+  const paths = useShopPaths();
   if (!budget || budget.status === 'no_budget') return null;
   const c = budget.cheapest;
   if (budget.status === 'ok') {
@@ -156,7 +158,7 @@ function BudgetPanel({ budget, id }) {
               <li key={i}>
                 {a.type === 'partial' ? (
                   <>
-                    <Link to={`/shop/product/${a.id}`}>{a.label}</Link> ({naira(a.price)}) covers about {a.coveragePct}% of what you use. Good for the essentials, not everything at once.
+                    <Link to={paths.product(a.id)}>{a.label}</Link> ({naira(a.price)}) covers about {a.coveragePct}% of what you use. Good for the essentials, not everything at once.
                   </>
                 ) : (
                   <>

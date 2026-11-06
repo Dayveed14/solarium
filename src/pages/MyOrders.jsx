@@ -13,7 +13,7 @@ export default function MyOrders() {
       <header className="page-head"><h1>My orders</h1></header>
       {error && <p className="form-error" role="alert">{error}</p>}
       {!orders && !error && <p className="muted" role="status">Loading…</p>}
-      {orders?.length === 0 && <div className="empty-card"><h3>No orders yet</h3><p>When you buy from the shop, you can follow each step here.</p><Link to="/shop" className="btn btn-primary">Go to the shop</Link></div>}
+      {orders?.length === 0 && <div className="empty-card"><h3>No orders yet</h3><p>When you buy from the shop, you can follow each step here.</p><Link to="/app/shop" className="btn btn-primary">Go to the shop</Link></div>}
       <ul className="order-list">
         {orders?.map((o) => (
           <li key={o.ref}>

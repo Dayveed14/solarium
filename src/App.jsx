@@ -101,6 +101,10 @@ export default function App() {
             <Route path="/app" element={<AppHome />} />
             <Route path="/app/profile" element={<Profile />} />
             <Route path="/app/password" element={<Security />} />
+            <Route path="/app/shop" element={<Only roles={['individual', 'business']}><Shop /></Only>} />
+            <Route path="/app/shop/product/:id" element={<Only roles={['individual', 'business']}><ItemPage kind="product" /></Only>} />
+            <Route path="/app/shop/deal/:id" element={<Only roles={['individual', 'business']}><ItemPage kind="deal" /></Only>} />
+            <Route path="/app/cart" element={<Only roles={['individual', 'business']}><Cart /></Only>} />
             <Route path="/app/orders" element={<OrdersHome />} />
             <Route path="/app/orders/:ref" element={<Only roles={['individual', 'business']}><OrderDetail /></Only>} />
             <Route path="/app/add-account" element={<AddAccount />} />

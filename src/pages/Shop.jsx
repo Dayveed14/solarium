@@ -6,6 +6,7 @@ import { useAssessment } from '../components/AssessmentContext.jsx';
 import LocationBar from '../components/LocationBar.jsx';
 import { CATEGORY_LABEL, PLAN_LABEL, naira, sizeText } from '../lib/format.js';
 import { CATEGORY_GROUPS, CATEGORY_SPECS, CORE_CATEGORIES, PRODUCT_CATEGORIES } from '../lib/productCategories.js';
+import { useShopPaths } from '../lib/shopBase.js';
 
 const TABS = [
   { key: 'all', label: 'All parts' },
@@ -54,6 +55,7 @@ export default function Shop() {
   }, [tab, moreCat, search, state]);
 
   const list = tab === 'deals' ? deals : products;
+  const paths = useShopPaths();
   const here = shop.dest ? `state=${shop.dest.state}&areaId=${shop.dest.areaId}` : '';
 
   return (
@@ -61,7 +63,7 @@ export default function Shop() {
       <header className="results-head">
         <div>
           <p className="eyebrow">Shop</p>
-          <h1>Solar parts and packages from vendors</h1>
+          <h1>The energy marketplace: parts, combos and packages</h1>
           <p className="muted shop-lede">Buy straight from vendors in your state. Delivery is priced by distance from the vendor to you.</p>
         </div>
         <button type="button" className="btn btn-primary" onClick={() => open()}>Run free assessment</button>
@@ -114,7 +116,7 @@ export default function Shop() {
         <ul className="shop-grid">
           {products.map((p) => (
             <li key={p.id} className="shop-card">
-              <Link to={`/shop/product/${p.id}?${here}`} className="card-link">
+              <Link to={`${paths.product(p.id)}?${here}`} className="card-link">
                 <Picture url={p.imageUrl} alt={p.name} />
                 <p className="shop-cat">{CATEGORY_LABEL[p.category]}</p>
                 <h3>{p.name}</h3>
@@ -139,7 +141,7 @@ export default function Shop() {
         <ul className="shop-grid">
           {deals.map((d) => (
             <li key={d.id} className="shop-card">
-              <Link to={`/shop/deal/${d.id}?${here}`} className="card-link">
+              <Link to={`${paths.deal(d.id)}?${here}`} className="card-link">
                 <Picture url={d.imageUrl} alt={d.title} />
                 <p className="shop-cat">{d.isSystem ? 'Combo' : 'Bundle'}</p>
                 <h3>{d.title}</h3>

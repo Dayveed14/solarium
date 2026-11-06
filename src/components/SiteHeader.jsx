@@ -31,6 +31,8 @@ export default function SiteHeader() {
   const { open } = useAssessment();
   const { count } = useShop();
   const navigate = useNavigate();
+  const { pathname: here } = useLocation();
+  const inApp = here === '/app' || here.startsWith('/app/');
   const location = useLocation();
   const [menu, setMenu] = useState(false);
   const closeRef = useRef(null);
@@ -77,7 +79,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="nav-actions">
-          <Link to="/cart" className="cart-link" aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}>Cart{count > 0 && <span className="cart-count">{count}</span>}</Link>
+          <Link to={inApp ? '/app/cart' : '/cart'} className="cart-link" aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}>Cart{count > 0 && <span className="cart-count">{count}</span>}</Link>
           {loggedIn ? (
             <span className="nav-desktop-only">
               <Link to="/app" className="btn btn-small btn-ghost">Dashboard</Link>
@@ -114,7 +116,7 @@ export default function SiteHeader() {
             </div>
             <nav className="side-links" aria-label="Site">
               {SIDE_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
-              <Link to="/cart">Cart{count > 0 ? ` (${count})` : ''}</Link>
+              <Link to={inApp ? '/app/cart' : '/cart'}>Cart{count > 0 ? ` (${count})` : ''}</Link>
               <p className="side-group">For providers</p>
               {PROVIDER_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
             </nav>
