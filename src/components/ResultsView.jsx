@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { kwh, monthsToText, naira, nairaCompact } from '../lib/format.js';
 
 const OPTIONS = [
@@ -105,7 +106,7 @@ export default function ResultsView({ result, mode = 'guest', onChoose }) {
       {flags.needsSiteAudit && (
         <aside className="r-notice" role="note">
           <strong>This is a large load ({usage.connectedKw} kW).</strong> The numbers below are a good starting point, but a
-          system this size should be confirmed with a site survey before you commit. We&apos;ll help arrange that.
+          system this size should be confirmed with a site survey before you commit. <Link to="/app/site-assessment">Request a free site assessment</Link> from a business account and a field agent will visit and measure it.
         </aside>
       )}
 

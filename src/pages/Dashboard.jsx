@@ -91,6 +91,16 @@ export default function Dashboard() {
         </aside>
       )}
 
+      {user.role === 'business' && (
+        <aside className="r-banner">
+          <div>
+            <strong>Plaza, estate, factory or large site?</strong>
+            <span>Request a free site assessment. A Solariun field agent visits, measures what you really use and sends your energy requirement.</span>
+          </div>
+          <div className="r-banner-actions"><Link to="/app/site-assessment" className="btn btn-primary btn-small">Request site assessment</Link></div>
+        </aside>
+      )}
+
       {isCustomer && (
         <section aria-labelledby="dash-list">
           <h2 id="dash-list" className="dash-h2">Your assessments</h2>

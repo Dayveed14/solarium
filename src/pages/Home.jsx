@@ -64,6 +64,7 @@ export default function Home() {
               <Link to="/shop" className="btn btn-ghost">Explore the marketplace</Link>
             </div>
             <p className="hero-note hide-sm">Free · No sign-up to see your results · No technical know-how needed</p>
+            <p className="hero-note">The quick estimate is for homes and small residences. Plaza, estate, factory or large business? <Link to="/signup?role=business">Create a business account</Link> for a free site assessment by a field agent.</p>
           </div>
         </div>
       </section>

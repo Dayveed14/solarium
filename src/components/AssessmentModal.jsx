@@ -273,8 +273,8 @@ function Wizard({ edit, initialSegment, onClose }) {
             <fieldset className="choice-grid">
               <legend className="sr-only">Home or business</legend>
               {[
-                { key: 'home', title: 'My home', text: 'Fans, TV, fridge, AC and the usual household things.' },
-                { key: 'business', title: 'My business', text: 'Office, shop, bank branch, school, clinic or factory.' },
+                { key: 'home', title: 'My home or small residence', text: 'Fans, TV, fridge, AC and the usual household things.' },
+                { key: 'business', title: 'My shop or small office', text: 'A single shop, office, branch, clinic or workshop.' },
               ].map((opt) => (
                 <label key={opt.key} className={`choice${segment === opt.key ? ' on' : ''}`}>
                   <input type="radio" name="segment" checked={segment === opt.key} onChange={() => chooseSegment(opt.key)} />
@@ -282,6 +282,7 @@ function Wizard({ edit, initialSegment, onClose }) {
                   <span>{opt.text}</span>
                 </label>
               ))}
+              <p className="muted site-note">Plaza, estate, factory or large complex? <Link to="/signup?role=business" onClick={onClose}>Create a business account</Link> and request a free site assessment: a field agent visits and measures it.</p>
               <label className="field budget-field">
                 <span>How much can you spend on solar? (optional)</span>
                 <input

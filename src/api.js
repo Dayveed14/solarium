@@ -73,6 +73,26 @@ export const api = {
   adminUpdateProduct: (id, body) => put(`/admin/products/${id}`, body),
   adminDeleteProduct: (id) => del(`/admin/products/${id}`),
   adminUploadImage: (blob) => request('/admin/images', { method: 'POST', raw: blob }),
+  // site audits: business
+  auditList: () => request('/audits'),
+  auditRequest: (body) => post('/audits', body),
+  auditGet: (ref) => request(`/audits/${ref}`),
+  // site audits: field agent
+  agentCatalog: () => request('/agent/catalog'),
+  agentJobs: () => request('/agent/jobs'),
+  agentJob: (ref) => request(`/agent/jobs/${ref}`),
+  agentStart: (ref) => post(`/agent/jobs/${ref}/start`),
+  agentSaveDraft: (ref, form) => put(`/agent/jobs/${ref}/draft`, { form }),
+  agentPreview: (ref, form) => post(`/agent/jobs/${ref}/preview`, { form }),
+  agentPhoto: (ref, slot, blob) => request(`/agent/jobs/${ref}/photos/${slot}`, { method: 'POST', raw: blob }),
+  agentSubmit: (ref, form) => post(`/agent/jobs/${ref}/submit`, { form }),
+  // site audits: admin
+  adminAudits: (status) => request(`/admin/audits${qs({ status })}`),
+  adminAudit: (ref) => request(`/admin/audits/${ref}`),
+  adminAuditAssign: (ref, agentId) => post(`/admin/audits/${ref}/assign`, { agentId }),
+  adminAuditReopen: (ref, note) => post(`/admin/audits/${ref}/reopen`, { note }),
+  adminAgents: () => request('/admin/field-agents'),
+  adminAgentCreate: (body) => post('/admin/field-agents', body),
 
   // energy analysis
   catalog: (segment) => request(`/analysis/catalog/${segment}`),

@@ -4,8 +4,8 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 import { useGeo } from '../../components/AddressFields.jsx';
 import { formatDate } from '../../lib/format.js';
 
-const ROLES = [['', 'All'], ['individual', 'Individuals'], ['business', 'Businesses'], ['vendor', 'Vendors'], ['installer', 'Installers'], ['admin', 'Admins']];
-const ROLE_NAME = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', admin: 'Admin' };
+const ROLES = [['', 'All'], ['individual', 'Individuals'], ['business', 'Businesses'], ['vendor', 'Vendors'], ['installer', 'Installers'], ['field_agent', 'Field agents'], ['admin', 'Admins']];
+const ROLE_NAME = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', field_agent: 'Field agent', admin: 'Admin' };
 const STAT_LABEL = { orders: 'Orders', installations: 'Installation requests', products: 'Products', jobsTaken: 'Jobs taken', jobsCompleted: 'Jobs completed' };
 const fileSize = (b) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
 

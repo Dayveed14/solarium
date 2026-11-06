@@ -79,7 +79,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="nav-actions">
-          <Link to={inApp ? '/app/cart' : '/cart'} className="cart-link" aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}>Cart{count > 0 && <span className="cart-count">{count}</span>}</Link>
+          {user?.role !== 'field_agent' && <Link to={inApp ? '/app/cart' : '/cart'} className="cart-link" aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}>Cart{count > 0 && <span className="cart-count">{count}</span>}</Link>}
           {loggedIn ? (
             <span className="nav-desktop-only">
               <Link to="/app" className="btn btn-small btn-ghost">Dashboard</Link>
@@ -116,7 +116,7 @@ export default function SiteHeader() {
             </div>
             <nav className="side-links" aria-label="Site">
               {SIDE_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
-              <Link to={inApp ? '/app/cart' : '/cart'}>Cart{count > 0 ? ` (${count})` : ''}</Link>
+              {user?.role !== 'field_agent' && <Link to={inApp ? '/app/cart' : '/cart'}>Cart{count > 0 ? ` (${count})` : ''}</Link>}
               <p className="side-group">For providers</p>
               {PROVIDER_LINKS.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
             </nav>

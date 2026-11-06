@@ -2,6 +2,7 @@ import { useAuth } from '../auth/AuthContext.jsx';
 import AdminShell from './admin/AdminShell.jsx';
 import AdminVendors from './admin/AdminVendors.jsx';
 import Dashboard from './Dashboard.jsx';
+import AgentHome from './agent/AgentHome.jsx';
 import InstallerHome from './installer/InstallerHome.jsx';
 import VendorOverview from './vendor/VendorOverview.jsx';
 import VendorShell from './vendor/VendorShell.jsx';
@@ -24,5 +25,6 @@ export default function AppHome() {
     );
   }
   if (user.role === 'installer') return <InstallerHome />;
+  if (user.role === 'field_agent') return <AgentHome />;
   return <Dashboard />;
 }

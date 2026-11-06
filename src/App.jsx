@@ -41,6 +41,11 @@ import OrdersHome from './pages/OrdersHome.jsx';
 import InstallationDetail from './pages/InstallationDetail.jsx';
 import Installations from './pages/Installations.jsx';
 import InstallerQuiz from './pages/installer/InstallerQuiz.jsx';
+import SiteAssessments from './pages/audit/SiteAssessments.jsx';
+import SiteAssessmentDetail from './pages/audit/SiteAssessmentDetail.jsx';
+import AgentJob from './pages/agent/AgentJob.jsx';
+import AdminAudits from './pages/admin/AdminAudits.jsx';
+import AdminAgents from './pages/admin/AdminAgents.jsx';
 import VendorVerification from './pages/vendor/VendorVerification.jsx';
 import Signup from './pages/Signup.jsx';
 import Verify from './pages/Verify.jsx';
@@ -115,6 +120,11 @@ export default function App() {
             <Route path="/app/installations/:ref" element={<Only roles={['individual', 'business']}><InstallationDetail /></Only>} />
             <Route path="/app/subscription" element={<Only roles={['vendor']}><VendorShell open><VendorSubscription /></VendorShell></Only>} />
             <Route path="/app/admin-subscriptions" element={<Only roles={['admin']}><AdminShell><AdminSubscriptions /></AdminShell></Only>} />
+            <Route path="/app/site-assessment" element={<Only roles={['business']}><SiteAssessments /></Only>} />
+            <Route path="/app/site-assessment/:ref" element={<Only roles={['business']}><SiteAssessmentDetail /></Only>} />
+            <Route path="/app/jobs/:ref" element={<Only roles={['field_agent']}><AgentJob /></Only>} />
+            <Route path="/app/audits" element={<Only roles={['admin']}><AdminShell><AdminAudits /></AdminShell></Only>} />
+            <Route path="/app/field-agents" element={<Only roles={['admin']}><AdminShell><AdminAgents /></AdminShell></Only>} />
             <Route path="/app/quiz" element={<Only roles={['installer']}><InstallerQuiz /></Only>} />
             <Route path="/app/admin-installations" element={<Only roles={['admin']}><AdminShell><AdminInstallations /></AdminShell></Only>} />
             <Route path="/app/blog" element={<Only roles={['admin']}><AdminShell><AdminBlog /></AdminShell></Only>} />

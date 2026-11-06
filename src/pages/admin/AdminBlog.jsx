@@ -3,22 +3,14 @@ import { api } from '../../api.js';
 import ArticleBody from '../../components/ArticleBody.jsx';
 import ImageField from '../../components/ImageField.jsx';
 import { formatDate } from '../../lib/format.js';
+import { shrink } from '../../lib/shrink.js';
 import { categoryLabel, sectionLabel } from '../Blog.jsx';
 
 const empty = { id: null, title: '', summary: '', body: '', imageId: null, imageUrl: null, status: 'draft', slug: null, section: 'news', category: 'news', eventDate: '', eventPlace: '' };
 const SECTIONS = [['news', 'News'], ['stories', 'Stories (testimonials, customer stories, articles)'], ['events', 'Events']];
 const CATEGORIES = [['news', 'News'], ['user-guide', 'User guide'], ['maintenance-tips', 'Maintenance tips'], ['industry', 'Industry'], ['product-updates', 'Product updates'], ['testimonials', 'Testimonials'], ['community', 'Community'], ['entertainment', 'Entertainment'], ['events', 'Events']];
 
-// Shrinks a photo in the browser before upload (phone photos are huge).
-async function shrink(file, maxSide = 1400) {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not read that picture.'))), 'image/jpeg', 0.85));
-}
+
 
 // The admin writes articles: a heading, a picture and text. Drafts stay private until published.
 export default function AdminBlog() {
