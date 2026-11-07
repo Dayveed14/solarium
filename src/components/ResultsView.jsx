@@ -60,7 +60,65 @@ function OptionDetails({ k, o, solar }) {
   );
 }
 
-export default function ResultsView({ result, mode = 'guest', onChoose }) {
+function Configurations({ cfg, budget, onPick, picking }) {
+  return (
+    <section className="r-card r-wide" aria-labelledby="r-configs">
+      <p className="eyebrow">Your options</p>
+      <h2 id="r-configs">Pick the system that fits</h2>
+      <p className="r-sub">
+        {cfg.backupLabel ? <>You asked for backup for <strong>{cfg.backupLabel.toLowerCase()}</strong>. </> : null}
+        {cfg.priorities.length > 0 ? <>What matters most to you: {cfg.priorities.map((p, i) => <span key={p}>{i > 0 ? ', then ' : ''}{p.toLowerCase()}</span>)}. </> : null}
+        Each option below is a complete system. The page under it shows the one you pick.
+      </p>
+      {cfg.nothingFits && budget > 0 && (
+        <p className="r-callout budget-bad" role="alert">
+          {naira(budget)} is below our smallest complete system, about {nairaCompact(cfg.fallback?.smallestCost ?? 0)}.
+          {cfg.fallback ? <> You do not have to pay it all at once: leasing it starts with about {naira(cfg.fallback.leaseUpfront)} and then {naira(cfg.fallback.leaseMonthly)} a month, and renting starts at about {naira(cfg.fallback.rentUpfront)} a month, servicing included.</> : null}
+          {' '}You can also begin with a smaller list of items and add more later.
+        </p>
+      )}
+      <div className="cfg-grid">
+        {cfg.items.map((c) => {
+          const selected = cfg.selected === c.key;
+          return (
+            <article key={c.key} className={`cfg${selected ? ' cfg-on' : ''}${cfg.recommended === c.key ? ' cfg-rec' : ''}`}>
+              <div className="opt-tags">
+                {cfg.recommended === c.key && <span className="tag tag-gold">We suggest this</span>}
+                {selected && <span className="tag">Showing below</span>}
+              </div>
+              <h3>{c.label}</h3>
+              <p className="opt-blurb">{c.tagline}</p>
+              <p className="opt-price">{nairaCompact(c.systemCost)}<span> installed, about</span></p>
+              {c.fitsBudget === true && <p className="cfg-fit good">Within your budget</p>}
+              {c.fitsBudget === false && <p className="cfg-fit bad">{nairaCompact(c.overBy)} over your budget</p>}
+              <dl className="cfg-specs">
+                <div><dt>Panels</dt><dd>{c.kwp} kWp</dd></div>
+                <div><dt>Battery</dt><dd>{c.batteryKwh ? `${c.batteryKwh} kWh` : 'None'}</dd></div>
+                <div><dt>Inverter</dt><dd>{c.inverterKva} kVA</dd></div>
+              </dl>
+              <p className="cfg-list"><strong>Runs:</strong> {c.runs.slice(0, 6).join(', ')}{c.runs.length > 6 ? ` and ${c.runs.length - 6} more` : ''}.</p>
+              {c.partial?.length > 0 && <p className="cfg-list"><strong>Trimmed to fit:</strong> {c.partial.map((x) => `${x.name} (${x.qty} of ${x.wanted})`).join(', ')}.</p>}
+              {c.leftOut.length > 0 && <p className="cfg-list muted"><strong>Not included:</strong> {c.leftOut.slice(0, 6).join(', ')}{c.leftOut.length > 6 ? ` and ${c.leftOut.length - 6} more` : ''}.</p>}
+              {c.next && <p className="cfg-next">About {nairaCompact(c.next.extra)} more would add {c.next.name}.</p>}
+              <details className="cfg-why">
+                <summary>Why this size</summary>
+                <ul>{c.why.map((w) => <li key={w}>{w}</li>)}</ul>
+              </details>
+              {onPick && (
+                <button type="button" className={`btn btn-small ${selected ? 'btn-ghost' : 'btn-primary'}`} disabled={selected || picking} onClick={() => onPick(c.key)}>
+                  {selected ? 'Showing below' : picking ? 'Updating…' : 'Show me this one'}
+                </button>
+              )}
+            </article>
+          );
+        })}
+      </div>
+      <p className="r-fine">These are estimates from typical ratings and prices. A vendor or a site visit confirms the final system.</p>
+    </section>
+  );
+}
+
+export default function ResultsView({ result, mode = 'guest', onChoose, onPickConfig, picking = false }) {
   const { usage, generator, grid, current, solar, options, flags, assumptions } = result;
   const top = usage.topConsumers[0];
 
@@ -102,6 +160,8 @@ export default function ResultsView({ result, mode = 'guest', onChoose }) {
           <div><dt>Inverter you&apos;d need</dt><dd>{usage.inverterKva} kVA</dd></div>
         </dl>
       </section>
+
+      {result.configurations && <Configurations cfg={result.configurations} budget={result.budget} onPick={onPickConfig} picking={picking} />}
 
       {flags.needsSiteAudit && (
         <aside className="r-notice" role="note">

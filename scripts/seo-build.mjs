@@ -17,6 +17,16 @@ const PAGES = {
     description: 'Work out what you need, buy energy products from verified sellers, and find installers and energy specialists in Lagos and Abuja. Solar, inverters, generators, lighting and more.',
     body: '<h1>Everything you need to power your home or business.</h1><p>Understand your energy needs, discover and shop energy products, find energy professionals, and make more informed energy decisions with Solariun in Lagos and Abuja.</p><p><a href="/shop">Explore the marketplace</a> · <a href="/partners">Find a professional</a> · <a href="/blog">Energy insights</a></p>',
   },
+  '/assess': {
+    title: 'What are you looking to power? | Solariun',
+    description: 'Tell us what you want to power, how you use energy and what matters most. We help you explore suitable energy options based on your requirements and budget.',
+    body: '<h1>What are you looking to power?</h1><p>Every energy need is different. Tell us what you want to power, how you use energy and what matters most. We will help you explore suitable energy options based on your requirements and budget.</p><p><a href="/assess/solar">Explore solar energy</a></p>',
+  },
+  '/assess/solar': {
+    title: 'Find a solar solution that fits your needs and budget | Solariun',
+    description: 'Tell us about your appliances, usage hours, power priorities and budget. Solariun estimates your energy requirements and shows suitable solar system options.',
+    body: '<h1>Find a solar solution that fits your needs and budget.</h1><p>Tell us about your appliances, usage hours, power priorities and budget. Solariun will help estimate your energy requirements and present suitable system options to explore.</p>',
+  },
   '/partners': {
     title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
     description: 'Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.',
@@ -73,7 +83,7 @@ for (const [route, page] of Object.entries(PAGES)) {
   fs.writeFileSync(out, render(route, page));
 }
 
-const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }, { loc: '/partners', priority: '0.7' }, { loc: '/blog', priority: '0.8' }];
+const urls = [{ loc: '/', priority: '1.0' }, { loc: '/shop', priority: '0.9' }, { loc: '/assess', priority: '0.8' }, { loc: '/assess/solar', priority: '0.8' }, { loc: '/partners', priority: '0.7' }, { loc: '/blog', priority: '0.8' }];
 
 // Blog articles: each gets its own page with its heading, summary and text for search engines (needs SEO_API_URL).
 let articleCount = 0;

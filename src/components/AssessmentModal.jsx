@@ -4,64 +4,12 @@ import { api } from '../api.js';
 import { useShop } from '../auth/ShopContext.jsx';
 import { naira } from '../lib/format.js';
 import { loadPending, savePending } from '../lib/pending.js';
+import { itemsFromSelection, selectionFromItems } from '../lib/selection.js';
+import { useCatalog } from '../lib/useCatalog.js';
 import ApplianceRow from './ApplianceRow.jsx';
 import { useAssessment } from './AssessmentContext.jsx';
 
 const STEP_TITLES = ['Who is this for, and what is your budget?', 'What do you use?', 'Your power supply'];
-const catalogCache = new Map();
-
-function useCatalog(segment) {
-  const [state, setState] = useState({ data: catalogCache.get(segment) ?? null, error: null });
-
-  useEffect(() => {
-    if (!segment) return undefined;
-    if (catalogCache.has(segment)) {
-      setState({ data: catalogCache.get(segment), error: null });
-      return undefined;
-    }
-    let cancelled = false;
-    setState({ data: null, error: null });
-    api
-      .catalog(segment)
-      .then((data) => {
-        catalogCache.set(segment, data);
-        if (!cancelled) setState({ data, error: null });
-      })
-      .catch((err) => !cancelled && setState({ data: null, error: err.message }));
-    return () => {
-      cancelled = true;
-    };
-  }, [segment]);
-
-  return state;
-}
-
-// { applianceId: { hoursKey, qty: { variantId: n } } }
-function selectionFromItems(items, catalog) {
-  const byId = new Map(catalog.appliances.map((a) => [a.id, a]));
-  const selection = {};
-  for (const item of items) {
-    const ap = byId.get(item.applianceId);
-    if (!ap) continue;
-    const entry = (selection[ap.id] ??= { hoursKey: item.hoursKey ?? ap.defaultHours, qty: {} });
-    entry.qty[item.variantId] = (entry.qty[item.variantId] ?? 0) + item.qty;
-  }
-  return selection;
-}
-
-function itemsFromSelection(selection, catalog) {
-  const fixed = new Set(catalog.appliances.filter((a) => a.hoursMode === 'fixed').map((a) => a.id));
-  const items = [];
-  for (const [applianceId, entry] of Object.entries(selection)) {
-    for (const [variantId, qty] of Object.entries(entry.qty)) {
-      if (qty > 0) {
-        items.push({ applianceId, variantId, qty, ...(fixed.has(applianceId) ? {} : { hoursKey: entry.hoursKey }) });
-      }
-    }
-  }
-  return items;
-}
-
 export default function AssessmentModal() {
   const { isOpen, edit, segment, close } = useAssessment();
   if (!isOpen) return null;

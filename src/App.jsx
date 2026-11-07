@@ -27,6 +27,9 @@ import BlogPost from './pages/BlogPost.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
+import AssessHome from './pages/assess/AssessHome.jsx';
+import GuidedFlow from './pages/assess/GuidedFlow.jsx';
+import SolarLanding from './pages/assess/SolarLanding.jsx';
 import { RouteSeo } from './components/Seo.jsx';
 import Offers from './pages/Offers.jsx';
 import Results from './pages/Results.jsx';
@@ -83,6 +86,9 @@ export default function App() {
           <Route path="/partners" element={<Partners />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/assess" element={<AssessHome />} />
+          <Route path="/assess/solar" element={<SolarLanding />} />
+          <Route path="/assess/solar/guided" element={<GuidedFlow />} />
           <Route path="/results" element={<Results />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify" element={<Verify />} />

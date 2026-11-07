@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { useAssessment } from '../components/AssessmentContext.jsx';
 import ResultsView from '../components/ResultsView.jsx';
-import { clearPending, loadPending } from '../lib/pending.js';
+import { clearPending, loadPending, savePending } from '../lib/pending.js';
 
 export default function Results() {
   const location = useLocation();
@@ -12,7 +12,9 @@ export default function Results() {
   const { user } = useAuth();
   const { open } = useAssessment();
   // location.key changes whenever the assessment is re-run, so we re-read the latest result.
-  const pending = useMemo(() => loadPending(), [location.key]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [version, setVersion] = useState(0);
+  const pending = useMemo(() => loadPending(), [location.key, version]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [picking, setPicking] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -21,10 +23,29 @@ export default function Results() {
       <section className="wrap page-narrow empty-state">
         <h1>No assessment yet</h1>
         <p className="lede">It takes about three minutes and you don&apos;t need an account.</p>
-        <button type="button" className="btn btn-primary" onClick={() => open()}>Run your free assessment</button>
+        <Link to="/assess" className="btn btn-primary">Run your free assessment</Link>
       </section>
     );
   }
+
+  // Switching between the essential / comfortable / whole-property options re-prices the page for that one.
+  const pickConfig = async (configKey) => {
+    setPicking(true);
+    setError(null);
+    try {
+      const input = { ...pending.input, configKey };
+      const { result } = await api.estimate(input);
+      savePending({ input, result });
+      setVersion((v) => v + 1);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPicking(false);
+    }
+  };
+
+  const guided = Boolean(pending.input?.backupKey);
+  const changeAnswers = () => (guided ? navigate('/assess/solar/guided?edit=1') : open({ edit: true }));
 
   const isCustomer = user && (user.role === 'individual' || user.role === 'business');
 
@@ -50,7 +71,7 @@ export default function Results() {
           <h1>Here&apos;s what your power really costs</h1>
         </div>
         <div className="results-actions">
-          <button type="button" className="btn btn-ghost btn-small" onClick={() => open({ edit: true })}>
+          <button type="button" className="btn btn-ghost btn-small" onClick={changeAnswers}>
             Change my answers
           </button>
           {isCustomer ? (
@@ -89,6 +110,8 @@ export default function Results() {
       <ResultsView
         result={pending.result}
         mode={isCustomer ? 'saved' : 'guest'}
+        onPickConfig={pending.result.configurations ? pickConfig : undefined}
+        picking={picking}
         onChoose={isCustomer ? (plan) => save(plan) : () => navigate('/signup')}
       />
       {isCustomer && (

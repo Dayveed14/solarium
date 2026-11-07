@@ -97,6 +97,8 @@ export const api = {
   // energy analysis
   catalog: (segment) => request(`/analysis/catalog/${segment}`),
   estimate: (input) => post('/analysis/estimate', input),
+  interest: (category, email) => post('/interest', { category, email }),
+  adminInterest: () => request('/interest'),
   saveAssessment: (input) => post('/analysis/assessments', input),
   listAssessments: () => request('/analysis/assessments'),
   getAssessment: (id) => request(`/analysis/assessments/${id}`),

@@ -59,8 +59,20 @@ def run(p, label, ctx_args):
     assert 'Solariun' in page.title(), page.title()
     overflow('home'); shot('home')
     page.get_by_role('button', name=re.compile('explore your energy needs', re.I)).first.click()
+    page.wait_for_url(re.compile('/assess$'), timeout=6000); page.wait_for_load_state('networkidle')
+    assert page.get_by_role('heading', name='What are you looking to power?').count() == 1
+    overflow('assess-home'); shot('assess-home')
+    # A category that is not live yet takes an email and nothing else.
+    page.get_by_role('button', name='Notify me when it opens').first.click()
+    page.locator('.cat-form input[type=email]').fill(f'jr-notify-{label}-{STAMP}@example.test')
+    page.get_by_role('button', name='Notify me', exact=True).click()
+    expect(page.get_by_text('We will email you when this opens')).to_be_visible(timeout=5000)
+    page.get_by_role('link', name='Explore solar').click()
+    page.wait_for_url(re.compile('/assess/solar$')); page.wait_for_load_state('networkidle')
+    overflow('assess-solar'); shot('assess-solar')
+    # The quick calculator is still there. With a budget, the person chooses between suggestions for it and picking their own devices.
+    page.get_by_role('button', name='Start my solar assessment').click()
     page.wait_for_timeout(500); shot('assessment-open'); overflow('assessment')
-    # With a budget, the person chooses between suggestions for it and picking their own devices.
     page.locator('input[name=segment]').first.check(force=True)
     page.get_by_label(re.compile('How much can you spend')).fill('500000')
     page.get_by_role('button', name='Continue').click(); page.wait_for_timeout(400)
@@ -75,7 +87,49 @@ def run(p, label, ctx_args):
     page.get_by_role('button', name='Pick my devices instead').click(); page.wait_for_timeout(600)
     assert page.get_by_text('What do you use?').count() > 0, 'picking devices goes on to the appliance step'
     page.keyboard.press('Escape')
-    step('home loads, assessment dialog opens; a budget leads to suggestions or to picking devices')
+    # The guided path: who, what, how long and what matters, budget, where.
+    page.get_by_role('link', name='Enter your budget').click()
+    page.wait_for_url(re.compile('/assess/solar/guided')); page.wait_for_load_state('networkidle')
+    assert page.get_by_role('heading', name='Who are you powering?').count() == 1
+    page.get_by_role('button', name='Continue').is_disabled() or problems.append(f'{label}: Continue should wait for an answer')
+    page.locator('label.choice', has_text='Home').first.locator('input').check(force=True)
+    overflow('guided-1'); shot('guided-1')
+    page.get_by_role('button', name='Continue').click()
+    page.get_by_role('button', name=re.compile('Small flat')).click(); page.wait_for_timeout(300)
+    page.get_by_role('tab', name=re.compile('Kitchen')).click()
+    overflow('guided-2'); shot('guided-2')
+    page.get_by_role('button', name='Continue').click()
+    assert page.get_by_role('heading', name='How long, and what matters most?').count() == 1
+    page.locator('label.choice', has_text='6–8 hours').first.locator('input').check(force=True)
+    page.locator('label.gf-check', has_text='Keep food and drinks cold').locator('input').check()
+    page.locator('label.gf-check', has_text='Keep lights and fans on').locator('input').check()
+    page.locator('label.gf-check', has_text='Reduce generator and fuel use').locator('input').check()
+    assert page.locator('.gf-rank li').count() == 3, 'ticked priorities can be put in order'
+    page.get_by_role('button', name=re.compile('Move .* down')).first.click()
+    overflow('guided-3'); shot('guided-3')
+    page.get_by_role('button', name='Continue').click()
+    page.locator('label.choice', has_text='₦500,000 – ₦1.5 million').first.locator('input').check(force=True)
+    overflow('guided-4'); shot('guided-4')
+    page.get_by_role('button', name='Continue').click()
+    page.locator('select').nth(0).select_option('lagos')
+    page.locator('select').nth(1).select_option(index=2)
+    overflow('guided-5'); shot('guided-5')
+    page.get_by_role('button', name='Show my options').click()
+    page.wait_for_url(re.compile('/results'), timeout=10000); page.wait_for_load_state('networkidle'); page.wait_for_timeout(500)
+    cards = page.locator('.cfg')
+    assert cards.count() >= 2, f'expected several configurations, got {cards.count()}'
+    assert page.get_by_text('We suggest this').count() == 1
+    assert page.locator('.cfg h3', has_text='Fitted to your budget').count() == 1, 'a budget below the whole site gets a fitted option'
+    assert page.get_by_text(re.compile('more would add')).count() >= 1, 'it says what a little more money would add'
+    overflow('guided-results'); shot('guided-results')
+    before = page.locator('.cfg-on h3').inner_text()
+    page.locator('.cfg:not(.cfg-on) button', has_text='Show me this one').first.click()
+    page.wait_for_function('b => document.querySelector(".cfg-on h3").innerText !== b', arg=before, timeout=8000)
+    step('categories page, notify-me, solar landing, quick calculator, then the five guided screens to three configurations that can be switched')
+    page.get_by_role('button', name='Change my answers').click()
+    page.wait_for_url(re.compile('/assess/solar/guided\\?edit=1')); page.wait_for_timeout(600)
+    assert page.locator('label.choice.on', has_text='Home').count() == 1, 'editing keeps the earlier answers'
+    step('answers come back when they change them')
 
     # ---- customer signs up, shops, pays (simulated)
     cust = f'jr-cust-{label}-{STAMP}@example.test'
