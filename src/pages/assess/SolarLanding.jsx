@@ -10,10 +10,10 @@ export default function SolarLanding() {
   const query = WHO_BY_KEY[who] ? `?who=${who}` : '';
   return (
     <div className="wrap page-narrow solar-landing">
-      <Seo title="Find a solar solution that fits your needs and budget | Solariun" description="Tell us about your appliances, usage hours, power priorities and budget. Solariun estimates your energy requirements and presents suitable solar system options." />
+      <Seo title="Find a solar solution that fits your needs and budget | TerraVoltix" description="Tell us about your appliances, usage hours, power priorities and budget. TerraVoltix estimates your energy requirements and presents suitable solar system options." />
       <p className="eyebrow">Solar energy</p>
       <h1>Find a solar solution that fits your needs and budget.</h1>
-      <p className="lede">Not sure what size solar system you need? Tell us about your appliances, usage hours, power priorities and budget. Solariun will help estimate your energy requirements and present suitable system options to explore.</p>
+      <p className="lede">Not sure what size solar system you need? Tell us about your appliances, usage hours, power priorities and budget. TerraVoltix will help estimate your energy requirements and present suitable system options to explore.</p>
 
       <div className="choice-grid solar-ctas">
         <div className="choice choice-static">

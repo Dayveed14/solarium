@@ -9,9 +9,9 @@ export default function SiteFooter() {
         <div className="footer-brand">
           <Link to="/" className="brand">
             <img src="/logo-mark.svg" height="30" alt="" className="brand-logo" />
-            <span className="brand-word">Solariun</span>
+            <span className="brand-word">Terra<b>Voltix</b></span>
           </Link>
-          <p>Clean energy. Lasting value.</p>
+          <p>Smarter Energy. Brighter Future.</p>
         </div>
         <div className="footer-links">
           <Link to="/#how">How it works</Link>
@@ -21,6 +21,7 @@ export default function SiteFooter() {
           <Link to="/#providers">For providers</Link>
           {ready && !user && <Link to="/login">Log in</Link>}
         </div>
+        <p className="footer-meta">© 2026 TerraVoltix. Made in Nigeria.</p>
       </div>
     </footer>
   );

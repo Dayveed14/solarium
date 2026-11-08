@@ -13,32 +13,32 @@ if (!siteUrl) console.warn('[seo] VITE_SITE_URL is not set: canonical links, sit
 
 const PAGES = {
   '/': {
-    title: 'Solariun: Energy marketplace for products, professionals and guidance in Nigeria',
+    title: 'TerraVoltix: Energy marketplace for products, professionals and guidance in Nigeria',
     description: 'Work out what you need, buy energy products from verified sellers, and find installers and energy specialists in Lagos and Abuja. Solar, inverters, generators, lighting and more.',
-    body: '<h1>Everything you need to power your home or business.</h1><p>Understand your energy needs, discover and shop energy products, find energy professionals, and make more informed energy decisions with Solariun in Lagos and Abuja.</p><p><a href="/shop">Explore the marketplace</a> · <a href="/partners">Find a professional</a> · <a href="/blog">Energy insights</a></p>',
+    body: '<h1>Everything you need to power your home or business.</h1><p>Understand your energy needs, discover and shop energy products, find energy professionals, and make more informed energy decisions with TerraVoltix in Lagos and Abuja.</p><p><a href="/shop">Explore the marketplace</a> · <a href="/partners">Find a professional</a> · <a href="/blog">Energy insights</a></p>',
   },
   '/assess': {
-    title: 'What are you looking to power? | Solariun',
+    title: 'What are you looking to power? | TerraVoltix',
     description: 'Tell us what you want to power, how you use energy and what matters most. We help you explore suitable energy options based on your requirements and budget.',
     body: '<h1>What are you looking to power?</h1><p>Every energy need is different. Tell us what you want to power, how you use energy and what matters most. We will help you explore suitable energy options based on your requirements and budget.</p><p><a href="/assess/solar">Explore solar energy</a></p>',
   },
   '/assess/solar': {
-    title: 'Find a solar solution that fits your needs and budget | Solariun',
-    description: 'Tell us about your appliances, usage hours, power priorities and budget. Solariun estimates your energy requirements and shows suitable solar system options.',
-    body: '<h1>Find a solar solution that fits your needs and budget.</h1><p>Tell us about your appliances, usage hours, power priorities and budget. Solariun will help estimate your energy requirements and present suitable system options to explore.</p>',
+    title: 'Find a solar solution that fits your needs and budget | TerraVoltix',
+    description: 'Tell us about your appliances, usage hours, power priorities and budget. TerraVoltix estimates your energy requirements and shows suitable solar system options.',
+    body: '<h1>Find a solar solution that fits your needs and budget.</h1><p>Tell us about your appliances, usage hours, power priorities and budget. TerraVoltix will help estimate your energy requirements and present suitable system options to explore.</p>',
   },
   '/partners': {
-    title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
-    description: 'Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.',
-    body: '<h1>Solariun Partners</h1><p>Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.</p>',
+    title: 'Solar installers, vendors and companies in Nigeria | TerraVoltix Partners',
+    description: 'Verified solar sellers, installation companies and installers on TerraVoltix, sortable by state and area in Lagos and Abuja.',
+    body: '<h1>TerraVoltix Partners</h1><p>Verified solar sellers, installation companies and installers on TerraVoltix, sortable by state and area in Lagos and Abuja.</p>',
   },
   '/blog': {
-    title: 'Solar guides and news for homes and businesses in Nigeria | Solariun Blog',
+    title: 'Solar guides and news for homes and businesses in Nigeria | TerraVoltix Blog',
     description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
-    body: '<h1>Solariun Blog</h1><p>Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.</p>',
+    body: '<h1>TerraVoltix Blog</h1><p>Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.</p>',
   },
   '/shop': {
-    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solariun',
+    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | TerraVoltix',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
     body: '<h1>Solar products in Lagos and Abuja</h1><p>Solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors, with delivery prices shown up front.</p>',
   },
@@ -56,7 +56,7 @@ function render(route, page) {
   const tags = [
     `<link rel="canonical" href="${abs(route === '/' ? '/' : route)}" />`,
     '<meta name="robots" content="index, follow, max-image-preview:large" />',
-    '<meta property="og:site_name" content="Solariun" />',
+    '<meta property="og:site_name" content="TerraVoltix" />',
     `<meta property="og:type" content="${page.type ?? 'website'}" />`,
     `<meta property="og:title" content="${esc(page.title)}" />`,
     `<meta property="og:description" content="${esc(page.description)}" />`,
@@ -98,7 +98,7 @@ if (apiUrl) {
       const paras = full.body.replace(/[ \t\u00a0]+$/gm, '').split(/\n{2,}/).map((p) => p.trim()).filter((p) => p && !/^\[\[image:/.test(p)).map((p) => (/^###?\s/.test(p) ? `<h2>${esc(plain(p.replace(/^#+\s*/, '')))}</h2>` : `<p>${esc(plain(p))}</p>`)).join('');
       const out = path.join(dist, 'blog', a.slug, 'index.html');
       fs.mkdirSync(path.dirname(out), { recursive: true });
-      fs.writeFileSync(out, render(route, { title: `${full.title} | Solariun`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));
+      fs.writeFileSync(out, render(route, { title: `${full.title} | TerraVoltix`, description: full.summary, body: `<article><h1>${esc(full.title)}</h1>${paras}</article>`, image: full.imageUrl ? `${apiUrl}${full.imageUrl}` : null, type: 'article' }));
       urls.push({ loc: route, priority: '0.6' });
       articleCount += 1;
     }

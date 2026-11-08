@@ -1,33 +1,33 @@
 // One place for what search engines and link previews see. Public pages are listed in PUBLIC_PAGES;
 // every other route (accounts, cart, checkout, 404) is marked noindex by RouteSeo.
-export const SITE_NAME = 'Solariun';
-export const TAGLINE = 'Clean energy. Lasting value.';
+export const SITE_NAME = 'TerraVoltix';
+export const TAGLINE = 'Smarter Energy. Brighter Future.';
 export const SITE_URL = (import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/$/, '');
 export const OG_IMAGE = '/og-image.png';
 
 export const PUBLIC_PAGES = {
   '/': {
-    title: 'Solariun: Energy marketplace for products, professionals and guidance in Nigeria',
+    title: 'TerraVoltix: Energy marketplace for products, professionals and guidance in Nigeria',
     description: 'Work out what you need, buy energy products from verified sellers, and find installers and energy specialists in Lagos and Abuja. Solar, inverters, generators, lighting and more.',
   },
   '/assess': {
-    title: 'What are you looking to power? | Solariun',
+    title: 'What are you looking to power? | TerraVoltix',
     description: 'Tell us what you want to power, how you use energy and what matters most. We help you explore suitable energy options based on your requirements and budget.',
   },
   '/assess/solar': {
-    title: 'Find a solar solution that fits your needs and budget | Solariun',
-    description: 'Tell us about your appliances, usage hours, power priorities and budget. Solariun estimates your energy requirements and shows suitable solar system options.',
+    title: 'Find a solar solution that fits your needs and budget | TerraVoltix',
+    description: 'Tell us about your appliances, usage hours, power priorities and budget. TerraVoltix estimates your energy requirements and shows suitable solar system options.',
   },
   '/partners': {
-    title: 'Solar installers, vendors and companies in Nigeria | Solariun Partners',
-    description: 'Verified solar sellers, installation companies and installers on Solariun, sortable by state and area in Lagos and Abuja.',
+    title: 'Solar installers, vendors and companies in Nigeria | TerraVoltix Partners',
+    description: 'Verified solar sellers, installation companies and installers on TerraVoltix, sortable by state and area in Lagos and Abuja.',
   },
   '/blog': {
-    title: 'Solar guides and news for homes and businesses in Nigeria | Solariun Blog',
+    title: 'Solar guides and news for homes and businesses in Nigeria | TerraVoltix Blog',
     description: 'Practical articles on solar power, inverters, batteries, costs and saving on fuel and electricity in Nigeria.',
   },
   '/shop': {
-    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | Solariun',
+    title: 'Buy solar panels, inverters, batteries & more in Lagos and Abuja | TerraVoltix',
     description: 'Shop solar panels, inverters, batteries, charge controllers, cables, pumps, streetlights and complete kits from verified vendors near you, with delivery prices shown up front.',
   },
 };

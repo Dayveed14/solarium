@@ -78,7 +78,7 @@ export default function Login() {
         </form>
 
         <p className="auth-alt">
-          New to Solariun? <Link to="/signup" state={location.state}>Create a free account</Link>
+          New to TerraVoltix? <Link to="/signup" state={location.state}>Create a free account</Link>
         </p>
       </div>
     </section>

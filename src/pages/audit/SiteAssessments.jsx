@@ -48,7 +48,7 @@ export default function SiteAssessments() {
     <div className="app-page">
       <header className="page-head">
         <h1>Site assessment</h1>
-        <p className="muted">For plazas, estates, factories and large shops. A Solariun field agent visits, measures what you really use, photographs the site and we work out your energy requirement. It is free, and you follow every step here.</p>
+        <p className="muted">For plazas, estates, factories and large shops. A TerraVoltix field agent visits, measures what you really use, photographs the site and we work out your energy requirement. It is free, and you follow every step here.</p>
       </header>
       {error && <p className="form-error" role="alert">{error}</p>}
 

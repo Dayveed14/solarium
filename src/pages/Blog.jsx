@@ -51,7 +51,7 @@ export default function Blog() {
   return (
     <div className="wrap blog-wrap">
       <Seo {...PUBLIC_PAGES['/blog']} path="/blog" />
-      <h1>Solariun Blog</h1>
+      <h1>TerraVoltix Blog</h1>
       <p className="muted">News, stories and events, plus plain-English guides on energy products, costs and getting the most from your power.</p>
       <div className="blog-tabs" role="group" aria-label="Sections">
         <button type="button" aria-pressed={!section} onClick={() => choose('section', '')}>All</button>

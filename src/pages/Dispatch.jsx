@@ -25,7 +25,7 @@ export default function Dispatch() {
 
   return (
     <div className="wrap narrow dispatch">
-      <p className="eyebrow">Solariun logistics</p>
+      <p className="eyebrow">TerraVoltix logistics</p>
       <h1>Order {job.ref}</h1>
       <dl className="summary-list">
         <div><dt>Pick up from</dt><dd>{job.vendor}{job.from ? ` · ${job.from}` : ''}</dd></div>

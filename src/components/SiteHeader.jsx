@@ -69,9 +69,9 @@ export default function SiteHeader() {
     <>
     <header className="nav scrolled">
       <div className="wrap nav-inner">
-        <Link to="/" className="brand" aria-label="Solariun home">
+        <Link to="/" className="brand" aria-label="TerraVoltix home">
           <img src="/logo-mark.svg" height="36" alt="" className="brand-logo" />
-          <span className="brand-word">Solariun</span>
+          <span className="brand-word">Terra<b>Voltix</b></span>
         </Link>
 
         <nav className="nav-links" aria-label="Main">

@@ -36,7 +36,7 @@ export default function AdminAgents() {
       <form onSubmit={submit} noValidate className="profile-form">
         <h3 className="dash-h3">Add an agent</h3>
         <label className="field"><span>Full name</span><input type="text" value={form.fullName} onChange={set('fullName')} aria-invalid={Boolean(errors.fullName)} />{errors.fullName && <small className="err">{errors.fullName}</small>}</label>
-        <label className="field"><span>Email</span><input type="email" value={form.email} onChange={set('email')} aria-invalid={Boolean(errors.email)} />{errors.email && <small className="err">{errors.email}</small>}<small>Use an email that has no Solariun account yet.</small></label>
+        <label className="field"><span>Email</span><input type="email" value={form.email} onChange={set('email')} aria-invalid={Boolean(errors.email)} />{errors.email && <small className="err">{errors.email}</small>}<small>Use an email that has no TerraVoltix account yet.</small></label>
         <label className="field"><span>Phone <em>(optional)</em></span><input type="tel" value={form.phone} onChange={set('phone')} aria-invalid={Boolean(errors.phone)} />{errors.phone && <small className="err">{errors.phone}</small>}<small>Shown to a business once the agent is assigned.</small></label>
         {error && <p className="form-error" role="alert">{error}</p>}
         {ok && <p className="form-success" role="status">{ok}</p>}

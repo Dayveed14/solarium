@@ -169,7 +169,7 @@ export default function GuidedFlow() {
 
   return (
     <div className="wrap gf">
-      <Seo title="Find a solar system for your budget | Solariun" description="Tell us what you need to power, for how long and what matters most. We size a system around it." noindex />
+      <Seo title="Find a solar system for your budget | TerraVoltix" description="Tell us what you need to power, for how long and what matters most. We size a system around it." noindex />
       <header className="gf-head">
         <p className="eyebrow">Free assessment · Step {a.step + 1} of {STEPS.length}</p>
         <ol className="gf-steps" aria-label="Progress">
@@ -197,7 +197,7 @@ export default function GuidedFlow() {
             </fieldset>
             {who?.large && (
               <aside className="r-notice" role="note">
-                <strong>Bigger sites are best measured in person.</strong> You can carry on for a quick estimate. For a firm number, a Solariun field agent can visit and measure the site for free.{' '}
+                <strong>Bigger sites are best measured in person.</strong> You can carry on for a quick estimate. For a firm number, a TerraVoltix field agent can visit and measure the site for free.{' '}
                 {user?.role === 'business' ? <Link to="/app/site-assessment">Request a site assessment</Link> : <Link to="/signup?role=business">Create a business account to request one</Link>}.
               </aside>
             )}

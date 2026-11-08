@@ -51,7 +51,7 @@ function NotifyCard({ item }) {
 export default function AssessHome() {
   return (
     <div className="wrap assess-home">
-      <Seo title="What are you looking to power? | Solariun" description="Tell us what you want to power, how you use energy and what matters most. We help you explore suitable energy options for your requirements and budget." />
+      <Seo title="What are you looking to power? | TerraVoltix" description="Tell us what you want to power, how you use energy and what matters most. We help you explore suitable energy options for your requirements and budget." />
       <header className="assess-head">
         <p className="eyebrow">Free assessment</p>
         <h1>What are you looking to power?</h1>

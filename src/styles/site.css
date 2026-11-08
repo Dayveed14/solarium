@@ -1,22 +1,22 @@
 :root {
-  /* Solariun brand: Deep Green, Leaf Green, Solar Gold, Sand, Charcoal, Deep Teal, Warm White, Soft Gold.
-     The app runs on the brand's dark surface (Deep Teal / Deep Green) with a gold call to action. */
-  --ink: #062f2a;        /* Deep Teal: page background */
-  --panel: #0b3d2e;      /* Deep Green: cards and panels */
-  --panel-2: #0f4a37;
-  --line: #1d5c47;
-  --paper: #f7f5ef;      /* Warm White: text on dark */
-  --muted: #a3bdb2;
-  --solar: #ffc247;      /* Soft Gold: accents and buttons on dark */
-  --solar-light: #ffd27a;
-  --solar-deep: #f59e0b; /* Solar Gold */
-  --teal: #16a34a;       /* Leaf Green */
-  --sky: #16a34a;
+  /* TerraVoltix brand: Terra Green #0B5D3B, Energy Green #22C55E, Solar Orange #F57C00, Sun Yellow #FBBF24, Cloud Gray #F5F7FA.
+     The app runs on a dark Terra Green surface, with a Sun Yellow to Solar Orange call to action. Montserrat is the brand font. */
+  --ink: #063d27;        /* Terra Green, deepened: page background */
+  --panel: #0a4a31;      /* Terra Green: cards and panels */
+  --panel-2: #0d5a3a;
+  --line: #1b7050;
+  --paper: #f5f7fa;      /* Cloud Gray: text on dark */
+  --muted: #a9c7b7;
+  --solar: #fbbf24;      /* Sun Yellow: accents and buttons on dark */
+  --solar-light: #fcd34d;
+  --solar-deep: #f57c00; /* Solar Orange */
+  --teal: #22c55e;       /* Energy Green */
+  --sky: #22c55e;
   --sand: #e7e5e1;
   --charcoal: #111827;
 
   --font-display: "Montserrat", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-body: "Montserrat", system-ui, sans-serif;
 
   --container: 1180px;
 }
@@ -111,7 +111,7 @@ p {
 }
 .btn-primary {
   background: linear-gradient(135deg, var(--solar-light), var(--solar-deep));
-  color: #062F2A;
+  color: #063d27;
 }
 .btn-primary:hover {
   filter: brightness(1.05);
@@ -536,7 +536,7 @@ p {
 .final-cta {
   padding: 110px 0 130px;
   text-align: center;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 194, 71, 0.12), transparent 60%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.12), transparent 60%);
 }
 .final-cta h2 {
   font-size: clamp(32px, 4.4vw, 48px);
@@ -732,3 +732,6 @@ p {
 .tag { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
 .tag-section { color: var(--solar); border-color: rgba(245, 183, 49, 0.5); }
 .event-line { color: var(--solar); font-size: 14px; margin: 4px 0; }
+
+/* Wordmark: Terra in the light text colour, Voltix in Solar Orange */
+.brand-word b { color: #f57c00; font-weight: inherit; }

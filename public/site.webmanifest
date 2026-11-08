@@ -1,11 +1,11 @@
 {
-  "name": "Solariun",
-  "short_name": "Solariun",
-  "description": "Clean energy. Lasting value.",
+  "name": "TerraVoltix",
+  "short_name": "TerraVoltix",
+  "description": "Smarter Energy. Brighter Future.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#062F2A",
-  "theme_color": "#062F2A",
+  "background_color": "#063d27",
+  "theme_color": "#063d27",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }

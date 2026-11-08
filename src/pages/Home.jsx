@@ -7,7 +7,7 @@ import { ArticleCard } from './Blog.jsx';
 const EXAMPLE_BARS = [
   { label: 'Diesel generator', value: '₦420,000', pct: 100, tone: 'diesel' },
   { label: 'National grid', value: '₦180,000', pct: 43, tone: 'grid' },
-  { label: 'Solariun plan', value: '₦95,000', pct: 23, tone: 'solar' },
+  { label: 'TerraVoltix plan', value: '₦95,000', pct: 23, tone: 'solar' },
 ];
 
 const PILLARS = [
@@ -55,7 +55,7 @@ export default function Home() {
             <h1>Everything you need to power your home or business.</h1>
             <p className="lede">
               Work out what you need, buy energy products from verified sellers, and find the installers and specialists to
-              fit them. All in one place, across Nigeria and Africa.
+              fit them. All in one place, across Lagos and Abuja.
             </p>
             <div className="hero-actions">
               <button type="button" className="btn btn-primary" onClick={() => open()}>
@@ -71,7 +71,7 @@ export default function Home() {
 
       <section className="how" id="how">
         <div className="wrap">
-          <h2>What you can do on Solariun</h2>
+          <h2>What you can do on TerraVoltix</h2>
           <div className="pillars">
             {PILLARS.map((x, n) => (
               <article className="pillar" key={x.title}>
@@ -183,7 +183,7 @@ export default function Home() {
       {posts.length > 0 && (
         <section className="home-blog" id="blog">
           <div className="wrap">
-            <div className="home-blog-head"><h2>From the Solariun blog</h2><Link to="/blog">All articles →</Link></div>
+            <div className="home-blog-head"><h2>From the TerraVoltix blog</h2><Link to="/blog">All articles →</Link></div>
             <div className="article-grid">{posts.map((a) => <ArticleCard key={a.slug} a={a} />)}</div>
           </div>
         </section>
@@ -195,7 +195,7 @@ export default function Home() {
             <p className="eyebrow">For providers</p>
             <h2>Built for sellers, installers and specialists too</h2>
             <p>
-              Solariun qualifies demand before it reaches you: real load data, real budgets, real intent. No cold
+              TerraVoltix qualifies demand before it reaches you: real load data, real budgets, real intent. No cold
               outreach<span className="hide-sm">, no bidding against a discount code. Customers arrive having already worked out what they use and what they can spend</span>.
             </p>
           </div>
@@ -210,7 +210,7 @@ export default function Home() {
                 <li>Orders, pickups and payouts managed in one dashboard</li>
                 <li>Verified badge once we have seen your shop or business papers</li>
               </ul>
-              <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Sell on Solariun</Link>
+              <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Sell on TerraVoltix</Link>
             </article>
             <article className="provider-card">
               <h3>Companies</h3>
@@ -229,7 +229,7 @@ export default function Home() {
               <ul>
                 <li>Pass a short technical quiz and get approved</li>
                 <li>Jobs in your state land in your dashboard; the first to accept wins it</li>
-                <li>Customers pay Solariun up front, so you work knowing the job is funded</li>
+                <li>Customers pay TerraVoltix up front, so you work knowing the job is funded</li>
                 <li>Your payout is a fixed share of the installation fee</li>
               </ul>
               <Link to="/signup?role=installer" className="btn btn-ghost btn-on-dark">Become an installer</Link>
@@ -243,7 +243,7 @@ export default function Home() {
           </ol>
 
           <p className="provider-foot">
-            Already working with solar? <Link to="/partners">See who is on Solariun</Link>
+            Already working with solar? <Link to="/partners">See who is on TerraVoltix</Link>
           </p>
         </div>
       </section>
