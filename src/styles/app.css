@@ -104,11 +104,27 @@ select, input { font: inherit; }
 
 .presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
 .chip-btn {
-  padding: 8px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600;
-  border: 1px solid white; background: rgba(251, 191, 36, 0.08); 
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: rgba(251, 191, 36, 0.08);
 }
-.chip-btn:hover { background: rgba(251, 191, 36, 0.16); }
-.chip-btn-quiet { border-color: var(--line); background: transparent; color: var(--muted); }
+
+.chip-btn:hover {
+  background: rgba(251, 191, 36, 0.16);
+}
+
+.chip-btn.selected {
+  border: 1px solid white;
+}
+
+.chip-btn-quiet {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+}
 
 .tabs {
   display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px; margin-bottom: 4px;
