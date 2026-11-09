@@ -212,7 +212,7 @@ p {
   margin-top: 26px;
   font-size: 18px;
   line-height: 1.65;
-  color: var(--muted);
+  color: white;
   max-width: 46ch;
 }
 .hero-actions {
@@ -224,7 +224,7 @@ p {
 .hero-note {
   margin-top: 18px;
   font-size: 13px;
-  color: var(--muted);
+  color: white;
 }
 
 .hero-panel {
