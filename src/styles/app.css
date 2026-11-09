@@ -831,7 +831,7 @@ select, input { font: inherit; }
 .item-desc { white-space: pre-line; line-height: 1.65; }
 textarea.long-text { min-height: 160px; resize: vertical; line-height: 1.55; }
 .editor-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-.editor-bar button { font: inherit; font-size: 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink, inherit); border-radius: 8px; padding: 6px 12px; min-width: 40px; }
+.editor-bar button { font: inherit; font-size: 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: white; border-radius: 8px; padding: 6px 12px; min-width: 40px; }
 .editor-bar button:hover:not(:disabled) { border-color: var(--solar); }
 .blog-form .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 560px) { .blog-form .two-col { grid-template-columns: 1fr; } }
