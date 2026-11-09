@@ -44,7 +44,6 @@ export default function GuidedFlow() {
   const set = useCallback((patch) => setA((prev) => ({ ...prev, ...patch })), []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPreset, setSelectedPreset] = useState(null);
 
   useEffect(() => { saveDraft(a); }, [a]);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [a.step]);
@@ -100,7 +99,6 @@ export default function GuidedFlow() {
   });
   const setHours = (ap, hoursKey) => setA((prev) => (prev.selection[ap.id] ? { ...prev, selection: { ...prev.selection, [ap.id]: { ...prev.selection[ap.id], hoursKey } } } : prev));
   const applyPreset = (preset) => {
-    setSelectedPreset(p.id);
     const sel = {};
     for (const it of preset.items) {
       const ap = catalog.appliances.find((x) => x.id === it.applianceId);
@@ -217,14 +215,7 @@ export default function GuidedFlow() {
               <>
                 <div className="presets">
                   <span className="muted">Quick start:</span>
-                  {catalog.presets.map((p) => <button
-  key={p.id}
-  type="button"
-  className={`chip-btn ${selectedPreset === p.id ? 'selected' : ''}`}
-  onClick={() => applyPreset(p)}
->
-  {p.label}
-</button>)}
+                  {catalog.presets.map((p) => <button key={p.id} type="button" className="chip-btn" onClick={() => applyPreset(p)}>{p.label}</button>)}
                   {chosenCount > 0 && <button type="button" className="chip-btn chip-btn-quiet" onClick={() => set({ selection: {} })}>Clear all</button>}
                 </div>
                 <div className="tabs" role="tablist" aria-label="Categories">
