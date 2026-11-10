@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import InstallerJobs from './InstallerJobs.jsx';
 
 // The installer's dashboard. Until the admin approves them there is one job: answer the technical questions.
 // The installer is never shown a score or which answers were right.
@@ -31,7 +30,7 @@ export default function InstallerHome() {
       {s && s.verification === 'verified' && (
         <>
           {s.acceptsRepairs === false && <aside className="r-banner"><div><strong>Repairs are switched off.</strong><span>You only get new installation jobs. <Link to="/app/installer-profile">Change this in your work profile.</Link></span></div></aside>}
-          <InstallerJobs />
+          <p>Your offers and jobs are under <Link to="/app/installer-jobs">Installation jobs</Link> and <Link to="/app/repair-jobs">Repair jobs</Link>.</p>
         </>
       )}
 

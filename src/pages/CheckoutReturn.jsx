@@ -67,7 +67,7 @@ export default function CheckoutReturn({ mock = false, kind = 'order' }) {
       {state.phase === 'paid' && install && (
         <>
           <h1>Payment confirmed</h1>
-          <p>Thank you. We have sent your job to approved installers in your state and emailed you. You will hear as soon as one accepts.</p>
+          <p>Thank you. We are choosing the best installer near you and have emailed you. You will hear as soon as one accepts.</p>
           <Link to={state.ref ? `/app/installations/${state.ref}` : '/app/installations'} className="btn btn-primary">Track your installation</Link>
         </>
       )}

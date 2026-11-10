@@ -21,6 +21,7 @@ export default function SiteFooter() {
           <Link to="/#providers">For providers</Link>
           {ready && !user && <Link to="/login">Log in</Link>}
         </div>
+        <p className="footer-meta">© 2026 TerraVoltix. Made in Nigeria.</p>
       </div>
     </footer>
   );

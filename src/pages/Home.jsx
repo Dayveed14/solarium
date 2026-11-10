@@ -66,7 +66,7 @@ export default function Home() {
             <h1>Everything you need to <em>power</em> your home or business.</h1>
             <p className="lede">
               Work out what you need, buy energy products from verified sellers, and find the installers and specialists to
-              fit them. All in one place, across Nigeria and Africa.
+              fit them. All in one place, across Lagos and Abuja.
             </p>
             <div className="hero-actions">
               <button type="button" className="btn btn-primary" onClick={() => open()}>

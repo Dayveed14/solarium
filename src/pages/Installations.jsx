@@ -6,13 +6,9 @@ import AddressFields from '../components/AddressFields.jsx';
 import { formatDate, naira } from '../lib/format.js';
 
 export const INSTALL_STATUS = {
-  quote: 'Quote',
-  awaiting_payment: 'Awaiting payment',
-  open: 'Finding an installer',
-  assigned: 'Installer confirmed',
-  installer_done: 'Waiting for your confirmation',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
+  quote: 'Awaiting your payment', awaiting_payment: 'Awaiting your payment', open: 'Finding an installer', finding: 'Finding an installer', assigned: 'Installer assigned',
+  on_the_way: 'Installer on the way', on_site: 'Installer at your site', in_progress: 'Being installed', installer_done: 'Waiting for your confirmation',
+  completed: 'Completed', cancelled: 'Cancelled',
 };
 
 const isoDay = (offset) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);

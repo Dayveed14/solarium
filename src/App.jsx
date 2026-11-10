@@ -22,6 +22,7 @@ import AdminRepairs from './pages/admin/AdminRepairs.jsx';
 import Repairs from './pages/repairs/Repairs.jsx';
 import RepairNew from './pages/repairs/RepairNew.jsx';
 import RepairDetail from './pages/repairs/RepairDetail.jsx';
+import InstallerJobs from './pages/installer/InstallerJobs.jsx';
 import RepairJobs from './pages/installer/RepairJobs.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
@@ -135,6 +136,7 @@ export default function App() {
             <Route path="/app/repairs" element={<Only roles={['individual', 'business']}><Repairs /></Only>} />
             <Route path="/app/repairs/new" element={<Only roles={['individual', 'business']}><RepairNew /></Only>} />
             <Route path="/app/repairs/:ref" element={<Only roles={['individual', 'business']}><RepairDetail /></Only>} />
+            <Route path="/app/installer-jobs" element={<Only roles={['installer']}><InstallerJobs /></Only>} />
             <Route path="/app/repair-jobs" element={<Only roles={['installer']}><RepairJobs /></Only>} />
             <Route path="/app/admin-repairs" element={<Only roles={['admin']}><AdminShell><AdminRepairs /></AdminShell></Only>} />
             <Route path="/app/subscription" element={<Only roles={['vendor']}><VendorShell open><VendorSubscription /></VendorShell></Only>} />
