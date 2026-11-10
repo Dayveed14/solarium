@@ -41,6 +41,7 @@ async function request(path, { method = 'GET', body, raw, headers } = {}) {
   return data;
 }
 
+export const apiUrl = (path) => `${BASE}${path}`;
 const post = (path, body) => request(path, { method: 'POST', body });
 const put = (path, body) => request(path, { method: 'PUT', body });
 const patch = (path, body) => request(path, { method: 'PATCH', body });
@@ -113,6 +114,13 @@ export const api = {
   // installer
   installerSummary: () => request('/installer/summary'),
   installerQuiz: () => request('/installer/quiz'),
+  installerRegistration: () => request('/installer/registration'),
+  installerSaveRegistration: (patch) => put('/installer/registration', patch),
+  installerSaveReferences: (references) => put('/installer/references', { references }),
+  installerSubmitRegistration: () => post('/installer/registration/submit', { declaration: true }),
+  installerUploadDocument: (file, kind, label) => request(`/installer/documents${qs({ kind, label })}`, { method: 'POST', raw: file }),
+  installerDeleteDocument: (id) => del(`/installer/documents/${id}`),
+  adminInstallerReference: (id, refId, called, note) => patch(`/admin/installers/${id}/references/${refId}`, { called, ...(note ? { note } : {}) }),
   installerSubmitQuiz: (answers, yearsExperience) => post('/installer/quiz', { answers, ...(yearsExperience != null ? { yearsExperience } : {}) }),
   vendorProducts: () => request('/vendor/products'),
   vendorCreateProduct: (body) => post('/vendor/products', body),
@@ -173,6 +181,36 @@ export const api = {
   jobAccept: (ref) => post(`/installer/jobs/${ref}/accept`, { confirmAvailable: true }),
   jobDecline: (ref) => post(`/installer/jobs/${ref}/decline`),
   jobDone: (ref) => post(`/installer/jobs/${ref}/done`),
+  // repairs: customer
+  repairOptions: () => request('/repairs/options'),
+  repairList: () => request('/repairs'),
+  repairCreate: (body) => post('/repairs', body),
+  repairGet: (ref) => request(`/repairs/${ref}`),
+  repairPhoto: (ref, blob) => request(`/repairs/${ref}/photos`, { method: 'POST', raw: blob }),
+  repairPhotoDelete: (ref, id) => del(`/repairs/${ref}/photos/${id}`),
+  repairPay: (ref) => post(`/repairs/${ref}/pay`),
+  repairVerify: (reference) => post('/repairs/verify', { reference }),
+  repairMockPay: (reference) => post('/repairs/mock-pay', { reference }),
+  repairCancel: (ref) => post(`/repairs/${ref}/cancel`),
+  // repairs: technician
+  techOffers: () => request('/installer/repairs'),
+  techRepairs: () => request('/installer/repairs/mine'),
+  techRepair: (ref) => request(`/installer/repairs/${ref}`),
+  techAccept: (ref) => post(`/installer/repairs/${ref}/accept`),
+  techDecline: (ref) => post(`/installer/repairs/${ref}/decline`),
+  techOnMyWay: (ref) => post(`/installer/repairs/${ref}/on-my-way`),
+  techArrived: (ref) => post(`/installer/repairs/${ref}/arrived`),
+  techPhoto: (ref, blob) => request(`/installer/repairs/${ref}/photos`, { method: 'POST', raw: blob }),
+  techPhotoDelete: (ref, id) => del(`/installer/repairs/${ref}/photos/${id}`),
+  techReport: (ref, body) => post(`/installer/repairs/${ref}/report`, body),
+  // repairs: admin
+  adminRepairs: (status) => request(`/admin/repairs${qs({ status })}`),
+  adminRepair: (ref) => request(`/admin/repairs/${ref}`),
+  adminRepairApprove: (ref) => post(`/admin/repairs/${ref}/approve`),
+  adminRepairDecline: (ref) => post(`/admin/repairs/${ref}/decline`),
+  adminRepairAssign: (ref, technicianId) => post(`/admin/repairs/${ref}/assign`, { technicianId }),
+  adminRepairCancel: (ref, reason) => post(`/admin/repairs/${ref}/cancel`, { reason }),
+  adminRepairRefunded: (ref) => post(`/admin/repairs/${ref}/refunded`),
   // admin installations
   adminInstalls: (status) => request(`/admin/installations${qs({ status })}`),
   adminInstall: (ref) => request(`/admin/installations/${ref}`),

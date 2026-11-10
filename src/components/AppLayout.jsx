@@ -3,12 +3,12 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 const NAV = {
-  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/app/shop', 'Shop'], ['/app/cart', 'Cart'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
-  business: [['/app', 'Overview', true], ['/app/site-assessment', 'Site assessment'], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/app/shop', 'Shop'], ['/app/cart', 'Cart'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
+  individual: [['/app', 'Overview', true], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/app/repairs', 'Repairs'], ['/app/shop', 'Shop'], ['/app/cart', 'Cart'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
+  business: [['/app', 'Overview', true], ['/app/site-assessment', 'Site assessment'], ['/app/orders', 'My orders'], ['/app/installations', 'Installation'], ['/app/repairs', 'Repairs'], ['/app/shop', 'Shop'], ['/app/cart', 'Cart'], ['/app/profile', 'Profile & address'], ['/app/password', 'Password']],
   vendor: [['/app', 'Overview', true], ['/app/verification', 'Verification'], ['/app/subscription', 'Subscription'], ['/app/products', 'Products'], ['/app/deals', 'Combos & deals'], ['/app/orders', 'Orders'], ['/app/requests', 'Requests'], ['/app/profile', 'Profile & location'], ['/app/password', 'Password']],
-  installer: [['/app', 'Overview', true], ['/app/profile', 'Profile & location'], ['/app/password', 'Password']],
+  installer: [['/app', 'Overview', true], ['/app/repair-jobs', 'Repair jobs'], ['/app/installer-profile', 'Work profile'], ['/app/profile', 'Profile & location'], ['/app/password', 'Password']],
   field_agent: [['/app', 'My jobs', true], ['/app/password', 'Password']],
-  admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/audits', 'Site audits'], ['/app/field-agents', 'Field agents'], ['/app/admin-installations', 'Installations'], ['/app/admin-subscriptions', 'Subscriptions'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity'], ['/app/password', 'Password']],
+  admin: [['/app', 'Vendors', true], ['/app/installers', 'Installers'], ['/app/audits', 'Site audits'], ['/app/field-agents', 'Field agents'], ['/app/admin-installations', 'Installations'], ['/app/admin-repairs', 'Repairs'], ['/app/admin-subscriptions', 'Subscriptions'], ['/app/blog', 'Blog'], ['/app/orders', 'Orders'], ['/app/admin-products', 'Products'], ['/app/pricing', 'Pricing & rules'], ['/app/users', 'Users'], ['/app/activity', 'Activity'], ['/app/password', 'Password']],
 };
 const ROLE_LABEL = { individual: 'Individual', business: 'Business', vendor: 'Vendor', installer: 'Installer', field_agent: 'Field agent', admin: 'Admin' };
 const OPEN_LABEL = { individual: 'Open an individual account', business: 'Open a business account', vendor: 'Sell on TerraVoltix (vendor)', installer: 'Work as an installer' };

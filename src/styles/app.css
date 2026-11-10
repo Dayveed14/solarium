@@ -113,7 +113,7 @@ select, input { font: inherit; }
 .tabs {
   display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px; margin-bottom: 4px;
   position: sticky; top: -20px; z-index: 2; background: var(--bg); scrollbar-width: thin;
-  color: var(--paper);
+  color: var(--paper);color: black;
 }
 .tab {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px;
@@ -815,7 +815,7 @@ select, input { font: inherit; }
 .item-desc { white-space: pre-line; line-height: 1.65; }
 textarea.long-text { min-height: 160px; resize: vertical; line-height: 1.55; }
 .editor-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-.editor-bar button { font: inherit; font-size: 15px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink, inherit); border-radius: 8px; padding: 6px 12px; min-width: 40px; }
+.editor-bar button { font: inherit; font-size: 15px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink, inherit); border-radius: 8px; padding: 6px 12px; min-width: 40px; color: black; }
 .editor-bar button:hover:not(:disabled) { border-color: var(--solar); }
 .blog-form .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 560px) { .blog-form .two-col { grid-template-columns: 1fr; } }
@@ -960,3 +960,62 @@ textarea.long-text { min-height: 160px; resize: vertical; line-height: 1.55; }
   .gf-steps li.on span { top: 18px; left: 0; white-space: nowrap; }
   .gf-head { margin-bottom: 26px; }
 }
+
+/* ---------------- Installer registration ---------------- */
+.reg-step { max-width: 680px; }
+.reg-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 18px; margin: 0 0 14px; padding: 14px 16px; background: var(--ink); border: 1px solid var(--line); border-radius: 12px; }
+.reg-facts dt { font-size: 13px; color: var(--muted); }
+.reg-facts dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+.wiz-nav-plain { display: flex; gap: 10px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+.ref-card { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 6px; margin: 0 0 14px; background: var(--panel); }
+.ref-card legend { padding: 0 8px; font-weight: 700; color: var(--heading); }
+.files-box .doc-list { margin-bottom: 10px; }
+.files-box .doc-list li { justify-content: flex-start; }
+.files-box .doc-list li > span { flex: 1 1 140px; min-width: 0; overflow-wrap: anywhere; }
+.doc-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0; }
+.files-add { align-self: flex-start; }
+.ref-tick { margin: 0; white-space: nowrap; }
+.dash-h3 { font-size: 18px; margin: 18px 0 8px; }
+
+/* Filter tabs on the admin pages use role="tab" and .is-active; give them the same pill look as .tab */
+.tabs > [role="tab"] {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 15px; font-weight: 500; cursor: pointer;
+}
+.tabs > [role="tab"]:hover { color: var(--paper); }
+.tabs > [role="tab"].is-active { background: var(--heading); color: var(--bg); border-color: var(--heading); }
+
+/* Repairs */
+.pay-notice { margin: 12px 0; padding: 10px 14px; border-radius: 10px; background: rgba(184, 83, 10, 0.08); border: 1px solid rgba(184, 83, 10, 0.28); color: var(--paper); font-size: 15px; }
+.photo-tiles { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 10px 0; }
+.photo-tiles li { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.photo-tiles img { width: 96px; height: 96px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); display: block; }
+.photo-picker { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.cost-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+.cost-table th, .cost-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+.cost-table td:last-child, .cost-table th:last-child { text-align: right; white-space: nowrap; }
+.cost-table tfoot th { color: var(--heading); }
+.cost-total { font-size: 17px; }
+.part-row { display: grid; grid-template-columns: minmax(0, 1fr) 70px 110px auto; gap: 8px; margin-bottom: 8px; align-items: center; }
+.part-row input { min-width: 0; }
+@media (max-width: 640px) {
+  .part-row { grid-template-columns: 1fr 70px 1fr; }
+  .part-row .btn { grid-column: 1 / -1; justify-self: start; }
+  .cost-table { font-size: 14px; }
+}
+
+/* Repairs admin detail: let grid/flex children shrink so long text wraps instead of widening the page on phones. */
+.request-list, .request-list > li { min-width: 0; }
+.request-card > *, .review-box > * { min-width: 0; }
+.review-box { grid-template-columns: minmax(0, 1fr); }
+.request-card p, .review-box p, .review-box h4, .request-message { overflow-wrap: anywhere; }
+.deal-top { flex-wrap: wrap; min-width: 0; }
+.deal-top h3 { min-width: 0; overflow-wrap: anywhere; }
+.photo-tiles { max-width: 100%; flex-wrap: wrap; }
+.review-box .row-actions { flex-wrap: wrap; }
+.tabs { max-width: 100%; min-width: 0; }
+.request-list { display: grid; grid-template-columns: minmax(0, 1fr); }
+.fee-gate { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.fee-gate > * { min-width: 0; }
+.fee-gate .row-actions { flex-wrap: wrap; }
+.fee-gate .btn { white-space: normal; text-align: center; }

@@ -114,7 +114,7 @@ export default function Signup() {
           {(role === 'vendor' || role === 'installer') && (
             <p className="muted small-note">
               {role === 'installer'
-                ? 'After confirming your email you will answer a short set of technical questions. Our team reviews them before you receive jobs.'
+                ? 'After confirming your email you will finish a short registration: your experience, a skills check and two references. Our team reviews it before you receive jobs.'
                 : 'After confirming your email you will upload your documents. Our team reviews them before you can post products.'}
             </p>
           )}

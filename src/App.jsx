@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import AssessmentModal from './components/AssessmentModal.jsx';
 import AppLayout from './components/AppLayout.jsx';
 import AddAccount from './pages/AddAccount.jsx';
@@ -18,6 +18,11 @@ import AdminProducts from './pages/admin/AdminProducts.jsx';
 import AdminBlog from './pages/admin/AdminBlog.jsx';
 import AdminInstallations from './pages/admin/AdminInstallations.jsx';
 import AdminInstallers from './pages/admin/AdminInstallers.jsx';
+import AdminRepairs from './pages/admin/AdminRepairs.jsx';
+import Repairs from './pages/repairs/Repairs.jsx';
+import RepairNew from './pages/repairs/RepairNew.jsx';
+import RepairDetail from './pages/repairs/RepairDetail.jsx';
+import RepairJobs from './pages/installer/RepairJobs.jsx';
 import AdminUsers from './pages/admin/AdminUsers.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
@@ -43,7 +48,8 @@ import OrderDetail from './pages/OrderDetail.jsx';
 import OrdersHome from './pages/OrdersHome.jsx';
 import InstallationDetail from './pages/InstallationDetail.jsx';
 import Installations from './pages/Installations.jsx';
-import InstallerQuiz from './pages/installer/InstallerQuiz.jsx';
+import InstallerRegister from './pages/installer/InstallerRegister.jsx';
+import InstallerProfile from './pages/installer/InstallerProfile.jsx';
 import SiteAssessments from './pages/audit/SiteAssessments.jsx';
 import SiteAssessmentDetail from './pages/audit/SiteAssessmentDetail.jsx';
 import AgentJob from './pages/agent/AgentJob.jsx';
@@ -104,6 +110,8 @@ export default function App() {
           <Route path="/dispatch" element={<Dispatch />} />
           <Route path="/installation/return" element={<RequireAuth><CheckoutReturn kind="installation" /></RequireAuth>} />
           <Route path="/installation/mock" element={<RequireAuth><CheckoutReturn kind="installation" mock /></RequireAuth>} />
+          <Route path="/repair/return" element={<RequireAuth><CheckoutReturn kind="repair" /></RequireAuth>} />
+          <Route path="/repair/mock" element={<RequireAuth><CheckoutReturn kind="repair" mock /></RequireAuth>} />
           <Route path="/vendor/subscription/return" element={<RequireAuth><CheckoutReturn kind="subscription" /></RequireAuth>} />
           <Route path="/vendor/subscription/mock" element={<RequireAuth><CheckoutReturn kind="subscription" mock /></RequireAuth>} />
           <Route path="/vendor/fee/return" element={<RequireAuth><CheckoutReturn kind="fee" /></RequireAuth>} />
@@ -124,6 +132,11 @@ export default function App() {
             <Route path="/app/verification" element={<Only roles={['vendor']}><VendorShell open><VendorVerification /></VendorShell></Only>} />
             <Route path="/app/installations" element={<Only roles={['individual', 'business']}><Installations /></Only>} />
             <Route path="/app/installations/:ref" element={<Only roles={['individual', 'business']}><InstallationDetail /></Only>} />
+            <Route path="/app/repairs" element={<Only roles={['individual', 'business']}><Repairs /></Only>} />
+            <Route path="/app/repairs/new" element={<Only roles={['individual', 'business']}><RepairNew /></Only>} />
+            <Route path="/app/repairs/:ref" element={<Only roles={['individual', 'business']}><RepairDetail /></Only>} />
+            <Route path="/app/repair-jobs" element={<Only roles={['installer']}><RepairJobs /></Only>} />
+            <Route path="/app/admin-repairs" element={<Only roles={['admin']}><AdminShell><AdminRepairs /></AdminShell></Only>} />
             <Route path="/app/subscription" element={<Only roles={['vendor']}><VendorShell open><VendorSubscription /></VendorShell></Only>} />
             <Route path="/app/admin-subscriptions" element={<Only roles={['admin']}><AdminShell><AdminSubscriptions /></AdminShell></Only>} />
             <Route path="/app/site-assessment" element={<Only roles={['business']}><SiteAssessments /></Only>} />
@@ -131,7 +144,9 @@ export default function App() {
             <Route path="/app/jobs/:ref" element={<Only roles={['field_agent']}><AgentJob /></Only>} />
             <Route path="/app/audits" element={<Only roles={['admin']}><AdminShell><AdminAudits /></AdminShell></Only>} />
             <Route path="/app/field-agents" element={<Only roles={['admin']}><AdminShell><AdminAgents /></AdminShell></Only>} />
-            <Route path="/app/quiz" element={<Only roles={['installer']}><InstallerQuiz /></Only>} />
+            <Route path="/app/register" element={<Only roles={['installer']}><InstallerRegister /></Only>} />
+            <Route path="/app/installer-profile" element={<Only roles={['installer']}><InstallerProfile /></Only>} />
+            <Route path="/app/quiz" element={<Navigate to="/app/register" replace />} />
             <Route path="/app/admin-installations" element={<Only roles={['admin']}><AdminShell><AdminInstallations /></AdminShell></Only>} />
             <Route path="/app/blog" element={<Only roles={['admin']}><AdminShell><AdminBlog /></AdminShell></Only>} />
             <Route path="/app/installers" element={<Only roles={['admin']}><AdminShell><AdminInstallers /></AdminShell></Only>} />

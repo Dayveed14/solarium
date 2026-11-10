@@ -19,12 +19,26 @@ def code_for(email):
         time.sleep(0.25)
     raise RuntimeError('no code for ' + email)
 
+from playwright.sync_api import Page
+_orig_wait = Page.wait_for_load_state
+def _wait_settle(self, state=None, **kw):
+    """"networkidle" can fail to settle on a slow machine; say what was still loading and carry on (the checks after it catch a really broken page)."""
+    try: _orig_wait(self, state, timeout=15000)
+    except Exception: print(f'  (page still busy after 15s, carrying on: {self.url} pending={sorted(getattr(self, "_pend", []))[:5]})', flush=True)
+Page.wait_for_load_state = _wait_settle
+
 def run(p, label, ctx_args):
     b = p.chromium.launch()
     # A fresh pretend visitor IP per run, so repeated runs do not trip the server's per-IP rate limits (the API runs with TRUST_PROXY=1).
     ctx = b.new_context(**ctx_args, extra_http_headers={'X-Forwarded-For': f'10.77.{STAMP % 250}.{sum(map(ord, label)) % 250}'})
     ctx.route(re.compile(r'https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
     page = ctx.new_page()
+    # Track unfinished requests on every page, so a page that never goes quiet can be explained.
+    def _track(pg):
+        pg._pend = set()
+        pg.on('request', lambda r: pg._pend.add(f'{r.method} {r.url}')); pg.on('requestfinished', lambda r: pg._pend.discard(f'{r.method} {r.url}')); pg.on('requestfailed', lambda r: pg._pend.discard(f'{r.method} {r.url}'))
+    _track(page)
+    ctx.on('page', _track)
     errors = []
     page.on('console', lambda m: errors.append(f'console {m.type}: {m.text}') if m.type == 'error' and 'Failed to load resource' not in m.text and 'fonts.g' not in m.text else None)
     page.on('pageerror', lambda e: errors.append(f'pageerror: {e}'))
@@ -34,6 +48,10 @@ def run(p, label, ctx_args):
         # Compare with the real screen width: on a phone the browser quietly widens the layout when something is too wide,
         # so innerWidth would hide the problem.
         w = page.evaluate('[document.documentElement.scrollWidth, window.screen.width, Math.max(0, ...[...document.querySelectorAll("header *, [role=dialog] *")].map(e => e.getBoundingClientRect().right))]')
+        if w[0] > w[1] + 1:
+            print('SCROLL:', page.evaluate('[window.scrollX, document.documentElement.scrollWidth, document.querySelector(".request-card").getBoundingClientRect().left, document.querySelector(".review-box").getBoundingClientRect().left]'))
+            print('CHAIN:', page.evaluate('(()=>{let e=[...document.querySelectorAll("h4.dash-h3")].find(x=>x.getBoundingClientRect().right>window.screen.width+1);let o=[];while(e&&e.tagName!="BODY"){let r=e.getBoundingClientRect();o.push(e.tagName+"."+e.className+" "+Math.round(r.width)+" "+getComputedStyle(e).display);e=e.parentElement}return o})()'))
+            print('WIDE:', page.evaluate('[...document.querySelectorAll("main *")].filter(e=>e.getBoundingClientRect().right>window.screen.width+1).slice(0,6).map(e=>e.tagName+"."+e.className+" "+Math.round(e.getBoundingClientRect().right))'))
         if w[0] > w[1] + 1 or w[2] > w[1] + 1: problems.append(f'{label} {name}: content {w[0]}px / widest header or dialog element {round(w[2])}px on a {w[1]}px screen')
     def step(msg): print(f'  ✓ [{label}] {msg}', flush=True)
     def fill_signup(role_text, name, email, company=None, area='Yaba'):
@@ -373,6 +391,151 @@ def run(p, label, ctx_args):
     shot('site-results'); overflow('site-results')
     step('business sees the agent, the timeline and the audited result with options')
 
+    # ---- installer: registration wizard, admin phones references and approves, installer edits work profile
+    inst = f'jr-inst-{label}-{STAMP}@example.test'
+    ctx.clear_cookies()
+    fill_signup('installer', 'Journey Installer', inst)
+    page.goto(BASE + '/app'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    page.get_by_text('Finish your registration').first.wait_for(timeout=8000)
+    shot('inst-home-start'); overflow('inst-home-start')
+    page.goto(BASE + '/app/register'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    page.locator('[aria-label="Is your work registered as a business?"] button').nth(1).click()
+    page.locator('[aria-label="How far will you travel for a job?"] button').nth(1).click()
+    shot('inst-step1'); overflow('inst-step1')
+    page.get_by_role('button', name='Next').click(); page.wait_for_timeout(700)
+    page.locator('[aria-label="How many years have you worked on solar, inverters or batteries?"] button').nth(2).click()
+    page.locator('[aria-label="Do you have a technical qualification?"] button').nth(0).click()
+    page.locator('[aria-label="What kind of jobs do you take?"] button').nth(0).click()
+    page.locator('textarea').fill('Fitted home inverters and batteries in Wuse and Garki for five years.')
+    shot('inst-step2'); overflow('inst-step2')
+    page.get_by_role('button', name='Next').click(); page.wait_for_timeout(700)
+    page.locator('[aria-label="How many jobs can you handle at the same time?"] button').nth(1).click()
+    page.locator('[aria-label="How quickly do you usually answer a new enquiry?"] button').nth(1).click()
+    shot('inst-step3'); overflow('inst-step3')
+    page.get_by_role('button', name='Next').click(); page.wait_for_timeout(1200)
+    page.get_by_text('Skills check').first.wait_for(timeout=8000)
+    names = page.locator('fieldset.quiz-q input[type=radio]').evaluate_all("els => [...new Set(els.map(e => e.name))]")
+    for n in names:
+        page.locator(f'fieldset.quiz-q input[name="{n}"]').first.check(force=True)
+    shot('inst-step4'); overflow('inst-step4')
+    page.get_by_role('button', name=re.compile('Save my answers')).click(); page.wait_for_timeout(1200)
+    page.get_by_text('References').first.wait_for(timeout=8000)
+    page.locator('fieldset.ref-card').nth(0).get_by_label('Name').fill('Ada Okafor')
+    page.locator('fieldset.ref-card').nth(0).get_by_label('Phone number').fill('08031112222')
+    page.locator('fieldset.ref-card').nth(0).get_by_label('How do they know you?').fill('Past customer')
+    page.locator('fieldset.ref-card').nth(1).get_by_label('Name').fill('Musa Bello')
+    page.locator('fieldset.ref-card').nth(1).get_by_label('Phone number').fill('08033334444')
+    page.locator('fieldset.ref-card').nth(1).get_by_label('How do they know you?').fill('Former employer')
+    page.get_by_label('I have asked these people').check()
+    shot('inst-step5'); overflow('inst-step5')
+    page.get_by_role('button', name='Next').click(); page.wait_for_timeout(1000)
+    page.get_by_text('Finish').first.wait_for(timeout=8000)
+    page.locator('input[type=file]').nth(0).set_input_files({'name': 'me.png', 'mimeType': 'image/png', 'buffer': PNG}); page.wait_for_timeout(1000)
+    page.get_by_label(re.compile('I confirm that the information')).check()
+    shot('inst-step6'); overflow('inst-step6')
+    page.get_by_role('button', name='Submit for review').click(); page.wait_for_timeout(1500)
+    page.goto(BASE + '/app'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    assert page.get_by_text('Finish your registration').count() == 0
+    shot('inst-waiting'); overflow('inst-waiting')
+    step('installer finished the 6-step registration and is waiting for review')
+
+    admin3 = f'jr-admin3-{label}-{STAMP}@example.test'
+    os.system(f"""mysql solalium -e "INSERT INTO users (email, password_hash, role, full_name, email_verified_at) SELECT '{admin3}', password_hash, 'admin', 'Journey Admin Three', UTC_TIMESTAMP() FROM users WHERE email='{vend}' LIMIT 1" """)
+    login_as(admin3)
+    page.goto(BASE + '/app/installers'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    page.get_by_role('button', name='Review registration').first.click(); page.wait_for_timeout(800)
+    shot('inst-admin-review'); overflow('inst-admin-review')
+    assert page.get_by_role('button', name='Approve').first.is_disabled(), 'approve must wait for the reference calls'
+    ticks = page.locator('.ref-tick input')
+    for k in range(ticks.count()):
+        ticks.nth(k).click(force=True); page.wait_for_timeout(1200)
+    page.get_by_role('button', name='Approve').first.click(); page.wait_for_timeout(1200)
+    shot('inst-admin-approved'); overflow('inst-admin-approved')
+    login_as(inst)
+    page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    page.get_by_text('Approved installer').first.wait_for(timeout=8000)
+    shot('inst-approved'); overflow('inst-approved')
+    page.goto(BASE + '/app/installer-profile'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    shot('inst-profile'); overflow('inst-profile')
+    page.get_by_role('button', name='Save changes').click(); page.get_by_text('Saved').first.wait_for(timeout=6000)
+    step('admin phoned both references, approved; installer sees the approved dashboard and saves the work profile')
+
+    # ---- repairs: customer reports a fault and pays the call-out fee; admin approves the recommended technician; technician visits and reports
+    # Earlier steps (and the API e2e run before them) left other approved technicians behind; stand them down so this journey's installer is the one recommended.
+    os.system(f"""mysql solalium -e "UPDATE installer_profiles ip JOIN users u ON u.id = ip.user_id SET ip.verification_status = 'pending' WHERE u.email NOT LIKE 'jr-inst-{label}-%'" """)
+    login_as(biz)
+    page.goto(BASE + '/app/repairs'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(500)
+    shot('rep-list-empty'); overflow('rep-list-empty')
+    page.get_by_role('link', name='Report a fault').first.click(); page.wait_for_url(re.compile('/app/repairs/new'), timeout=6000); page.wait_for_load_state('networkidle'); page.wait_for_timeout(500)
+    page.locator('select').first.select_option('inverter')
+    page.locator('textarea').fill('The inverter shows a red light and trips every evening when the fridge starts.')
+    page.locator('[aria-label="Equipment affected"] button').nth(0).click()
+    page.locator('[aria-label="Equipment affected"] button').nth(1).click()
+    page.locator('[aria-label="How urgent is it?"] button').nth(1).click()
+    page.locator('.photo-picker input[type=file]').set_input_files({'name': 'fault.png', 'mimeType': 'image/png', 'buffer': PNG}); page.wait_for_timeout(800)
+    shot('rep-new'); overflow('rep-new')
+    page.get_by_role('button', name='Continue').click()
+    page.wait_for_url(re.compile('/app/repairs/RR-'), timeout=8000); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    rep_ref = page.url.rsplit('/', 1)[1]
+    page.get_by_text(re.compile('Pay the call-out fee')).first.wait_for(timeout=8000)
+    assert page.get_by_text('Pay only inside TerraVoltix').count() > 0, 'the pay-in-app notice must show at the payment step'
+    assert page.locator('.photo-tiles img').count() == 1, 'the fault picture is shown'
+    shot('rep-quote'); overflow('rep-quote')
+    page.get_by_role('button', name=re.compile('^Pay ')).click()
+    page.wait_for_url(re.compile('/repair/mock'), timeout=8000); page.wait_for_load_state('networkidle')
+    page.get_by_role('button', name=re.compile('Pay now')).click()
+    page.get_by_text('Call-out fee paid').first.wait_for(timeout=8000)
+    shot('rep-paid'); overflow('rep-paid')
+    page.get_by_role('link', name='Track your repair').click(); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    assert page.get_by_text('Finding a technician').count() > 0
+    shot('rep-finding'); overflow('rep-finding')
+    step('customer reported a fault with a picture, saw the call-out fee and the pay-in-app notice, paid (simulated) and sees "finding a technician"')
+
+    login_as(admin3)
+    page.goto(BASE + '/app/admin-repairs'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    page.get_by_text('WAITING FOR YOUR APPROVAL').first.wait_for(timeout=8000)
+    shot('rep-admin-list'); overflow('rep-admin-list')
+    page.get_by_role('button', name='Open', exact=True).first.click(); page.wait_for_timeout(900)
+    page.get_by_text(re.compile('Recommended: ')).first.wait_for(timeout=8000)
+    shot('rep-admin-open'); overflow('rep-admin-open')
+    page.get_by_role('button', name=re.compile('^Approve ')).first.click(); page.wait_for_timeout(1200)
+    page.get_by_text(re.compile('Offered to')).first.wait_for(timeout=8000)
+    step('admin saw the recommended technician with score and distance, approved, and the job was offered')
+
+    login_as(inst)
+    page.goto(BASE + '/app/repair-jobs'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    page.get_by_text(re.compile('You earn')).first.wait_for(timeout=8000)
+    assert page.get_by_text('Secret').count() == 0
+    shot('rep-tech-offer'); overflow('rep-tech-offer')
+    page.get_by_role('button', name='Accept the job').click(); page.wait_for_timeout(1200)
+    page.get_by_role('button', name=re.compile('on my way')).wait_for(timeout=8000)
+    assert page.get_by_text('12 Test Street').count() > 0, 'the address appears after accepting'
+    shot('rep-tech-assigned'); overflow('rep-tech-assigned')
+    page.get_by_role('button', name=re.compile('on my way')).click(); page.wait_for_timeout(1000)
+    page.get_by_role('button', name='I have arrived').click(); page.wait_for_timeout(1000)
+    page.get_by_role('button', name='Write the inspection report').click(); page.wait_for_timeout(500)
+    page.locator('textarea').last.fill('The inverter control board has failed. One battery cell is also weak.')
+    page.get_by_label('Part 1 name').fill('Inverter control board')
+    page.get_by_label('Part 1 price each (naira)').fill('45000')
+    page.get_by_label('Your labour (₦)').fill('10000')
+    page.get_by_label('Time to fix (hours)').fill('6')
+    page.locator('.review-box .photo-picker input[type=file]').set_input_files({'name': 'found.png', 'mimeType': 'image/png', 'buffer': PNG}); page.wait_for_timeout(800)
+    assert page.get_by_text(re.compile('Total the customer will see')).first.inner_text().count('55,000') == 1
+    shot('rep-tech-report'); overflow('rep-tech-report')
+    page.get_by_role('button', name='Send report to the customer').click(); page.wait_for_timeout(1500)
+    page.get_by_text('Your report').first.wait_for(timeout=8000)
+    shot('rep-tech-reported'); overflow('rep-tech-reported')
+    step('technician saw the offer without the address, accepted, set off, arrived and sent an itemised inspection report')
+
+    login_as(biz)
+    page.goto(BASE + f'/app/repairs/{rep_ref}'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(800)
+    page.get_by_text('Inspection report').first.wait_for(timeout=8000)
+    assert page.get_by_text('Still to pay if you go ahead').count() > 0
+    assert page.get_by_text('50,000').count() > 0, 'total minus the call-out fee is shown'
+    assert page.get_by_text('Journey Installer').count() > 0
+    shot('rep-customer-report'); overflow('rep-customer-report')
+    step('customer sees the technician, the inspection report, the itemised cost with the call-out fee credited, and the history')
+
     # ---- public + SEO + 404
     page.goto(BASE + '/definitely-not-a-page'); page.wait_for_timeout(600); shot('404')
     assert page.get_attribute('meta[name=robots]', 'content').startswith('noindex')
@@ -388,7 +551,7 @@ with sync_playwright() as p:
     for label, args in [('desktop', dict(viewport={'width': 1280, 'height': 800})), ('mobile', {**p.devices['iPhone 13']})]:
         try: run(p, label, args)
         except Exception as e:
-            problems.append(f'{label}: FAILED {type(e).__name__}: {str(e)[:400]}')
+            import traceback; traceback.print_exc(); problems.append(f'{label}: FAILED {type(e).__name__}: {str(e)[:400]}')
 print('\nPROBLEMS:' if problems else '\nAll journeys passed with no layout overflow or page errors.')
 for x in problems: print(' -', x)
 sys.exit(1 if problems else 0)

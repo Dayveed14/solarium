@@ -255,7 +255,7 @@ export default function Home() {
               <h3>Installers</h3>
               <p className="provider-for hide-sm">Independent technicians and crews who fit systems</p>
               <ul>
-                <li>Pass a short technical quiz and get approved</li>
+                <li>Finish a short registration, pass a skills check and give two references</li>
                 <li>Jobs in your state land in your dashboard; the first to accept wins it</li>
                 <li>Customers pay TerraVoltix up front, so you work knowing the job is funded</li>
                 <li>Your payout is a fixed share of the installation fee</li>

@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "/(app|cart|checkout|login|signup|verify|forgot-password|reset-password|results|dispatch|vendor/fee|vendor/subscription|installation)(/.*)?",
+      "source": "/(app|cart|checkout|login|signup|verify|forgot-password|reset-password|results|dispatch|vendor/fee|vendor/subscription|installation|repair)(/.*)?",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
