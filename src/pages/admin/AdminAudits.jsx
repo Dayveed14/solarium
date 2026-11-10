@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../api.js';
-import { AUDIT_STATUS, EVENT_LABEL, PHOTO_LABEL } from '../../lib/audit.js';
+import { EVENT_LABEL, PHOTO_LABEL, SITE_TYPE_LABEL, SOURCE_LABEL, STAFF_STATUS } from '../../lib/audit.js';
 import { formatDate, kwh } from '../../lib/format.js';
 import AuditExtras from '../audit/AuditExtras.jsx';
 
-const FILTERS = [['', 'All'], ['requested', 'Waiting for an agent'], ['assigned', 'Assigned'], ['in_progress', 'In progress'], ['completed', 'Completed'], ['reopened', 'Reopened']];
-const BADGE = { requested: 'badge-new', assigned: 'badge-pending', in_progress: 'badge-pending', completed: 'badge-active', reopened: 'badge-rejected' };
+const FILTERS = [['needs_action', 'Needs you'], ['', 'All'], ['requested', 'Waiting for an agent'], ['assigned', 'Assigned'], ['in_progress', 'In progress'], ['submitted', 'To review'], ['technical_review', 'Technical review'], ['completed', 'Completed'], ['reopened', 'Reopened']];
+const BADGE = { requested: 'badge-new', assigned: 'badge-pending', in_progress: 'badge-pending', submitted: 'badge-new', technical_review: 'badge-rejected', completed: 'badge-active', reopened: 'badge-rejected' };
 
 // Every business site assessment: who asked, which agent has it, what the result is, and the button to send one back.
 export default function AdminAudits() {
@@ -36,7 +36,7 @@ export default function AdminAudits() {
 
   return (
     <>
-      <div className="section-head"><div><h2 className="dash-h2">Site audits</h2><p className="muted">Businesses that asked for a field assessment. Assign an agent; send a finished result back if something looks wrong.</p></div></div>
+      <div className="section-head"><div><h2 className="dash-h2">Site audits</h2><p className="muted">Businesses that asked for a field assessment. Assign an agent, check what the agent submitted, send it to a technical review if flagged, and approve it. The business sees results only after you approve.</p></div></div>
       <div className="choice-row" role="group" aria-label="Filter">
         {FILTERS.map(([k, l]) => <button key={k} type="button" className={filter === k ? 'chip on' : 'chip'} onClick={() => setFilter(k)}>{l}</button>)}
       </div>
@@ -50,7 +50,7 @@ export default function AdminAudits() {
             <button type="button" className="order-row" onClick={() => show(a.ref)} aria-expanded={open === a.ref}>
               <span><strong>{a.companyName}</strong><small>{a.ref} · {formatDate(a.createdAt)}</small></span>
               <span>{a.address.place}<small>{a.agentName ? `Agent: ${a.agentName}` : 'No agent yet'}{a.kwhPerDay ? ` · ${kwh(a.kwhPerDay)} kWh/day` : ''}</small></span>
-              <span className={`badge ${BADGE[a.status]}`}>{AUDIT_STATUS[a.status]}</span>
+              <span className={`badge ${BADGE[a.status]}`}>{STAFF_STATUS[a.status]}{a.needsTechnical ? ' ⚑' : ''}</span>
             </button>
             {open === a.ref && (
               <div className="order-part">
@@ -75,31 +75,30 @@ export default function AdminAudits() {
                     <h3 className="dash-h3">Timeline</h3>
                     <ul className="plain-list">{detail.timeline.map((e, i) => <li key={i}>{EVENT_LABEL[e.type] ?? e.type} · {new Date(e.at).toLocaleString('en-NG')}{e.note && <> · <em>{e.note}</em></>}</li>)}</ul>
 
+                    {detail.needsTechnical && <p className="warn-line" role="note">The agent flagged this site for technical review{detail.form?.review?.reason ? `: ${detail.form.review.reason}` : ''}.{detail.technicalNote && <> Technical note: {detail.technicalNote}</>}</p>}
+                    {detail.gpsCheck && (
+                      <p className={detail.gpsCheck.far ? 'warn-line' : 'muted'}>
+                        GPS accuracy {detail.gpsCheck.accuracyM ?? '?'} m{detail.gpsCheck.capturedAt ? `, taken ${new Date(detail.gpsCheck.capturedAt).toLocaleString('en-NG')}` : ''}
+                        {detail.gpsCheck.offKm != null && <> · {detail.gpsCheck.offKm} km from the centre of the area the business chose{detail.gpsCheck.far ? '. That is far: phone the agent or the client.' : '.'}</>}
+                      </p>
+                    )}
+
+                    {detail.pending && (
+                      <>
+                        <h3 className="dash-h3">Waiting for approval (version {detail.pending.version})</h3>
+                        <ResultStats result={detail.pending.result} />
+                        <AuditExtras result={detail.pending.result} />
+                      </>
+                    )}
                     {detail.result && (
                       <>
-                        <h3 className="dash-h3">Result (version {detail.version})</h3>
-                        <dl className="r-stats">
-                          <div><dt>Energy a day</dt><dd>{kwh(detail.result.usage.kwhPerDay)} kWh</dd></div>
-                          <div><dt>Panels</dt><dd>{detail.result.solar.kwp} kWp</dd></div>
-                          <div><dt>Battery</dt><dd>{detail.result.solar.batteryKwh} kWh</dd></div>
-                          <div><dt>Inverter</dt><dd>{detail.result.solar.inverterKva} kVA</dd></div>
-                        </dl>
-                        <AuditExtras result={detail.result} />
+                        <h3 className="dash-h3">{detail.pending ? 'Currently shown to the business' : `Approved result (version ${detail.version})`}</h3>
+                        <ResultStats result={detail.result} />
+                        {!detail.pending && <AuditExtras result={detail.result} />}
                       </>
                     )}
 
-                    {detail.form && (detail.form.business?.shopName || detail.form.site?.plazaName) && (
-                      <>
-                        <h3 className="dash-h3">What the agent recorded</h3>
-                        <ul className="plain-list">
-                          <li>Plaza: {detail.form.site.plazaName} ({detail.form.site.section}), shop {detail.form.site.shopNumber || '–'}, {detail.form.site.shopStatus}</li>
-                          {detail.form.site.gps && <li>GPS: <a href={`https://www.google.com/maps?q=${detail.form.site.gps.lat},${detail.form.site.gps.lng}`} target="_blank" rel="noreferrer noopener">{detail.form.site.gps.lat}, {detail.form.site.gps.lng}</a></li>}
-                          <li>Owner: {detail.form.business.ownerFirstName} {detail.form.business.ownerLastName}, {detail.form.business.ownerPhone}; {detail.form.business.businessType}, {detail.form.business.yearsInPlaza ?? '–'} years</li>
-                          <li>Generator: {detail.form.power.usesGenerator ? `${detail.form.power.generatorType ?? ''} ${detail.form.power.generatorKva ?? ''} kVA` : 'none'}; landlord {detail.form.power.landlordContact || '–'}; manager {detail.form.power.managerContact || '–'}</li>
-                          {detail.form.comments && <li>Comments: {detail.form.comments}</li>}
-                        </ul>
-                      </>
-                    )}
+                    {detail.form && <FormSummary form={detail.form} upgraded={detail.formUpgraded} />}
 
                     {detail.photos && Object.keys(detail.photos).length > 0 && (
                       <div className="photo-grid">
@@ -107,12 +106,24 @@ export default function AdminAudits() {
                       </div>
                     )}
 
+                    {['submitted', 'technical_review'].includes(detail.status) && (
+                      <div className="reopen-box">
+                        <label className="field"><span>Note {detail.needsTechnical || detail.status === 'technical_review' ? '(required)' : '(optional for approval; required to send on or back)'}</span>
+                          <textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} /></label>
+                        <div className="row-actions">
+                          <button type="button" className="btn btn-primary btn-small" disabled={busy || (detail.needsTechnical && (detail.status !== 'technical_review' || note.trim().length < 5))} onClick={() => act(() => api.adminAuditApprove(detail.ref, note.trim()))}>Approve and release the result</button>
+                          {detail.status === 'submitted' && <button type="button" className="btn btn-ghost btn-small" disabled={busy || note.trim().length < 5} onClick={() => act(() => api.adminAuditTechnical(detail.ref, note.trim()))}>Send to technical review</button>}
+                          <button type="button" className="btn btn-quiet btn-small" disabled={busy || note.trim().length < 5} onClick={() => act(() => api.adminAuditReopen(detail.ref, note.trim()))}>Send back to the agent</button>
+                        </div>
+                        {detail.needsTechnical && detail.status === 'submitted' && <p className="muted small">The agent flagged this one, so it must go through technical review before it can be approved.</p>}
+                      </div>
+                    )}
                     {detail.status === 'completed' && (
                       <div className="reopen-box">
                         <label className="field"><span>Something wrong? Flag it and send it back to {detail.agentName ?? 'the agent'}</span>
                           <textarea rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder="What should they recheck?" /></label>
                         <button type="button" className="btn btn-quiet btn-small" disabled={busy || note.trim().length < 5} onClick={() => act(() => api.adminAuditReopen(detail.ref, note.trim()))}>Flag and reopen</button>
-                        <p className="muted small">The business is told it is being rechecked. Their earlier result stays visible and a new version replaces it when the agent resubmits.</p>
+                        <p className="muted small">The business is told it is being rechecked. Their earlier result stays visible and a new version replaces it once you approve the resubmission.</p>
                       </div>
                     )}
                     {detail.status === 'reopened' && detail.reviewNote && <p className="warn-line">Waiting for the agent. Your note: {detail.reviewNote}</p>}
@@ -122,6 +133,43 @@ export default function AdminAudits() {
             )}
           </li>
         ))}
+      </ul>
+    </>
+  );
+}
+
+function ResultStats({ result }) {
+  return (
+    <dl className="r-stats">
+      <div><dt>Energy a day</dt><dd>{kwh(result.usage.kwhPerDay)} kWh</dd></div>
+      <div><dt>Panels</dt><dd>{result.solar.kwp} kWp</dd></div>
+      <div><dt>Battery</dt><dd>{result.solar.batteryKwh} kWh</dd></div>
+      <div><dt>Inverter</dt><dd>{result.solar.inverterKva} kVA</dd></div>
+    </dl>
+  );
+}
+
+// What the agent recorded. Older (plaza) audits are shown through the same layout; a note says so.
+function FormSummary({ form, upgraded }) {
+  const { site, client, power } = form;
+  const who = [client.firstName, client.lastName].filter(Boolean).join(' ');
+  return (
+    <>
+      <h3 className="dash-h3">What the agent recorded</h3>
+      {upgraded && <p className="muted small">Recorded on the older plaza form and shown here in the new layout.</p>}
+      <ul className="plain-list">
+        <li>Site: {site.siteName || '–'} ({SITE_TYPE_LABEL[site.siteType] ?? '–'}){site.unit ? `, unit ${site.unit}` : ''}{site.occupancy ? `, ${site.occupancy}` : ''}{site.accessNotes ? `. Access: ${site.accessNotes}` : ''}</li>
+        {site.legacy && <li>Old plaza answers: {site.legacy.section ?? '–'}, shop {site.legacy.shopNumber ?? '–'}</li>}
+        {site.gps && <li>GPS: <a href={`https://www.google.com/maps?q=${site.gps.lat},${site.gps.lng}`} target="_blank" rel="noreferrer noopener">{site.gps.lat}, {site.gps.lng}</a></li>}
+        <li>Client: {who || '–'}{client.organisation ? `, ${client.organisation}` : ''}, {client.phone || '–'}{client.role ? ` (${client.role})` : ''}; {client.businessType || '–'}, {client.yearsAtSite ?? '–'} years</li>
+        <li>Grid: {power.disco || '–'}{power.supplyBand ? `, band ${power.supplyBand}` : ''}</li>
+        {power.sources.length === 0 ? <li>Other power: {power.noOtherSources ? 'nothing besides the grid' : '–'}</li> : power.sources.map((x, i) => (
+          <li key={i}>{SOURCE_LABEL[x.kind] ?? x.kind}: {[x.fuel, x.kva != null && `${x.kva} kVA`, x.kwp != null && `${x.kwp} kWp`, x.batteryKwh != null && `${x.batteryKwh} kWh battery`, x.fuelSpendPerWeek != null && `₦${x.fuelSpendPerWeek}/week fuel`, x.note].filter(Boolean).join(', ') || '–'}</li>
+        ))}
+        <li>Landlord {power.landlordContact || '–'}; manager {power.managerContact || '–'}</li>
+        <li>Roof: {form.roof.areaM2 != null ? `${form.roof.areaM2} m²` : '–'}{form.roof.type ? `, ${form.roof.type}` : ''}</li>
+        <li>{form.appliances.length} appliance type(s) listed</li>
+        {form.comments && <li>Comments: {form.comments}</li>}
       </ul>
     </>
   );

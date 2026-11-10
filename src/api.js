@@ -92,6 +92,8 @@ export const api = {
   adminAudit: (ref) => request(`/admin/audits/${ref}`),
   adminAuditAssign: (ref, agentId) => post(`/admin/audits/${ref}/assign`, { agentId }),
   adminAuditReopen: (ref, note) => post(`/admin/audits/${ref}/reopen`, { note }),
+  adminAuditApprove: (ref, note) => post(`/admin/audits/${ref}/approve`, note ? { note } : {}),
+  adminAuditTechnical: (ref, note) => post(`/admin/audits/${ref}/technical-review`, { note }),
   adminAgents: () => request('/admin/field-agents'),
   adminAgentCreate: (body) => post('/admin/field-agents', body),
 

@@ -104,16 +104,32 @@ select, input { font: inherit; }
 
 .presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
 .chip-btn {
-  padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600;
-  border: 1px solid rgba(251, 191, 36, 0.5); background: rgba(251, 191, 36, 0.08); color: var(--accent);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: rgba(251, 191, 36, 0.08);
 }
-.chip-btn:hover { background: rgba(251, 191, 36, 0.16); }
-.chip-btn-quiet { border-color: var(--line); background: transparent; color: var(--muted); }
+
+.chip-btn:hover {
+  background: rgba(251, 191, 36, 0.16);
+}
+
+.chip-btn.selected {
+  border: 1px solid white;
+}
+
+.chip-btn-quiet {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+}
 
 .tabs {
   display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 12px; margin-bottom: 4px;
   position: sticky; top: -20px; z-index: 2; background: var(--bg); scrollbar-width: thin;
-  color: var(--paper);
+  color: var(--paper);color: black;
 }
 .tab {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; border-radius: 999px;
@@ -815,7 +831,7 @@ select, input { font: inherit; }
 .item-desc { white-space: pre-line; line-height: 1.65; }
 textarea.long-text { min-height: 160px; resize: vertical; line-height: 1.55; }
 .editor-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-.editor-bar button { font: inherit; font-size: 15px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink, inherit); border-radius: 8px; padding: 6px 12px; min-width: 40px; }
+.editor-bar button { font: inherit; font-size: 15px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink, inherit); border-radius: 8px; padding: 6px 12px; min-width: 40px; color: black; }
 .editor-bar button:hover:not(:disabled) { border-color: var(--solar); }
 .blog-form .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 560px) { .blog-form .two-col { grid-template-columns: 1fr; } }
@@ -1027,3 +1043,7 @@ textarea.long-text { min-height: 160px; resize: vertical; line-height: 1.55; }
 .stars button:focus-visible { outline: 3px solid var(--ring, #16a34a); border-radius: 8px; }
 .r-banner { flex-wrap: wrap; }
 .page-head { flex-wrap: wrap; gap: 8px 16px; margin-bottom: 14px; }
+
+/* Long notes, emails and map links must wrap inside cards on a phone. */
+.order-part, .plain-list li, .reopen-box { overflow-wrap: anywhere; }
+.reopen-box textarea { max-width: 100%; box-sizing: border-box; }

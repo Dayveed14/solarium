@@ -49,7 +49,7 @@ def run(p, label, ctx_args):
         # so innerWidth would hide the problem.
         w = page.evaluate('[document.documentElement.scrollWidth, window.screen.width, Math.max(0, ...[...document.querySelectorAll("header *, [role=dialog] *")].map(e => e.getBoundingClientRect().right))]')
         if w[0] > w[1] + 1:
-            print('SCROLL:', page.evaluate('[window.scrollX, document.documentElement.scrollWidth, document.querySelector(".request-card").getBoundingClientRect().left, document.querySelector(".review-box").getBoundingClientRect().left]'))
+            print('SCROLL:', page.evaluate('[window.scrollX, document.documentElement.scrollWidth, 0,0]'))
             print('CHAIN:', page.evaluate('(()=>{let e=[...document.querySelectorAll("h4.dash-h3")].find(x=>x.getBoundingClientRect().right>window.screen.width+1);let o=[];while(e&&e.tagName!="BODY"){let r=e.getBoundingClientRect();o.push(e.tagName+"."+e.className+" "+Math.round(r.width)+" "+getComputedStyle(e).display);e=e.parentElement}return o})()'))
             print('WIDE:', page.evaluate('[...document.querySelectorAll("main *")].filter(e=>e.getBoundingClientRect().right>window.screen.width+1).slice(0,6).map(e=>e.tagName+"."+e.className+" "+Math.round(e.getBoundingClientRect().right))'))
         if w[0] > w[1] + 1 or w[2] > w[1] + 1: problems.append(f'{label} {name}: content {w[0]}px / widest header or dialog element {round(w[2])}px on a {w[1]}px screen')
@@ -346,19 +346,20 @@ def run(p, label, ctx_args):
     shot('agent-home'); overflow('agent-home')
     page.locator('.order-row', has_text='Journey Plaza').click(); page.wait_for_url(re.compile('/app/jobs/AU-'))
     page.get_by_role('button', name=re.compile('start the audit')).click()
-    page.get_by_label(re.compile('Plaza or market name')).wait_for(timeout=8000)
-    page.get_by_label(re.compile('Plaza or market name')).fill('Journey Plaza')
-    page.get_by_role('radio', name='Plaza', exact=True).click()
+    page.get_by_label(re.compile('Name of the site')).wait_for(timeout=8000)
+    page.get_by_label(re.compile('Name of the site')).fill('Journey Plaza')
+    page.get_by_label(re.compile('Type of site')).select_option('shop')
     page.get_by_role('radio', name='Occupied', exact=True).click()
     page.get_by_role('button', name='Capture my location').click(); page.get_by_text('Check on the map').wait_for(timeout=8000)
     shot('agent-step1'); overflow('agent-step1')
     page.get_by_role('button', name='Next').click()
-    page.get_by_label(re.compile('Shop or business name')).fill('Journey Phones')
-    page.get_by_label(re.compile("Owner's first name")).fill('Ade'); page.get_by_label(re.compile("Owner's phone")).fill('08031234567')
+    page.get_by_label(re.compile('Organisation')).fill('Journey Phones')
+    page.get_by_label(re.compile("Client's first name")).fill('Ade'); page.get_by_label(re.compile("Client's phone")).fill('08031234567')
     shot('agent-step2'); overflow('agent-step2')
     page.get_by_role('button', name='Next').click()
     page.get_by_label(re.compile('Electricity company')).select_option('aedc')
-    page.get_by_role('radio', name='No', exact=True).click()
+    page.get_by_role('button', name='+ Generator').click()
+    page.get_by_label('Size (kVA)').fill('5'); page.get_by_label(re.compile('Fuel spend')).fill('20000')
     page.get_by_label(re.compile('Roof space')).fill('60')
     shot('agent-step3'); overflow('agent-step3')
     page.get_by_role('button', name='Next').click()
@@ -368,28 +369,54 @@ def run(p, label, ctx_args):
     page.get_by_text('Live result').wait_for(timeout=8000)
     shot('agent-step4'); overflow('agent-step4')
     page.get_by_role('button', name='Next').click()
-    for title in ['Full plaza', 'Roof', 'Where the equipment']:
-        page.locator('.photo-slot', has_text=title).locator('input[type=file]').set_input_files({'name': 'p.png', 'mimeType': 'image/png', 'buffer': PNG})
-        page.locator('.photo-slot', has_text=title).get_by_text('Retake').wait_for(timeout=10000)
+    for title in ['Check-in', 'The building', 'Roof', 'Where the equipment', 'Generator and']:
+        page.locator('.photo-slot', has_text=title).first.locator('input[type=file]').set_input_files({'name': 'p.png', 'mimeType': 'image/png', 'buffer': PNG})
+        page.locator('.photo-slot', has_text=title).first.get_by_text('Retake').wait_for(timeout=10000)
     shot('agent-step5'); overflow('agent-step5')
     page.get_by_role('button', name='Next').click()
-    assert page.get_by_role('button', name='Submit audit and send results').is_disabled(), 'cannot submit without the signature'
-    page.locator('.sig-canvas').scroll_into_view_if_needed(); page.wait_for_timeout(300)
-    box = page.locator('.sig-canvas').bounding_box()
-    page.mouse.move(box['x'] + 30, box['y'] + 60); page.mouse.down(); page.mouse.move(box['x'] + 120, box['y'] + 100, steps=6); page.mouse.move(box['x'] + 200, box['y'] + 50, steps=6); page.mouse.up()
-    page.get_by_role('button', name='Save signature').click(); page.get_by_text('Signature saved').wait_for(timeout=10000)
+    assert page.get_by_role('button', name='Submit audit for approval').is_disabled(), 'cannot submit without the signatures'
+    page.get_by_text('This site needs a technical review').click()
+    page.get_by_label(re.compile('What should the engineer')).fill('Roof looks old, check the strength')
+    for idx, saved in enumerate(['Client signature saved', 'Your signature saved']):
+        pad = page.locator('.sig-canvas').nth(idx)
+        pad.scroll_into_view_if_needed(); page.wait_for_timeout(300)
+        box = pad.bounding_box()
+        page.mouse.move(box['x'] + 30, box['y'] + 60); page.mouse.down(); page.mouse.move(box['x'] + 120, box['y'] + 100, steps=6); page.mouse.move(box['x'] + 200, box['y'] + 50, steps=6); page.mouse.up()
+        page.locator('.sig').nth(idx).get_by_role('button', name='Save signature').click(); page.get_by_text(saved).wait_for(timeout=10000)
     shot('agent-step6'); overflow('agent-step6')
-    page.get_by_role('button', name='Submit audit and send results').click()
+    page.get_by_role('button', name='Submit audit for approval').click()
     page.get_by_text('Audit submitted').first.wait_for(timeout=15000)
     shot('agent-done'); overflow('agent-done')
-    step('field agent surveyed the site on the phone, took photos, got the owner signature and submitted')
+    step('field agent surveyed the site, took photos, flagged a technical review, got both signatures and submitted')
+
+    # The business cannot see results yet, and is never told about the technical flag.
+    login_as(biz)
+    page.goto(BASE + f'/app/site-assessment/{audit_ref}'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(1000)
+    assert page.get_by_text('Sizes, roof and fuel').count() == 0, 'no results before approval'
+    assert page.get_by_text(re.compile('technical', re.I)).count() == 0, 'customer never sees the technical flag'
+    shot('site-waiting'); overflow('site-waiting')
+
+    # Admin: the flagged audit must go to technical review first, then is approved.
+    login_as(admin2)
+    page.goto(BASE + '/app/audits'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(600)
+    page.locator('.order-row', has_text=audit_ref).click(); page.wait_for_timeout(800)
+    page.get_by_text('flagged this site for technical review').wait_for(timeout=8000)
+    assert page.get_by_role('button', name='Approve and release the result').is_disabled(), 'flagged: approve blocked before technical review'
+    page.locator('.reopen-box textarea').fill('Engineer checked the roof by photo, fine')
+    page.wait_for_timeout(800)
+    page.get_by_role('button', name='Send to technical review').click(timeout=60000, force=True); page.wait_for_timeout(1500)
+    shot('admin-audit-review'); overflow('admin-audit-review')
+    page.locator('.reopen-box textarea').fill('Approved after the engineer check')
+    page.get_by_role('button', name='Approve and release the result').click(); page.wait_for_timeout(1200)
+    page.get_by_text('Approved result').first.wait_for(timeout=8000)
+    step('admin sent the flagged audit to technical review, then approved it')
 
     login_as(biz)
     page.goto(BASE + f'/app/site-assessment/{audit_ref}'); page.wait_for_load_state('networkidle'); page.wait_for_timeout(1000)
     page.get_by_text('Sizes, roof and fuel').first.wait_for(timeout=10000)
     assert page.get_by_text('Journey Agent').count() > 0
     shot('site-results'); overflow('site-results')
-    step('business sees the agent, the timeline and the audited result with options')
+    step('after approval the business sees the agent, the timeline and the audited result with options')
 
     # ---- installer: registration wizard, admin phones references and approves, installer edits work profile
     inst = f'jr-inst-{label}-{STAMP}@example.test'

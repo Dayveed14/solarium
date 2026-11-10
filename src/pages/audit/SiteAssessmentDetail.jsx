@@ -27,6 +27,7 @@ export default function SiteAssessmentDetail() {
 
   const step = stepIndex(a.status);
   const when = Object.fromEntries((a.timeline ?? []).map((e) => [e.type, e.at]));
+  when.completed = when.approved_update ?? when.approved ?? when.completed;
   const photos = Object.entries(a.photos ?? {});
 
   return (
@@ -62,7 +63,7 @@ export default function SiteAssessmentDetail() {
           <AuditExtras result={a.result} />
         </div>
       ) : (
-        <p className="muted">Your results appear here, and by email, the moment the agent submits the visit.</p>
+        <p className="muted">{['submitted', 'technical_review'].includes(a.status) ? 'The visit is done and our team is checking the figures. Your results appear here, and by email, as soon as they are released.' : 'Your results appear here, and by email, once the visit is done and our team has checked the figures.'}</p>
       )}
 
       {photos.length > 0 && (

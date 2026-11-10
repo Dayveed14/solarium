@@ -261,7 +261,7 @@ p {
 .hero-note {
   margin-top: 18px;
   font-size: 14px;
-  color: var(--muted);
+  color: white;
 }
 
 .hero-panel {

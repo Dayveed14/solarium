@@ -4,8 +4,9 @@ import { api } from '../../api.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { formatDate } from '../../lib/format.js';
 
-const LABEL = { assigned: 'New job', in_progress: 'In progress', reopened: 'Sent back to you', completed: 'Submitted' };
-const BADGE = { assigned: 'badge-new', in_progress: 'badge-pending', reopened: 'badge-rejected', completed: 'badge-active' };
+const LABEL = { assigned: 'New job', in_progress: 'In progress', reopened: 'Sent back to you', submitted: 'With the admin', technical_review: 'With the admin', completed: 'Approved' };
+const BADGE = { assigned: 'badge-new', in_progress: 'badge-pending', reopened: 'badge-rejected', submitted: 'badge-pending', technical_review: 'badge-pending', completed: 'badge-active' };
+const FINISHED = ['submitted', 'technical_review', 'completed'];
 
 // A field agent's home: the jobs the admin has given them. Today there is one kind of task, the energy audit.
 export default function AgentHome() {
@@ -14,8 +15,8 @@ export default function AgentHome() {
   const [error, setError] = useState(null);
   useEffect(() => { api.agentJobs().then((r) => setJobs(r.jobs)).catch((e) => setError(e.message)); }, []);
 
-  const todo = jobs?.filter((j) => j.status !== 'completed') ?? [];
-  const done = jobs?.filter((j) => j.status === 'completed') ?? [];
+  const todo = jobs?.filter((j) => !FINISHED.includes(j.status)) ?? [];
+  const done = jobs?.filter((j) => FINISHED.includes(j.status)) ?? [];
   const row = (j) => (
     <li key={j.ref}>
       <Link to={`/app/jobs/${j.ref}`} className="order-row">
