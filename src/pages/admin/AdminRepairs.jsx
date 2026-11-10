@@ -3,7 +3,7 @@ import { api } from '../../api.js';
 import { formatDate, naira } from '../../lib/format.js';
 import { PhotoTiles, REPAIR_STATUS } from '../repairs/shared.jsx';
 
-const FILTERS = [['needs_action', 'Needs you'], ['', 'All active'], ['assigned', 'Assigned'], ['on_the_way', 'On the way'], ['inspected', 'Inspected'], ['cancelled', 'Cancelled']];
+const FILTERS = [['needs_action', 'Needs you'], ['', 'All active'], ['assigned', 'Assigned'], ['on_the_way', 'On the way'], ['inspected', 'Inspected'], ['in_repair', 'In repair'], ['repair_done', 'Finished'], ['completed', 'Completed'], ['cancelled', 'Cancelled']];
 const MATCH = { queued: 'Waiting its turn', recommended: 'Recommended: your decision', offered: 'Offered to the technician', accepted: 'Accepted', declined: 'Declined', timed_out: 'Did not answer', passed: 'Passed over' };
 const at = (iso) => new Date(iso).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' });
 
@@ -76,12 +76,27 @@ function Detail({ refId, onChanged, setError }) {
         </>
       )}
 
+      {d.work && (
+        <>
+          <h4 className="dash-h3">The repair</h4>
+          <p>Agreed {naira(d.work.agreedTotal)} · customer paid {naira(d.work.paidAmount)} · technician share {naira(d.work.youEarn)} · payout: <strong>{d.work.payoutStatus === 'none' ? 'not yet' : `${naira(d.work.payoutAmount)} ${d.work.payoutStatus === 'paid' ? '(sent)' : '(owed)'}`}</strong></p>
+          {d.work.partsNote && <p className="muted">Waiting for parts: {d.work.partsNote}</p>}
+          {d.work.variations.map((v) => <p className="muted" key={v.id}>Revision {naira(v.extraTotal)} ({v.status}): {v.reason}</p>)}
+          {d.work.completion && <><p className="request-message">{d.work.completion.summary}</p><PhotoTiles base={`/admin/repairs/${r.ref}`} ids={d.work.completion.photos} /></>}
+          {d.work.problem && <p className="form-error" role="alert">Customer reported a problem on {at(d.work.problem.at)}: {d.work.problem.note}</p>}
+          {d.work.confirmDueAt && <p className="muted">Closes automatically on {at(d.work.confirmDueAt)}.</p>}
+          {d.work.review && <p className="muted">Customer review: {'★'.repeat(d.work.review.rating)}{'☆'.repeat(5 - d.work.review.rating)}{d.work.review.comment ? ` · "${d.work.review.comment}"` : ''}</p>}
+        </>
+      )}
+
       <h4 className="dash-h3">History</h4>
       <ul className="doc-list">{d.timeline.map((e, i) => <li key={i}><div><strong>{e.type.replace(/_/g, ' ')}</strong><small>{e.actor}{e.note ? ` · ${e.note}` : ''}</small></div><small>{at(e.at)}</small></li>)}</ul>
 
       <div className="row-actions">
+        {r.status === 'repair_done' && <button type="button" className="btn btn-primary btn-small" disabled={busy} onClick={() => act(() => api.adminRepairConfirm(r.ref))}>Close the repair (confirm for the customer)</button>}
+        {r.payoutStatus === 'owed' && <button type="button" className="btn btn-primary btn-small" disabled={busy} onClick={() => act(() => api.adminRepairPayoutPaid(r.ref))}>Mark payout sent ({naira(r.payoutAmount)})</button>}
         {r.refundNeeded && <button type="button" className="btn btn-primary btn-small" disabled={busy} onClick={() => act(() => api.adminRepairRefunded(r.ref))}>Mark refund sent ({naira(r.refundAmount)})</button>}
-        {['finding', 'assigned', 'on_the_way', 'on_site'].includes(r.status) && <button type="button" className="btn btn-quiet btn-small" onClick={() => setCancelling(!cancelling)}>Cancel and refund {naira(r.callOutFee)}</button>}
+        {['finding', 'assigned', 'on_the_way', 'on_site', 'inspected', 'approved', 'in_repair', 'awaiting_parts', 'repair_done'].includes(r.status) && <button type="button" className="btn btn-quiet btn-small" onClick={() => setCancelling(!cancelling)}>Cancel and refund {naira(r.paidAmount)}</button>}
       </div>
       {cancelling && (
         <div className="review-box">
@@ -105,13 +120,15 @@ export default function AdminRepairs() {
   const s = data?.stats;
   return (
     <>
-      <div className="section-head"><div><h2 className="dash-h2">Repairs</h2><p className="muted">Approve the technician the system recommends, or choose another. Change call-out fees, the commission and the waiting times under Pricing &amp; rules → Repairs.</p></div></div>
+      <div className="section-head"><div><h2 className="dash-h2">Repairs</h2><p className="muted">Approve the technician the system recommends, or choose another; close finished repairs, send refunds and payouts. Change call-out fees, the commission and the waiting times under Pricing &amp; rules → Repairs.</p></div></div>
       {s && (
         <div className="stat-row">
           <div className="stat-card"><span>Finding a technician</span><strong>{s.byStatus.finding ?? 0}</strong></div>
-          <div className="stat-card"><span>In progress</span><strong>{(s.byStatus.assigned ?? 0) + (s.byStatus.on_the_way ?? 0) + (s.byStatus.on_site ?? 0)}</strong></div>
+          <div className="stat-card"><span>In progress</span><strong>{(s.byStatus.assigned ?? 0) + (s.byStatus.on_the_way ?? 0) + (s.byStatus.on_site ?? 0) + (s.byStatus.approved ?? 0) + (s.byStatus.in_repair ?? 0) + (s.byStatus.awaiting_parts ?? 0) + (s.byStatus.repair_done ?? 0)}</strong></div>
           <div className="stat-card"><span>Estimates sent</span><strong>{s.byStatus.inspected ?? 0}</strong></div>
           <div className="stat-card"><span>Refunds to send</span><strong>{s.refundsDue}</strong></div>
+          <div className="stat-card"><span>Payouts to send</span><strong>{s.payoutsOwed}</strong></div>
+          <div className="stat-card"><span>Problems reported</span><strong>{s.problems}</strong></div>
         </div>
       )}
       <div className="tabs" role="tablist" aria-label="Filter repairs">
@@ -121,7 +138,7 @@ export default function AdminRepairs() {
       {!data && !error && <p className="muted" role="status">Loading…</p>}
       {data?.requests.length === 0 && <div className="empty-card"><h3>Nothing here</h3><p>{filter === 'needs_action' ? 'No repair is waiting for your decision.' : 'No repairs in this list.'}</p></div>}
       <ul className="request-list">
-        {data?.requests.filter((r) => filter || !['completed', 'cancelled'].includes(r.status) || r.refundNeeded).map((r) => (
+        {data?.requests.filter((r) => filter || !['completed', 'cancelled'].includes(r.status) || r.refundNeeded || r.payoutStatus === 'owed').map((r) => (
           <li key={r.ref} className="request-card">
             <div className="deal-top"><h3>{r.ref} · {r.faultType.replace(/_/g, ' ')}</h3><span className="badge badge-pending">{REPAIR_STATUS[r.status]}</span></div>
             <p className="muted">{r.customerName} · {r.areaId}, {r.state} · {r.urgency === 'urgent' ? 'URGENT · ' : ''}fee {naira(r.callOutFee)} · {formatDate(r.createdAt)}{r.technicianName ? ` · technician: ${r.technicianName}` : ''}{r.matchState === 'recommended' ? ' · WAITING FOR YOUR APPROVAL' : ''}{r.matchState === 'offered' ? ' · offered, waiting for the technician' : ''}</p>

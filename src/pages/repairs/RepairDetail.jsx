@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../../api.js';
 import { formatDate, naira } from '../../lib/format.js';
+import RepairWork from './RepairWork.jsx';
 import { PROGRESS, PayNotice, PhotoPicker, PhotoTiles, REPAIR_STATUS, progressIndex, statusTone } from './shared.jsx';
 
 const stamp = (iso) => new Date(iso).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' });
@@ -37,8 +38,9 @@ export default function RepairDetail() {
 
   const unpaid = ['quote', 'awaiting_payment'].includes(r.status);
   const step = progressIndex(r.status);
-  const canCancel = ['finding', 'assigned', 'on_the_way'].includes(r.status);
-  const refundText = r.status === 'on_the_way' ? `Because the technician has already set off, half of your call-out fee (${naira(Math.round(r.callOutFee / 2))}) is refunded.` : `You get your full call-out fee (${naira(r.callOutFee)}) back.`;
+  const canCancel = ['finding', 'assigned', 'on_the_way', 'approved'].includes(r.status);
+  const refundText = r.status === 'approved' ? `The visit is done, so the call-out fee (${naira(r.callOutFee)}) is kept. The ${naira(Math.max(0, r.paidAmount - r.callOutFee))} you paid for the repair is refunded.` : r.status === 'on_the_way' ? `Because the technician has already set off, half of your call-out fee (${naira(Math.round(r.callOutFee / 2))}) is refunded.` : `You get your full call-out fee (${naira(r.callOutFee)}) back.`;
+  const lateTech = r.noShowAfter && new Date(r.noShowAfter) <= new Date();
 
   return (
     <div className="app-page">
@@ -106,9 +108,11 @@ export default function RepairDetail() {
           </table>
           <p className="muted">Estimated time to fix: about {r.report.estimatedHours} hour{r.report.estimatedHours === 1 ? '' : 's'}.</p>
           <PayNotice text={r.payNotice} />
-          <p className="muted">Approving and paying for the repair in the app comes next. Nothing is charged until you approve.</p>
+          {r.status === 'inspected' && <p className="muted">Nothing is charged until you approve below.</p>}
         </section>
       )}
+      <RepairWork r={r} act={act} busy={busy} reqRef={ref} payNotice={r.payNotice} />
+      {lateTech && <aside className="r-banner"><div><strong>Your technician has not arrived.</strong><span>It has been a while. You can cancel and get your full call-out fee back.</span></div><button type="button" className="btn btn-primary btn-small" disabled={busy} onClick={() => act(() => api.repairNoShow(ref))}>Cancel: technician did not arrive</button></aside>}
 
       {canCancel && !sure && <p><button type="button" className="btn btn-quiet" disabled={busy} onClick={() => setSure(true)}>Cancel this repair</button></p>}
       {canCancel && sure && (

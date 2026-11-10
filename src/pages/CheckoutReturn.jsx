@@ -73,8 +73,8 @@ export default function CheckoutReturn({ mock = false, kind = 'order' }) {
       )}
       {state.phase === 'paid' && repair && (
         <>
-          <h1>Call-out fee paid</h1>
-          <p>Thank you. We are choosing the best technician near you and have emailed you. You will hear as soon as one accepts.</p>
+          <h1>Payment received</h1>
+          <p>Thank you. Your payment is safe with TerraVoltix and we have emailed you. Open your repair to see what happens next.</p>
           <Link to={state.ref ? `/app/repairs/${state.ref}` : '/app/repairs'} className="btn btn-primary">Track your repair</Link>
         </>
       )}

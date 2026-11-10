@@ -75,9 +75,89 @@ function ReportForm({ job, onDone }) {
   );
 }
 
+
+// A change to the estimate found during the repair. The customer must approve and pay before it counts.
+function VariationForm({ job, onDone, onCancel }) {
+  const [reason, setReason] = useState('');
+  const [parts, setParts] = useState([blankPart()]);
+  const [labour, setLabour] = useState('');
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const used = parts.filter((p) => p.name.trim() || p.unitPrice !== '');
+  const total = used.reduce((x, p) => x + (num(p.qty) || 0) * (num(p.unitPrice) || 0), 0) + (num(labour) || 0);
+  const setPart = (i, patch) => setParts((a) => a.map((p, j) => (j === i ? { ...p, ...patch } : p)));
+  const send = async (e) => {
+    e.preventDefault(); setBusy(true); setError(null);
+    try {
+      await api.techVariation(job.ref, { reason: reason.trim(), labour: num(labour) || 0, parts: used.map((p) => ({ name: p.name.trim(), qty: num(p.qty), unitPrice: num(p.unitPrice) })) });
+      onDone();
+    } catch (err) { setError(err.message); setBusy(false); }
+  };
+  return (
+    <form onSubmit={send} noValidate className="review-box">
+      <h4 className="dash-h3">Ask the customer to approve extra work</h4>
+      <label className="field"><span>Why does the cost change?</span><textarea rows={3} maxLength={1000} value={reason} onChange={(e) => setReason(e.target.value)} /></label>
+      <div className="field">
+        <span>Extra parts (leave empty if none)</span>
+        {parts.map((p, i) => (
+          <div className="part-row" key={i}>
+            <input type="text" aria-label={`Extra part ${i + 1} name`} placeholder="Part name" maxLength={120} value={p.name} onChange={(e) => setPart(i, { name: e.target.value })} />
+            <input type="number" inputMode="numeric" aria-label={`Extra part ${i + 1} quantity`} min="1" max="999" value={p.qty} onChange={(e) => setPart(i, { qty: e.target.value })} />
+            <input type="number" inputMode="numeric" aria-label={`Extra part ${i + 1} price each (naira)`} placeholder="₦ each" min="0" value={p.unitPrice} onChange={(e) => setPart(i, { unitPrice: e.target.value })} />
+            {parts.length > 1 && <button type="button" className="btn btn-quiet btn-small" onClick={() => setParts((a) => a.filter((_, j) => j !== i))}>Remove</button>}
+          </div>
+        ))}
+        {parts.length < 20 && <button type="button" className="btn btn-ghost btn-small" onClick={() => setParts((a) => [...a, blankPart()])}>Add another part</button>}
+      </div>
+      <label className="field"><span>Extra labour (₦)</span><input type="number" inputMode="numeric" min="0" value={labour} onChange={(e) => setLabour(e.target.value)} placeholder="0" /></label>
+      <p className="cost-total">Extra cost the customer will see: <strong>{naira(total)}</strong></p>
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <div className="row-actions">
+        <button type="submit" className="btn btn-primary" disabled={busy || reason.trim().length < 10 || total <= 0}>{busy ? 'Sending…' : 'Send to the customer'}</button>
+        <button type="button" className="btn btn-quiet" onClick={onCancel}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
+// Finished: pictures of the work and a short summary. The customer then has a set time to confirm.
+function CompleteForm({ job, onDone, onCancel }) {
+  const [summary, setSummary] = useState('');
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const have = job.work?.completionPhotos ?? [];
+  const send = async (e) => {
+    e.preventDefault(); setBusy(true); setError(null);
+    try {
+      for (const f of files) await api.techCompletionPhoto(job.ref, f.blob);
+      await api.techComplete(job.ref, summary.trim());
+      onDone();
+    } catch (err) { setError(err.message); setBusy(false); }
+  };
+  return (
+    <form onSubmit={send} noValidate className="review-box">
+      <h4 className="dash-h3">Report the repair as finished</h4>
+      <label className="field"><span>What did you do?</span><textarea rows={3} maxLength={2000} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="What you fixed or replaced and how you tested it." /></label>
+      <div className="field">
+        <span>Pictures of the finished work (at least one)</span>
+        <PhotoTiles base={`/installer/repairs/${job.ref}`} ids={have} />
+        <PhotoPicker files={files} setFiles={setFiles} max={Math.max(0, 6 - have.length)} label="Add a picture" disabled={busy} />
+      </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <div className="row-actions">
+        <button type="submit" className="btn btn-primary" disabled={busy || summary.trim().length < 10 || (files.length + have.length) === 0}>{busy ? 'Sending…' : 'Send to the customer'}</button>
+        <button type="button" className="btn btn-quiet" onClick={onCancel}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
 function JobCard({ job, onChange, setError }) {
   const [busy, setBusy] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [panel, setPanel] = useState(null); // 'variation' | 'finish' | 'parts'
+  const [note, setNote] = useState('');
   const act = async (fn) => {
     setBusy(true); setError(null);
     try { await fn(); await onChange(); } catch (e) { setError(e.message); }
@@ -97,16 +177,59 @@ function JobCard({ job, onChange, setError }) {
         {job.status === 'on_site' && !reporting && <button type="button" className="btn btn-primary" onClick={() => setReporting(true)}>Write the inspection report</button>}
       </div>
       {job.status === 'on_site' && reporting && <ReportForm job={job} onDone={onChange} />}
+      {job.status === 'inspected' && <p className="muted">The customer has your estimate. When they approve and pay, you can start.</p>}
+      {job.work && job.status !== 'inspected' && <RepairProgress job={job} act={act} busy={busy} panel={panel} setPanel={setPanel} note={note} setNote={setNote} onChange={onChange} />}
+      {job.status === 'cancelled' && <p className="muted">Cancelled.{job.payoutStatus !== 'none' && <> You earn {naira(job.payoutAmount)} for the visit ({job.payoutStatus === 'paid' ? 'sent' : 'on its way'}).</>}</p>}
       {job.report && (
         <div className="review-box">
           <p><strong>Your report</strong></p>
           <p className="request-message">{job.report.findings}</p>
           <PhotoTiles base={`/installer/repairs/${job.ref}`} ids={job.report.photos} />
           <p>Total {naira(job.report.total)} · estimated {job.report.estimatedHours} h · you earn {naira(job.report.youEarn)} if the customer goes ahead.</p>
-          <p className="muted">The customer has been sent the itemised cost. Nothing more to do until they decide.</p>
+          
         </div>
       )}
     </li>
+  );
+}
+
+// Work in progress: start, parts, changes, finishing, and what is owed.
+function RepairProgress({ job, act, busy, panel, setPanel, note, setNote, onChange }) {
+  const w = job.work;
+  const pending = w.variations.find((v) => v.status === 'proposed');
+  const close = () => { setPanel(null); onChange(); };
+  return (
+    <div className="review-box">
+      <p><strong>The repair</strong> · agreed {naira(w.agreedTotal)} · you earn {naira(w.youEarn)} when the customer confirms</p>
+      {job.status === 'approved' && <div className="row-actions"><button type="button" className="btn btn-primary" disabled={busy} onClick={() => act(() => api.techStart(job.ref))}>Start repair</button></div>}
+      {job.status === 'awaiting_parts' && <><p className="muted">Waiting for parts: {w.partsNote}</p><div className="row-actions"><button type="button" className="btn btn-primary" disabled={busy} onClick={() => act(() => api.techPartsArrived(job.ref))}>Parts arrived: continue</button></div></>}
+      {pending && (
+        <p>You asked for {naira(pending.extraTotal)} extra. Waiting for the customer. <button type="button" className="btn btn-quiet btn-small" disabled={busy} onClick={() => act(() => api.techVariationWithdraw(job.ref, pending.id))}>Withdraw</button></p>
+      )}
+      {w.variations.filter((v) => v.status !== 'proposed').map((v) => <p className="muted" key={v.id}>Revision {naira(v.extraTotal)}: {v.status}</p>)}
+      {['in_repair', 'awaiting_parts'].includes(job.status) && !panel && (
+        <div className="row-actions">
+          {job.status === 'in_repair' && <button type="button" className="btn btn-ghost btn-small" onClick={() => setPanel('parts')}>Waiting for parts</button>}
+          {!pending && <button type="button" className="btn btn-ghost btn-small" onClick={() => setPanel('variation')}>Extra work needed</button>}
+          {job.status === 'in_repair' && <button type="button" className="btn btn-primary btn-small" onClick={() => setPanel('finish')}>Repair finished</button>}
+        </div>
+      )}
+      {panel === 'parts' && (
+        <div className="review-box">
+          <label className="field"><span>Which parts are you waiting for?</span><input type="text" maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} /></label>
+          <div className="row-actions">
+            <button type="button" className="btn btn-primary" disabled={busy || note.trim().length < 5} onClick={() => act(async () => { await api.techAwaitingParts(job.ref, note.trim()); setNote(''); setPanel(null); })}>Tell the customer</button>
+            <button type="button" className="btn btn-quiet" onClick={() => setPanel(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
+      {panel === 'variation' && <VariationForm job={job} onDone={close} onCancel={() => setPanel(null)} />}
+      {panel === 'finish' && <CompleteForm job={job} onDone={close} onCancel={() => setPanel(null)} />}
+      {job.status === 'repair_done' && !w.problem && <p className="muted">Waiting for the customer to confirm{w.confirmDueAt ? `; it closes by itself on ${new Date(w.confirmDueAt).toLocaleString('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' })}` : ''}.</p>}
+      {job.status === 'repair_done' && w.problem && <p className="form-error">The customer reported a problem. TerraVoltix will contact you.</p>}
+      {w.completion && <PhotoTiles base={`/installer/repairs/${job.ref}`} ids={w.completionPhotos} />}
+      {job.status === 'completed' && <p>Complete. Payout {naira(job.payoutAmount)}: <strong>{job.payoutStatus === 'paid' ? 'sent' : 'on its way'}</strong>.{w.review && <> Customer rating: {'★'.repeat(w.review.rating)}{'☆'.repeat(5 - w.review.rating)}{w.review.comment ? ` · "${w.review.comment}"` : ''}</>}</p>}
+    </div>
   );
 }
 
@@ -114,13 +237,14 @@ function JobCard({ job, onChange, setError }) {
 export default function RepairJobs() {
   const [offers, setOffers] = useState(null);
   const [mine, setMine] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null);
 
   const load = useCallback(async () => {
     try {
       const [o, m] = await Promise.all([api.techOffers(), api.techRepairs()]);
-      setOffers(o.offers); setMine(m.jobs);
+      setOffers(o.offers); setMine(m.jobs); setSummary({ earnings: m.earnings, rating: m.rating });
     } catch (e) { setError(e.message); }
   }, []);
   useEffect(() => { load(); const t = setInterval(load, 60000); return () => clearInterval(t); }, [load]);
@@ -155,6 +279,13 @@ export default function RepairJobs() {
         ))}
       </ul>
 
+      {summary && (
+        <div className="stat-row">
+          <div className="stat-card"><span>Payouts on their way</span><strong>{naira(summary.earnings.owed)}</strong></div>
+          <div className="stat-card"><span>Paid out so far</span><strong>{naira(summary.earnings.paid)}</strong></div>
+          <div className="stat-card"><span>Customer rating</span><strong>{summary.rating.count ? `${summary.rating.average} ★ (${summary.rating.count})` : 'No reviews yet'}</strong></div>
+        </div>
+      )}
       <h2 className="dash-h2">My repair jobs</h2>
       {mine?.length === 0 && <p className="muted">You have not taken a repair job yet.</p>}
       <ul className="request-list">{mine?.map((j) => <JobCard key={j.ref} job={j} onChange={load} setError={setError} />)}</ul>
