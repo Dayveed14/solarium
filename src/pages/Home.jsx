@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAssessment } from '../components/AssessmentContext.jsx';
 import { ArticleCard } from './Blog.jsx';
+import HeroArt from '../components/HeroArt.jsx';
+import Icon from '../components/Icon.jsx';
+import { useReveal } from '../lib/useReveal.js';
 
 const EXAMPLE_BARS = [
   { label: 'Diesel generator', value: '₦420,000', pct: 100, tone: 'diesel' },
@@ -10,26 +13,33 @@ const EXAMPLE_BARS = [
   { label: 'TerraVoltix plan', value: '₦95,000', pct: 23, tone: 'solar' },
 ];
 
+const MOTTO = [
+  { icon: 'assess', title: 'Assess', text: 'Work out what you need to power.' },
+  { icon: 'plan', title: 'Plan', text: 'See sized systems and what they cost.' },
+  { icon: 'access', title: 'Access', text: 'Buy, lease or rent from verified providers.' },
+  { icon: 'power', title: 'Power', text: 'Get it fitted by approved installers.' },
+];
+
 const PILLARS = [
   {
     title: 'Understand your energy needs',
     text: 'Get a clearer understanding of your energy requirements, usage and the solutions worth exploring. Start with what you need to power, how you use electricity and what works for your situation.',
-    cta: 'Explore Your Energy Needs', action: 'assess',
+    icon: 'assess', cta: 'Explore Your Energy Needs', action: 'assess',
   },
   {
     title: 'Discover and shop energy products',
     text: 'Explore energy products and equipment in one marketplace. Browse relevant options, review product information and connect with sellers to purchase the products you need.',
-    cta: 'Explore the Marketplace', to: '/shop',
+    icon: 'access', cta: 'Explore the Marketplace', to: '/shop',
   },
   {
     title: 'Find energy professionals',
     text: 'Connect with energy professionals, including solar installers, technicians, engineers, suppliers and other specialists. Find relevant expertise for your energy projects and requirements.',
-    cta: 'Find a Professional', to: '/partners',
+    icon: 'wrench', cta: 'Find a Professional', to: '/partners',
   },
   {
     title: 'Make more informed energy decisions',
     text: 'Access useful energy information and guidance to better understand available technologies, compare considerations and make decisions with greater confidence.',
-    cta: 'Explore Energy Insights', to: '/blog',
+    icon: 'bulb', cta: 'Explore Energy Insights', to: '/blog',
   },
 ];
 
@@ -37,6 +47,7 @@ export default function Home() {
   const { open } = useAssessment();
   const [shown, setShown] = useState(false);
   const [posts, setPosts] = useState([]);
+  useReveal(posts.length);
   useEffect(() => { api.blogList(3).then((r) => setPosts(r.articles)).catch(() => {}); }, []);
 
   // The example bars grow in once, on load.
@@ -49,13 +60,13 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <div className="wrap hero-grid hero-single">
+        <div className="wrap hero-grid">
           <div className="hero-copy">
             <p className="eyebrow">Energy marketplace &amp; guidance</p>
-            <h1>Everything you need to power your home or business.</h1>
+            <h1>Everything you need to <em>power</em> your home or business.</h1>
             <p className="lede">
               Work out what you need, buy energy products from verified sellers, and find the installers and specialists to
-              fit them. All in one place, across Lagos and Abuja.
+              fit them. All in one place, across Nigeria and Africa.
             </p>
             <div className="hero-actions">
               <button type="button" className="btn btn-primary" onClick={() => open()}>
@@ -66,16 +77,33 @@ export default function Home() {
             <p className="hero-note hide-sm">Free · No sign-up to see your results · No technical know-how needed</p>
             <p className="hero-note">The quick estimate is for homes and small residences. Plaza, estate, factory or large business? <Link to="/signup?role=business">Create a business account</Link> for a free site assessment by a field agent.</p>
           </div>
+          <HeroArt />
         </div>
       </section>
 
+      <div className="motto-wrap">
+        <div className="wrap">
+          <div className="motto" aria-label="Assess. Plan. Access. Power.">
+            {MOTTO.map((m, n) => (
+              <div className="motto-card reveal" style={{ '--d': `${n * 70}ms` }} key={m.title}>
+                <Icon name={m.icon} warm={n % 2 === 1} />
+                <div><strong>{m.title}</strong><span>{m.text}</span></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <section className="how" id="how">
         <div className="wrap">
-          <h2>What you can do on TerraVoltix</h2>
+          <div className="sec-head reveal">
+            <p className="eyebrow">What you can do</p>
+            <h2>Everything for your energy, in one place</h2>
+          </div>
           <div className="pillars">
             {PILLARS.map((x, n) => (
-              <article className="pillar" key={x.title}>
-                <span className="step-num">{n + 1}</span>
+              <article className="pillar reveal" style={{ '--d': `${n * 80}ms` }} key={x.title}>
+                <Icon name={x.icon} warm={n % 2 === 1} />
                 <h3>{x.title}</h3>
                 <p>{x.text.split('. ')[0]}.<span className="hide-sm"> {x.text.split('. ').slice(1).join('. ')}</span></p>
                 {x.action === 'assess'
@@ -89,7 +117,7 @@ export default function Home() {
 
       <section className="reality">
         <div className="wrap reality-grid">
-          <div className="reality-intro">
+          <div className="reality-intro reveal">
             <h2>Energy decisions deserve real numbers</h2>
             <p>
               The grid leaves gaps, generators fill them, and fuel is priced against the dollar while your business is priced in
@@ -97,7 +125,7 @@ export default function Home() {
               first.</span>
             </p>
           </div>
-          <div className="reality-stat">
+          <div className="reality-stat reveal">
             <span className="stat-figure">₦350k+</span>
             <span className="stat-label">
               what a typical small business can spend on diesel in a single month <em>(estimate, mid-size retail outlet)</em>
@@ -155,11 +183,11 @@ export default function Home() {
             <svg className="load-curve" viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
               <polyline
                 points="0,95 20,92 40,70 60,55 80,40 100,30 120,26 140,24 160,26 180,32 200,42 220,58 240,72 260,84 280,90 300,93 320,94"
-                fill="none" stroke="#F2A93C" strokeWidth="2.5"
+                fill="none" stroke="#f57c00" strokeWidth="2.5"
               />
               <polyline
                 points="0,105 20,104 40,100 60,96 80,90 100,86 120,83 140,82 160,83 180,86 200,90 220,95 240,99 260,102 280,104 300,105 320,105"
-                fill="none" stroke="#33D6C0" strokeWidth="2" strokeDasharray="3 4" opacity="0.8"
+                fill="none" stroke="#16a34a" strokeWidth="2" strokeDasharray="3 4" opacity="0.8"
               />
             </svg>
             <div className="curve-legend">
@@ -168,7 +196,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="capabilities">
+          <div className="capabilities reveal">
             <h2>Built to answer real questions</h2>
             <ul className="cap-list">
               <li><h4>Provider matching</h4><p>Vetted installers and financiers ranked against your load, not their ad spend.</p></li>
@@ -201,7 +229,7 @@ export default function Home() {
           </div>
 
           <div className="provider-cards">
-            <article className="provider-card">
+            <article className="provider-card reveal">
               <h3>Sellers</h3>
               <p className="provider-for hide-sm">Shops, distributors and dealers of panels, inverters, batteries and parts</p>
               <ul>
@@ -212,7 +240,7 @@ export default function Home() {
               </ul>
               <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Sell on TerraVoltix</Link>
             </article>
-            <article className="provider-card">
+            <article className="provider-card reveal">
               <h3>Companies</h3>
               <p className="provider-for hide-sm">Registered solar companies that sell, install and finance</p>
               <ul>
@@ -223,7 +251,7 @@ export default function Home() {
               </ul>
               <Link to="/signup?role=vendor" className="btn btn-ghost btn-on-dark">Register your company</Link>
             </article>
-            <article className="provider-card">
+            <article className="provider-card reveal">
               <h3>Installers</h3>
               <p className="provider-for hide-sm">Independent technicians and crews who fit systems</p>
               <ul>

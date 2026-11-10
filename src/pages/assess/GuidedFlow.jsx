@@ -44,7 +44,6 @@ export default function GuidedFlow() {
   const set = useCallback((patch) => setA((prev) => ({ ...prev, ...patch })), []);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPreset, setSelectedPreset] = useState(null);
 
   useEffect(() => { saveDraft(a); }, [a]);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [a.step]);
@@ -99,18 +98,16 @@ export default function GuidedFlow() {
     return { ...prev, selection: { ...prev.selection, [ap.id]: { ...cur, qty } } };
   });
   const setHours = (ap, hoursKey) => setA((prev) => (prev.selection[ap.id] ? { ...prev, selection: { ...prev.selection, [ap.id]: { ...prev.selection[ap.id], hoursKey } } } : prev));
- const applyPreset = (preset) => {
-  const sel = {};
-  for (const it of preset.items) {
-    const ap = catalog.appliances.find((x) => x.id === it.applianceId);
-    if (!ap) continue;
-    const e = (sel[ap.id] ??= { hoursKey: it.hoursKey ?? ap.defaultHours, qty: {} });
-    e.qty[it.variantId] = (e.qty[it.variantId] ?? 0) + it.qty;
-  }
-
-  set({ selection: sel });
-  setSelectedPreset(preset.id);
-};
+  const applyPreset = (preset) => {
+    const sel = {};
+    for (const it of preset.items) {
+      const ap = catalog.appliances.find((x) => x.id === it.applianceId);
+      if (!ap) continue;
+      const e = (sel[ap.id] ??= { hoursKey: it.hoursKey ?? ap.defaultHours, qty: {} });
+      e.qty[it.variantId] = (e.qty[it.variantId] ?? 0) + it.qty;
+    }
+    set({ selection: sel });
+  };
 
   const chosenCount = tickedIds.length;
   const chosenByCategory = useMemo(() => {
@@ -218,7 +215,7 @@ export default function GuidedFlow() {
               <>
                 <div className="presets">
                   <span className="muted">Quick start:</span>
-                  {catalog.presets.map((p) => <button key={p.id} type="button" className={`chip-btn ${selectedPreset === p.id ? 'selected' : ''}`} onClick={() => applyPreset(p)}>{p.label}</button>)}
+                  {catalog.presets.map((p) => <button key={p.id} type="button" className="chip-btn" onClick={() => applyPreset(p)}>{p.label}</button>)}
                   {chosenCount > 0 && <button type="button" className="chip-btn chip-btn-quiet" onClick={() => set({ selection: {} })}>Clear all</button>}
                 </div>
                 <div className="tabs" role="tablist" aria-label="Categories">
